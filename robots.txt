@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /travel-compass/
+
+Sitemap: https://hirokazu-watabe.jp/travel-compass/sitemap.xml
