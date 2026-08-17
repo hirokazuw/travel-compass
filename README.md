@@ -1,13 +1,58 @@
-# Trip Search MVC
+# Travel Compass
 
 Version 1.1.1
 
-PHP 8 / MySQLで動く独立MVCアプリです。Trip.comの商品情報APIは使用せず、公式アフィリエイトリンクへ送客します。
+**Travel Compass** は、PHP 8 / MySQLで開発した旅行検索Webアプリケーションです。
 
-1. フォルダをConoHaの `hirokazu-watabe.jp/travel` にアップロード
+航空券・ホテルを一つの画面から検索し、複数の旅行予約サービスを比較・利用できるようにしています。
+
+## 主な機能
+
+* 航空券検索（SerpApi / Google Flights）
+* ホテル検索（SerpApi / Google Hotels）
+* 楽天トラベル検索
+* 都市名・別名・IATAコードによる空港コード解決
+* Trip.com、Booking.com、Expedia、Agoda、enaへの航空券検索URL生成
+* 国内線向けのさくらトラベル、エアトリ検索URL生成
+* 複数のホテル予約サイトへの検索URL生成
+* 最近の航空券検索履歴
+
+Trip.comおよびExpediaの商品情報APIは使用せず、公式アフィリエイトリンクを利用しています。
+
+## 動作環境
+
+* PHP 8
+* MySQL
+* 自作MVC構成
+
+## セットアップ
+
+1. フォルダをWebサーバーへアップロード
 2. `.env.example` を参考に `.env` へDB・API情報を設定
-3. `config/config.example.php` を `config/config.php` にコピーし、Trip.com管理画面で生成したホテル・航空券リンクを設定（URLは改変せず貼り付ける）
-4. phpMyAdminで `database/schema.sql` を実行
-5. `https://hirokazu-watabe.jp/travel/` を表示
+3. `config/config.example.php` を `config/config.php` にコピーし、必要な設定を行う
+4. phpMyAdminなどから `database/schema.sql` を実行
+5. Webブラウザからアプリケーションへアクセス
 
-Modelは `app/Models`、Viewは `app/Views`、Controllerは `app/Controllers` に分離しています。CSRF対策、入力検証、プリペアドステートメント、HTMLエスケープを実装済みです。
+## ディレクトリ構成
+
+* Model: `app/Models`
+* View: `app/Views`
+* Controller: `app/Controllers`
+* Service: `app/Services`
+* ViewModel: `app/ViewModels`
+
+## セキュリティ
+
+以下の基本的なセキュリティ対策を実装しています。
+
+* CSRF対策
+* 入力値検証
+* プリペアドステートメント
+* HTMLエスケープ
+* 環境変数による機密情報の分離
+
+## 公開版
+
+Travel Compassは以下で公開しています。
+
+<https://hirokazu-watabe.jp/travel-compass/>
