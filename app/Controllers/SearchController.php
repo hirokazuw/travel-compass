@@ -9,6 +9,7 @@ use App\Services\SerpApiHotelSearch;
 use App\Services\HotelBookingLinks;
 use App\Services\RakutenTravelService;
 use App\Services\TravelLinkBuilder;
+use App\ViewModels\SearchViewData;
 use DateTimeImmutable;
 
 final class SearchController
@@ -304,6 +305,13 @@ final class SearchController
         $appName =
             $this->config['app']['name']
             ?? 'Travel Compass';
+        $appVersion = $this->config['app']['version'] ?? '1.1.1';
+        $widgets = $this->config['widgets'] ?? [];
+        $tripAllianceId = $this->config['trip']['alliance_id'] ?? '';
+        $tripSid = $this->config['trip']['sid'] ?? '';
+        $flightOffersMessage = SearchViewData::flightMessage($flightOffersStatus);
+        $hotelResultsMessage = SearchViewData::hotelMessage($hotelResultsStatus);
+        $rakutenMessage = SearchViewData::rakutenMessage($rakutenStatus);
 
         require dirname(__DIR__)
             . '/Views/search/index.php';

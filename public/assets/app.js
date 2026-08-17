@@ -9,6 +9,9 @@ document.querySelectorAll('.search-tab').forEach((tab) => {
         document.querySelectorAll('.tab-panel').forEach((panel) => {
             panel.hidden = panel.id !== tab.dataset.tab;
         });
+        document.querySelectorAll('[data-flight-tab-content]').forEach((content) => {
+            content.hidden = tab.dataset.tab !== 'flight-panel';
+        });
     });
 });
 
