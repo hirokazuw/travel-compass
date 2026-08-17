@@ -37,17 +37,23 @@ try {
     $db = App\Core\Database::connect($config['db']);
     $flightCity = new App\Models\FlightCity($db);
     $hotelBookingLinks = new App\Services\HotelBookingLinks();
+    $serpApiConfig = $config['serpapi'] ?? [];
+    $serpApiCache = new App\Services\SerpApiCache(
+        (string)($serpApiConfig['cache_dir'] ?? $root . '/storage/cache/serpapi'),
+        max(0, (int)($serpApiConfig['cache_ttl'] ?? 3600))
+    );
 
     (new App\Controllers\SearchController(
         new App\Models\TravelSearch($db),
         $flightCity,
         new App\Services\FlightSearchService(
             $flightCity,
-            new App\Services\SerpApiFlightSearch($config['serpapi'] ?? [])
+            new App\Services\SerpApiFlightSearch($serpApiConfig, $serpApiCache)
         ),
         new App\Services\SerpApiHotelSearch(
-            $config['serpapi'] ?? [],
-            $hotelBookingLinks
+            $serpApiConfig,
+            $hotelBookingLinks,
+            $serpApiCache
         ),
         $hotelBookingLinks,
         new App\Services\RakutenTravelService($config['rakuten'] ?? []),

@@ -1,6 +1,6 @@
 # Travel Compass
 
-Version 1.1.1
+Version 1.2.0
 
 **Travel Compass** は、PHP 8 / MySQLで開発した旅行検索Webアプリケーションです。
 
@@ -16,6 +16,7 @@ Version 1.1.1
 * 国内線向けのさくらトラベル、エアトリ検索URL生成
 * 複数のホテル予約サイトへの検索URL生成
 * 最近の航空券検索履歴
+* SEO・OGP・Twitter Card・構造化データ対応
 
 Trip.comおよびExpediaの商品情報APIは使用せず、公式アフィリエイトリンクを利用しています。
 
@@ -56,3 +57,9 @@ Trip.comおよびExpediaの商品情報APIは使用せず、公式アフィリ�
 Travel Compassは以下で公開しています。
 
 <https://hirokazu-watabe.jp/travel-compass/>
+
+## SEOファイルの公開
+
+`sitemap.xml` は `https://hirokazu-watabe.jp/travel-compass/sitemap.xml` で公開します。
+
+robots.txtはドメイン直下だけが有効になるため、このリポジトリの `robots.txt` の内容を、サーバーの `https://hirokazu-watabe.jp/robots.txt` に統合してください。

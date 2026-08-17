@@ -10,7 +10,8 @@ final class SerpApiHotelSearch
 {
     public function __construct(
         private array $config,
-        private HotelBookingLinks $bookingLinks
+        private HotelBookingLinks $bookingLinks,
+        private SerpApiCache $cache
     ) {}
 
     public function isConfigured(): bool
@@ -30,7 +31,7 @@ final class SerpApiHotelSearch
             return [];
         }
 
-        $response = $this->request([
+        $query = [
             'engine' => 'google_hotels',
             'api_key' => $this->config['api_key'],
             'q' => $destination . ' ホテル',
@@ -41,7 +42,8 @@ final class SerpApiHotelSearch
             'currency' => 'JPY',
             'hl' => 'ja',
             'gl' => 'jp',
-        ]);
+        ];
+        $response = $this->cache->remember($query, fn(): array => $this->request($query));
 
         $properties = is_array($response['properties'] ?? null) ? $response['properties'] : [];
         foreach (array_slice($properties, 0, 5, true) as $index => $property) {
@@ -97,7 +99,7 @@ final class SerpApiHotelSearch
         int $adults,
         int $children
     ): array {
-        return $this->request([
+        $query = [
             'engine' => 'google_hotels',
             'api_key' => $this->config['api_key'],
             'q' => $destination . ' ホテル',
@@ -109,7 +111,9 @@ final class SerpApiHotelSearch
             'currency' => 'JPY',
             'hl' => 'ja',
             'gl' => 'jp',
-        ]);
+        ];
+
+        return $this->cache->remember($query, fn(): array => $this->request($query));
     }
 
     private function request(array $query): array
