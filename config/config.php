@@ -3,6 +3,7 @@
 return [
     'app' => [
         'name' => 'Travel Compass',
+        'version' => '1.1.1',
         'timezone' => 'Asia/Tokyo',
     ],
 
@@ -34,5 +35,11 @@ return [
     'affiliate' => [
         'hotel_url'  => 'https://www.trip.com/t/d1vKvIKRwV2',
         'flight_url' => 'https://www.trip.com/t/E631zVIRwV2',
+    ],
+
+    'widgets' => [
+        'trip_hotel_id' => 'S19265451',
+        'expedia_program' => 'jp-expedia',
+        'expedia_camref' => '1011l5PxNZ',
     ],
 ];
