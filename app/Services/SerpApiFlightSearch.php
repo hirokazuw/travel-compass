@@ -19,7 +19,10 @@ final class SerpApiFlightSearch
         'LON' => 'LHR,LGW,LCY,LTN,STN',
         'PAR' => 'CDG,ORY',
     ];
-    public function __construct(private array $config)
+    public function __construct(
+        private array $config,
+        private SerpApiCache $cache
+    )
     {
     }
 
@@ -58,7 +61,7 @@ final class SerpApiFlightSearch
             $query['return_date'] = $returnDate;
         }
 
-        $response = $this->request($query);
+        $response = $this->cache->remember($query, fn(): array => $this->request($query));
         return $this->normalize($response);
     }
 

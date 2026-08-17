@@ -30,6 +30,8 @@ return [
     'serpapi' => [
         'base_url' => 'https://serpapi.com/search',
         'api_key' => getenv('SERPAPI_API_KEY') ?: '',
+        'cache_ttl' => 3600,
+        'cache_dir' => dirname(__DIR__) . '/storage/cache/serpapi',
     ],
 
     'rakuten' => [
