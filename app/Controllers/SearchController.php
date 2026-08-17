@@ -48,6 +48,7 @@ final class SearchController
         $isDomesticHotel = false;
         $activeTab = 'flight';
         $activeHotelProvider = 'google';
+        $activeHotelScope = 'domestic';
         $rakutenErrors = [];
         $rakutenHotels = [];
         $rakutenStatus = 'idle';
@@ -177,6 +178,9 @@ final class SearchController
             (string)($_POST['search_type'] ?? '') === 'hotel'
         ) {
             $activeTab = 'hotel';
+            $activeHotelScope = (string)($_POST['hotel_scope'] ?? 'domestic') === 'overseas'
+                ? 'overseas'
+                : 'domestic';
 
             if (!hash_equals($_SESSION['csrf'] ?? '', (string)($_POST['csrf'] ?? ''))) {
                 $hotelErrors[] = '送信内容を確認できませんでした。';
@@ -209,7 +213,7 @@ final class SearchController
 
             if (!$hotelErrors) {
                 $destination = $hotelValues['hotel_destination'];
-                $isDomesticHotel = $this->flightCity->isDomestic($destination);
+                $isDomesticHotel = $activeHotelScope === 'domestic';
                 $hotelBookingSites = $this->hotelBookingLinks->sites(
                     $destination,
                     $hotelValues['check_in_date'],
@@ -219,7 +223,35 @@ final class SearchController
                     $isDomesticHotel
                 );
 
-                if (!$this->hotelSearch->isConfigured()) {
+                if ($isDomesticHotel && $this->rakutenTravel->isConfigured()) {
+                    try {
+                        $rakutenHotels = $this->rakutenTravel->search(
+                            $destination,
+                            $hotelValues['check_in_date'],
+                            $hotelValues['check_out_date'],
+                            (int)$adults,
+                            (int)$children
+                        );
+                        $minimum = max(1, (int)($this->config['serpapi']['hotel_min_rakuten_results'] ?? 3));
+                        if (count($rakutenHotels) >= $minimum) {
+                            $activeHotelProvider = 'rakuten';
+                            $rakutenStatus = 'success';
+                            $rakutenValues = [
+                                'rakuten_destination' => $destination,
+                                'rakuten_check_in' => $hotelValues['check_in_date'],
+                                'rakuten_check_out' => $hotelValues['check_out_date'],
+                                'rakuten_adults' => (string)$adults,
+                                'rakuten_children' => (string)$children,
+                            ];
+                        }
+                    } catch (\Throwable $e) {
+                        error_log('Rakuten hybrid hotel search: ' . $e->getMessage());
+                    }
+                }
+
+                if ($activeHotelProvider === 'rakuten') {
+                    // 楽天で十分な候補を取得できたため、SerpApiは消費しない。
+                } elseif (!$this->hotelSearch->isConfigured()) {
                     $hotelResultsStatus = 'not_configured';
                 } else {
                     try {
@@ -246,6 +278,7 @@ final class SearchController
         ) {
             $activeTab = 'hotel';
             $activeHotelProvider = 'rakuten';
+            $activeHotelScope = 'domestic';
             if (!hash_equals($_SESSION['csrf'] ?? '', (string)($_POST['csrf'] ?? ''))) {
                 $rakutenErrors[] = '送信内容を確認できませんでした。';
             }
@@ -306,7 +339,7 @@ final class SearchController
         $appName =
             $this->config['app']['name']
             ?? 'Travel Compass';
-        $appVersion = $this->config['app']['version'] ?? '1.2.0';
+        $appVersion = $this->config['app']['version'] ?? '1.2.2';
         $publicPath = dirname(__DIR__, 2) . '/public/assets/';
         $cssVersion = (string)(filemtime($publicPath . 'app.css') ?: $appVersion);
         $jsVersion = (string)(filemtime($publicPath . 'app.js') ?: $appVersion);

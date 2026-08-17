@@ -40,7 +40,15 @@ try {
     $serpApiConfig = $config['serpapi'] ?? [];
     $serpApiCache = new App\Services\SerpApiCache(
         (string)($serpApiConfig['cache_dir'] ?? $root . '/storage/cache/serpapi'),
-        max(0, (int)($serpApiConfig['cache_ttl'] ?? 3600))
+        max(0, (int)($serpApiConfig['cache_ttl'] ?? 3600)),
+        max(0, (int)($serpApiConfig['monthly_limit'] ?? 225)),
+        (string)($serpApiConfig['usage_file'] ?? $root . '/storage/cache/serpapi-usage.json')
+    );
+    $serpApiHotelCache = new App\Services\SerpApiCache(
+        (string)($serpApiConfig['cache_dir'] ?? $root . '/storage/cache/serpapi'),
+        max(0, (int)($serpApiConfig['hotel_cache_ttl'] ?? 21600)),
+        max(0, (int)($serpApiConfig['monthly_limit'] ?? 225)),
+        (string)($serpApiConfig['usage_file'] ?? $root . '/storage/cache/serpapi-usage.json')
     );
 
     (new App\Controllers\SearchController(
@@ -53,7 +61,7 @@ try {
         new App\Services\SerpApiHotelSearch(
             $serpApiConfig,
             $hotelBookingLinks,
-            $serpApiCache
+            $serpApiHotelCache
         ),
         $hotelBookingLinks,
         new App\Services\RakutenTravelService($config['rakuten'] ?? []),

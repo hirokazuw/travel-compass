@@ -46,21 +46,6 @@ final class SerpApiHotelSearch
         $response = $this->cache->remember($query, fn(): array => $this->request($query));
 
         $properties = is_array($response['properties'] ?? null) ? $response['properties'] : [];
-        foreach (array_slice($properties, 0, 5, true) as $index => $property) {
-            $token = trim((string)($property['property_token'] ?? ''));
-            if ($token === '') continue;
-            try {
-                $details = $this->propertyDetails($token, $destination, $checkIn, $checkOut, $adults, $children);
-                $detailPrices = array_merge(
-                    is_array($details['featured_prices'] ?? null) ? $details['featured_prices'] : [],
-                    is_array($details['prices'] ?? null) ? $details['prices'] : []
-                );
-                if ($detailPrices !== []) $properties[$index]['prices'] = $detailPrices;
-            } catch (\Throwable $e) {
-                error_log('SerpApi hotel property details: ' . $e->getMessage());
-            }
-        }
-
         return $this->normalize(
             $properties,
             $destination,
