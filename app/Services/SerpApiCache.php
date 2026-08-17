@@ -8,12 +8,15 @@ final class SerpApiCache
 {
     public function __construct(
         private string $directory,
-        private int $ttl
+        private int $ttl,
+        private int $monthlyLimit = 0,
+        private string $usageFile = ''
     ) {}
 
     public function remember(array $query, callable $fetch): array
     {
         if ($this->ttl <= 0 || !$this->ensureDirectory()) {
+            $this->reserveUsage();
             return $fetch();
         }
 
@@ -41,12 +44,43 @@ final class SerpApiCache
                 return $cached;
             }
 
+            $this->reserveUsage();
             $value = $fetch();
             $this->write($cacheFile, $value);
             return $value;
         } finally {
             flock($lock, LOCK_UN);
             fclose($lock);
+        }
+    }
+
+    private function reserveUsage(): void
+    {
+        if ($this->monthlyLimit <= 0 || $this->usageFile === '') return;
+        $directory = dirname($this->usageFile);
+        if (!is_dir($directory) && !@mkdir($directory, 0775, true) && !is_dir($directory)) {
+            throw new \RuntimeException('SerpApi usage counter directory is not writable.');
+        }
+        $handle = @fopen($this->usageFile, 'c+');
+        if ($handle === false || !flock($handle, LOCK_EX)) {
+            if (is_resource($handle)) fclose($handle);
+            throw new \RuntimeException('SerpApi usage counter is not writable.');
+        }
+        try {
+            rewind($handle);
+            $stored = json_decode((string)stream_get_contents($handle), true);
+            $month = date('Y-m');
+            $count = is_array($stored) && ($stored['month'] ?? '') === $month ? (int)($stored['count'] ?? 0) : 0;
+            if ($count >= $this->monthlyLimit) {
+                throw new \RuntimeException('SerpApi monthly safety limit reached.');
+            }
+            ftruncate($handle, 0);
+            rewind($handle);
+            fwrite($handle, json_encode(['month' => $month, 'count' => $count + 1]));
+            fflush($handle);
+        } finally {
+            flock($handle, LOCK_UN);
+            fclose($handle);
         }
     }
 

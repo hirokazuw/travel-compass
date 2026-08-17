@@ -78,10 +78,8 @@ function sortedHotelCards() {
 
 function renderHotelCards() {
     const cards = sortedHotelCards();
-    const visibleCards = cards.slice(0, visibleHotelCount);
     cards.forEach((card, index) => { card.hidden = index >= visibleHotelCount; });
     if (hotelMoreButton) hotelMoreButton.hidden = visibleHotelCount >= cards.length;
-    return Promise.all(visibleCards.map(loadHotelDetails));
 }
 
 hotelSort?.addEventListener('change', () => {
@@ -89,18 +87,13 @@ hotelSort?.addEventListener('change', () => {
     renderHotelCards();
 });
 
-hotelMoreButton?.addEventListener('click', async () => {
+hotelMoreButton?.addEventListener('click', () => {
     visibleHotelCount += Number(hotelMoreButton.dataset.step) || 5;
-    hotelMoreButton.disabled = true;
-    hotelMoreButton.textContent = '料金を読み込み中…';
-    await renderHotelCards();
-    hotelMoreButton.disabled = false;
-    hotelMoreButton.textContent = 'もっと見る';
+    renderHotelCards();
 });
 
 async function loadHotelDetails(card) {
     if (!card.hasAttribute('data-detail-pending') || !card.dataset.propertyToken) return;
-    card.removeAttribute('data-detail-pending');
     const results = card.closest('.hotel-results');
     const params = new URLSearchParams({
         search_type: 'hotel_details',
@@ -122,13 +115,28 @@ async function loadHotelDetails(card) {
         });
         if (!response.ok) throw new Error('Hotel details request failed');
         const data = await response.json();
-        if (Array.isArray(data.offers) && data.offers.length) updateHotelOffers(card, data.offers);
+        if (Array.isArray(data.offers) && data.offers.length) {
+            card.removeAttribute('data-detail-pending');
+            updateHotelOffers(card, data.offers);
+        }
     } catch (error) {
         console.warn(error);
     } finally {
         card.classList.remove('is-loading-price');
     }
 }
+
+document.querySelectorAll('[data-load-hotel-price]').forEach((button) => {
+    button.addEventListener('click', async () => {
+        button.disabled = true;
+        button.textContent = '料金を検索中…';
+        await loadHotelDetails(button.closest('.hotel-summary-card'));
+        if (button.isConnected) {
+            button.disabled = false;
+            button.textContent = '再試行';
+        }
+    });
+});
 
 function updateHotelOffers(card, offers) {
     const best = offers[0];
