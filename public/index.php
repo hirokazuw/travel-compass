@@ -36,7 +36,6 @@ date_default_timezone_set(
 try {
     $db = App\Core\Database::connect($config['db']);
     $flightCity = new App\Models\FlightCity($db);
-    $hotelBookingLinks = new App\Services\HotelBookingLinks();
     $serpApiConfig = $config['serpapi'] ?? [];
     $serpApiCache = new App\Services\SerpApiCache(
         (string)($serpApiConfig['cache_dir'] ?? $root . '/storage/cache/serpapi'),
@@ -44,13 +43,6 @@ try {
         max(0, (int)($serpApiConfig['monthly_limit'] ?? 225)),
         (string)($serpApiConfig['usage_file'] ?? $root . '/storage/cache/serpapi-usage.json')
     );
-    $serpApiHotelCache = new App\Services\SerpApiCache(
-        (string)($serpApiConfig['cache_dir'] ?? $root . '/storage/cache/serpapi'),
-        max(0, (int)($serpApiConfig['hotel_cache_ttl'] ?? 21600)),
-        max(0, (int)($serpApiConfig['monthly_limit'] ?? 225)),
-        (string)($serpApiConfig['usage_file'] ?? $root . '/storage/cache/serpapi-usage.json')
-    );
-
     (new App\Controllers\SearchController(
         new App\Models\TravelSearch($db),
         $flightCity,
@@ -58,12 +50,6 @@ try {
             $flightCity,
             new App\Services\SerpApiFlightSearch($serpApiConfig, $serpApiCache)
         ),
-        new App\Services\SerpApiHotelSearch(
-            $serpApiConfig,
-            $hotelBookingLinks,
-            $serpApiHotelCache
-        ),
-        $hotelBookingLinks,
         new App\Services\RakutenTravelService($config['rakuten'] ?? []),
         new App\Services\TravelLinkBuilder(
             $flightCity,

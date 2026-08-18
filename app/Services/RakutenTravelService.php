@@ -148,13 +148,15 @@ final class RakutenTravelService
 
     private function normalize(array $hotel, string $checkIn, string $checkOut, int $adults, int $children): array
     {
+        $hotelNo = (int)($hotel['hotelNo'] ?? 0);
         $url = $this->httpsUrl((string)($hotel['planListUrl'] ?? '')) ?: $this->httpsUrl((string)($hotel['hotelInformationUrl'] ?? ''));
         if ($url !== '') {
             $url = $this->withStayConditions($url, $checkIn, $checkOut, $adults, $children);
         }
         $facilities = $this->stringList($hotel['hotelFacilities'] ?? []);
         return [
-            'hotel_no' => (int)($hotel['hotelNo'] ?? 0),
+            'hotel_no' => $hotelNo,
+            'booking_links' => $this->bookingLinks(trim((string)($hotel['hotelName'] ?? ''))),
             'name' => trim((string)($hotel['hotelName'] ?? '')),
             'image' => $this->httpsUrl((string)($hotel['hotelImageUrl'] ?? $hotel['hotelThumbnailUrl'] ?? '')),
             'rating' => isset($hotel['reviewAverage']) && is_numeric($hotel['reviewAverage']) ? number_format((float)$hotel['reviewAverage'], 1) : '',
@@ -165,6 +167,19 @@ final class RakutenTravelService
             'facilities' => array_slice($facilities, 0, 5),
             'price' => max(0, (int)($hotel['hotelMinCharge'] ?? 0)),
             'url' => $url ?: 'https://travel.rakuten.co.jp/',
+        ];
+    }
+
+    private function bookingLinks(string $hotelName): array
+    {
+        if ($hotelName === '') return [];
+
+        $jalanKeyword = rawurlencode(mb_convert_encoding($hotelName, 'SJIS-win', 'UTF-8'));
+        $utf8Keyword = rawurlencode($hotelName);
+        return [
+            'jalan' => 'https://www.jalan.net/uw/uwp2011/uww2011init.do?keyword=' . $jalanKeyword,
+            'yahoo' => 'https://travel.yahoo.co.jp/search?kwd=' . $utf8Keyword,
+            'ikyu' => 'https://www.ikyu.com/search?kwd=' . $utf8Keyword,
         ];
     }
 

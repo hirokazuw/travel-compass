@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="public/assets/app.css?v=<?= $h($cssVersion) ?>">
 </head><body>
 <header><a class="site-home-link" href="https://hirokazu-watabe.jp/travel-compass/">✈ <?= $h($appName) ?></a><span>旅をもっとシンプルに</span></header><main>
+<p class="affiliate-disclosure">広告・PRを含みます</p>
 <section class="hero hero-visual">
 <img src="public/assets/og-travel-compass.png" width="1730" height="909" alt="" aria-hidden="true" fetchpriority="high">
 <div class="visually-hidden">
@@ -38,7 +39,12 @@
 </section>
 <?php require __DIR__ . '/partials/search-panel.php'; ?>
 <?php require __DIR__ . '/partials/flight-results.php'; ?>
-<?php require __DIR__ . '/partials/google-hotel-results.php'; ?>
 <?php require __DIR__ . '/partials/rakuten-results.php'; ?>
 <?php require __DIR__ . '/partials/recent-searches.php'; ?>
-</main><footer class="site-footer"><div class="site-footer-inner"><div><strong>✈ <?= $h($appName) ?></strong><p>航空券とホテルを比較できる旅行検索サービス</p></div><div class="site-footer-credit"><span>Created by Hirokazu WATABE · v<?= $h($appVersion) ?></span><small>© <?= date('Y') ?> Hirokazu WATABE</small></div></div></footer><script class="eg-widgets-script" src="https://creator.expediagroup.com/products/widgets/assets/eg-widgets.js"></script><script src="public/assets/app.js?v=<?= $h($jsVersion) ?>"></script></body></html>
+</main><footer class="site-footer"><div class="site-footer-inner"><div><strong>✈ <?= $h($appName) ?></strong><p>航空券とホテルを比較できる旅行検索サービス</p></div><div class="site-footer-credit"><span>Created by Hirokazu WATABE · v<?= $h($appVersion) ?></span><small>© <?= date('Y') ?> Hirokazu WATABE</small></div></div></footer><script class="eg-widgets-script" src="https://creator.expediagroup.com/products/widgets/assets/eg-widgets.js"></script><script src="//statics.a8.net/a8link/a8linkmgr.js"></script><script>
+a8linkmgr({
+  "config_id": "mENmBoJBInmbobSt2c0A"
+});
+</script><script type="text/javascript" language="javascript">
+    var vc_pid = "892680790";
+</script><script type="text/javascript" src="//aml.valuecommerce.com/vcdal.js" async></script><script src="public/assets/app.js?v=<?= $h($jsVersion) ?>"></script></body></html>

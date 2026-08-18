@@ -1,6 +1,6 @@
 # Travel Compass
 
-Version 1.2.2
+Version 1.4.0
 
 **Travel Compass** は、PHP 8 / MySQLで開発した旅行検索Webアプリケーションです。
 
@@ -9,15 +9,13 @@ Version 1.2.2
 ## 主な機能
 
 * 航空券検索（SerpApi / Google Flights）
-* ホテル検索（SerpApi / Google Hotels）
-* 楽天トラベル検索
-* 国内は楽天トラベルを優先し、不足時のみSerpApiで補完
-* 海外ホテルは都市を限定せずSerpApiで検索
-* SerpApiの月間安全上限・キャッシュ・オンデマンド詳細料金取得
+* 国内ホテル検索（楽天トラベルAPI）
+* じゃらん、Yahoo!トラベル、一休.comへのホテル名検索リンク生成
+* 海外ホテル検索（開発中）
+* 航空券検索向けSerpApiの月間安全上限・キャッシュ
 * 都市名・別名・IATAコードによる空港コード解決
 * Trip.com、Booking.com、Expedia、Agoda、enaへの航空券検索URL生成
 * 国内線向けのさくらトラベル、エアトリ検索URL生成
-* 複数のホテル予約サイトへの検索URL生成
 * 最近の航空券検索履歴
 * SEO・OGP・Twitter Card・構造化データ対応
 

@@ -5,8 +5,6 @@ namespace App\Controllers;
 use App\Models\TravelSearch;
 use App\Models\FlightCity;
 use App\Services\FlightSearchService;
-use App\Services\SerpApiHotelSearch;
-use App\Services\HotelBookingLinks;
 use App\Services\RakutenTravelService;
 use App\Services\TravelLinkBuilder;
 use App\ViewModels\SearchViewData;
@@ -19,8 +17,6 @@ final class SearchController
         private TravelSearch $model,
         private FlightCity $flightCity,
         private FlightSearchService $flightSearch,
-        private SerpApiHotelSearch $hotelSearch,
-        private HotelBookingLinks $hotelBookingLinks,
         private RakutenTravelService $rakutenTravel,
         private TravelLinkBuilder $travelLinks,
         private array $config
@@ -28,26 +24,14 @@ final class SearchController
 
     public function index(): void
     {
-        if (
-            $_SERVER['REQUEST_METHOD'] === 'POST' &&
-            (string)($_POST['search_type'] ?? '') === 'hotel_details'
-        ) {
-            $this->hotelDetails();
-            return;
-        }
-
         $errors = [];
         $result = null;
         $flightOffers = [];
         $flightOffersStatus = 'idle';
         $isDomesticFlight = false;
         $hotelErrors = [];
-        $hotelResults = [];
-        $hotelResultsStatus = 'idle';
-        $hotelBookingSites = [];
-        $isDomesticHotel = false;
         $activeTab = 'flight';
-        $activeHotelProvider = 'google';
+        $activeHotelProvider = 'rakuten';
         $activeHotelScope = 'domestic';
         $rakutenErrors = [];
         $rakutenHotels = [];
@@ -178,9 +162,7 @@ final class SearchController
             (string)($_POST['search_type'] ?? '') === 'hotel'
         ) {
             $activeTab = 'hotel';
-            $activeHotelScope = (string)($_POST['hotel_scope'] ?? 'domestic') === 'overseas'
-                ? 'overseas'
-                : 'domestic';
+            $activeHotelScope = 'domestic';
 
             if (!hash_equals($_SESSION['csrf'] ?? '', (string)($_POST['csrf'] ?? ''))) {
                 $hotelErrors[] = '送信内容を確認できませんでした。';
@@ -213,17 +195,7 @@ final class SearchController
 
             if (!$hotelErrors) {
                 $destination = $hotelValues['hotel_destination'];
-                $isDomesticHotel = $activeHotelScope === 'domestic';
-                $hotelBookingSites = $this->hotelBookingLinks->sites(
-                    $destination,
-                    $hotelValues['check_in_date'],
-                    $hotelValues['check_out_date'],
-                    (int)$adults,
-                    (int)$children,
-                    $isDomesticHotel
-                );
-
-                if ($isDomesticHotel && $this->rakutenTravel->isConfigured()) {
+                if ($this->rakutenTravel->isConfigured()) {
                     try {
                         $rakutenHotels = $this->rakutenTravel->search(
                             $destination,
@@ -232,42 +204,21 @@ final class SearchController
                             (int)$adults,
                             (int)$children
                         );
-                        $minimum = max(1, (int)($this->config['serpapi']['hotel_min_rakuten_results'] ?? 3));
-                        if (count($rakutenHotels) >= $minimum) {
-                            $activeHotelProvider = 'rakuten';
-                            $rakutenStatus = 'success';
-                            $rakutenValues = [
-                                'rakuten_destination' => $destination,
-                                'rakuten_check_in' => $hotelValues['check_in_date'],
-                                'rakuten_check_out' => $hotelValues['check_out_date'],
-                                'rakuten_adults' => (string)$adults,
-                                'rakuten_children' => (string)$children,
-                            ];
-                        }
+                        $activeHotelProvider = 'rakuten';
+                        $rakutenStatus = $rakutenHotels ? 'success' : 'empty';
+                        $rakutenValues = [
+                            'rakuten_destination' => $destination,
+                            'rakuten_check_in' => $hotelValues['check_in_date'],
+                            'rakuten_check_out' => $hotelValues['check_out_date'],
+                            'rakuten_adults' => (string)$adults,
+                            'rakuten_children' => (string)$children,
+                        ];
                     } catch (\Throwable $e) {
-                        error_log('Rakuten hybrid hotel search: ' . $e->getMessage());
+                        error_log('Rakuten hotel search: ' . $e->getMessage());
+                        $rakutenStatus = 'error';
                     }
-                }
-
-                if ($activeHotelProvider === 'rakuten') {
-                    // 楽天で十分な候補を取得できたため、SerpApiは消費しない。
-                } elseif (!$this->hotelSearch->isConfigured()) {
-                    $hotelResultsStatus = 'not_configured';
                 } else {
-                    try {
-                        $hotelResults = $this->hotelSearch->search(
-                            $destination,
-                            $hotelValues['check_in_date'],
-                            $hotelValues['check_out_date'],
-                            (int)$adults,
-                            (int)$children,
-                            $isDomesticHotel
-                        );
-                        $hotelResultsStatus = $hotelResults ? 'success' : 'empty';
-                    } catch (\Throwable $e) {
-                        error_log('SerpApi hotel search: ' . $e->getMessage());
-                        $hotelResultsStatus = 'error';
-                    }
+                    $rakutenStatus = 'not_configured';
                 }
             }
         }
@@ -339,7 +290,7 @@ final class SearchController
         $appName =
             $this->config['app']['name']
             ?? 'Travel Compass';
-        $appVersion = $this->config['app']['version'] ?? '1.2.2';
+        $appVersion = $this->config['app']['version'] ?? '1.4.0';
         $publicPath = dirname(__DIR__, 2) . '/public/assets/';
         $cssVersion = (string)(filemtime($publicPath . 'app.css') ?: $appVersion);
         $jsVersion = (string)(filemtime($publicPath . 'app.js') ?: $appVersion);
@@ -347,7 +298,6 @@ final class SearchController
         $tripAllianceId = $this->config['trip']['alliance_id'] ?? '';
         $tripSid = $this->config['trip']['sid'] ?? '';
         $flightOffersMessage = SearchViewData::flightMessage($flightOffersStatus);
-        $hotelResultsMessage = SearchViewData::hotelMessage($hotelResultsStatus);
         $rakutenMessage = SearchViewData::rakutenMessage($rakutenStatus);
         $isSearchResult = $_SERVER['REQUEST_METHOD'] === 'POST';
         $seo = SeoViewData::create($this->config, $isSearchResult);
@@ -357,50 +307,6 @@ final class SearchController
 
         require dirname(__DIR__)
             . '/Views/search/index.php';
-    }
-
-    private function hotelDetails(): void
-    {
-        header('Content-Type: application/json; charset=utf-8');
-        if (!hash_equals($_SESSION['csrf'] ?? '', (string)($_POST['csrf'] ?? ''))) {
-            http_response_code(403);
-            echo json_encode(['error' => '送信内容を確認できませんでした。'], JSON_UNESCAPED_UNICODE);
-            return;
-        }
-
-        $token = trim((string)($_POST['property_token'] ?? ''));
-        $destination = trim((string)($_POST['destination'] ?? ''));
-        $checkIn = trim((string)($_POST['check_in_date'] ?? ''));
-        $checkOut = trim((string)($_POST['check_out_date'] ?? ''));
-        $adults = filter_var($_POST['adults'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 9]]);
-        $children = filter_var($_POST['children'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 9]]);
-
-        if (
-            $token === '' || strlen($token) > 1000 || $destination === '' ||
-            !$this->date($checkIn) || !$this->date($checkOut) ||
-            $adults === false || $children === false
-        ) {
-            http_response_code(422);
-            echo json_encode(['error' => 'ホテル料金の取得条件が不正です。'], JSON_UNESCAPED_UNICODE);
-            return;
-        }
-
-        try {
-            $offers = $this->hotelSearch->detailOffers(
-                $token,
-                $destination,
-                $checkIn,
-                $checkOut,
-                (int)$adults,
-                (int)$children,
-                $this->flightCity->isDomestic($destination)
-            );
-            echo json_encode(['offers' => $offers], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        } catch (\Throwable $e) {
-            error_log('SerpApi lazy hotel details: ' . $e->getMessage());
-            http_response_code(502);
-            echo json_encode(['error' => '詳細料金を取得できませんでした。'], JSON_UNESCAPED_UNICODE);
-        }
     }
 
     private function date(string $value): ?DateTimeImmutable

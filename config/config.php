@@ -3,7 +3,7 @@
 return [
     'app' => [
         'name' => 'Travel Compass',
-        'version' => '1.2.2',
+        'version' => '1.4.0',
         'timezone' => 'Asia/Tokyo',
     ],
 
@@ -32,11 +32,9 @@ return [
         'base_url' => 'https://serpapi.com/search',
         'api_key' => getenv('SERPAPI_API_KEY') ?: '',
         'cache_ttl' => 3600,
-        'hotel_cache_ttl' => 21600,
         'cache_dir' => dirname(__DIR__) . '/storage/cache/serpapi',
         'monthly_limit' => 225,
         'usage_file' => dirname(__DIR__) . '/storage/cache/serpapi-usage.json',
-        'hotel_min_rakuten_results' => 3,
     ],
 
     'rakuten' => [
