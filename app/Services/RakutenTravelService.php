@@ -156,7 +156,12 @@ final class RakutenTravelService
         $facilities = $this->stringList($hotel['hotelFacilities'] ?? []);
         return [
             'hotel_no' => $hotelNo,
-            'booking_links' => $this->bookingLinks(trim((string)($hotel['hotelName'] ?? ''))),
+            'booking_links' => $this->bookingLinks(
+                trim((string)($hotel['hotelName'] ?? '')),
+                $checkIn,
+                $checkOut,
+                $adults
+            ),
             'name' => trim((string)($hotel['hotelName'] ?? '')),
             'image' => $this->httpsUrl((string)($hotel['hotelImageUrl'] ?? $hotel['hotelThumbnailUrl'] ?? '')),
             'rating' => isset($hotel['reviewAverage']) && is_numeric($hotel['reviewAverage']) ? number_format((float)$hotel['reviewAverage'], 1) : '',
@@ -170,7 +175,7 @@ final class RakutenTravelService
         ];
     }
 
-    private function bookingLinks(string $hotelName): array
+    private function bookingLinks(string $hotelName, string $checkIn, string $checkOut, int $adults): array
     {
         if ($hotelName === '') return [];
 
@@ -180,6 +185,16 @@ final class RakutenTravelService
             'jalan' => 'https://www.jalan.net/uw/uwp2011/uww2011init.do?keyword=' . $jalanKeyword,
             'yahoo' => 'https://travel.yahoo.co.jp/search?kwd=' . $utf8Keyword,
             'ikyu' => 'https://www.ikyu.com/search?kwd=' . $utf8Keyword,
+            'expedia' => 'https://www.expedia.co.jp/Hotel-Search?' . http_build_query([
+                'destination' => $hotelName,
+                'd1' => $checkIn,
+                'startDate' => $checkIn,
+                'd2' => $checkOut,
+                'endDate' => $checkOut,
+                'adults' => max(1, $adults),
+                'rooms' => 1,
+                'sort' => 'RECOMMENDED',
+            ], '', '&', PHP_QUERY_RFC3986),
         ];
     }
 

@@ -29,6 +29,7 @@ final class SearchController
         $flightOffers = [];
         $flightOffersStatus = 'idle';
         $isDomesticFlight = false;
+        $activeFlightScope = 'domestic';
         $hotelErrors = [];
         $activeTab = 'flight';
         $activeHotelProvider = 'rakuten';
@@ -64,6 +65,9 @@ final class SearchController
             $_SERVER['REQUEST_METHOD'] === 'POST' &&
             (string)($_POST['search_type'] ?? 'flight') === 'flight'
         ) {
+            $activeFlightScope = (string)($_POST['flight_scope'] ?? 'domestic') === 'overseas'
+                ? 'overseas'
+                : 'domestic';
 
             if (
                 !hash_equals(
@@ -143,6 +147,7 @@ final class SearchController
                 $isDomesticFlight =
                     $this->flightCity->isDomestic($values['origin']) &&
                     $this->flightCity->isDomestic($values['destination']);
+                $activeFlightScope = $isDomesticFlight ? 'domestic' : 'overseas';
                 $result = $this->travelLinks->buildFlightLinks(
                     $values['origin'], $values['destination'], $values['departure_date'],
                     $values['return_date'], (int)$values['travelers'], $isDomesticFlight
@@ -294,9 +299,6 @@ final class SearchController
         $publicPath = dirname(__DIR__, 2) . '/public/assets/';
         $cssVersion = (string)(filemtime($publicPath . 'app.css') ?: $appVersion);
         $jsVersion = (string)(filemtime($publicPath . 'app.js') ?: $appVersion);
-        $widgets = $this->config['widgets'] ?? [];
-        $tripAllianceId = $this->config['trip']['alliance_id'] ?? '';
-        $tripSid = $this->config['trip']['sid'] ?? '';
         $flightOffersMessage = SearchViewData::flightMessage($flightOffersStatus);
         $rakutenMessage = SearchViewData::rakutenMessage($rakutenStatus);
         $isSearchResult = $_SERVER['REQUEST_METHOD'] === 'POST';

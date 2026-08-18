@@ -49,9 +49,4 @@ return [
         'flight_url' => 'https://www.trip.com/t/E631zVIRwV2',
     ],
 
-    'widgets' => [
-        'trip_hotel_id' => 'S19265451',
-        'expedia_program' => 'jp-expedia',
-        'expedia_camref' => '1011l5PxNZ',
-    ],
 ];

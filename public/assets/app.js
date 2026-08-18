@@ -10,7 +10,34 @@ document.querySelectorAll('.search-tab').forEach((tab) => {
             panel.hidden = panel.id !== tab.dataset.tab;
         });
         document.querySelectorAll('[data-flight-tab-content]').forEach((content) => {
-            content.hidden = tab.dataset.tab !== 'flight-panel';
+            const activeProvider = document.querySelector('.flight-provider-tab.is-active')?.id;
+            const activeScope = activeProvider === 'overseas-flight-tab' ? 'overseas' : 'domestic';
+            content.hidden = tab.dataset.tab !== 'flight-panel' || content.dataset.flightScope !== activeScope;
+        });
+        if (tab.dataset.tab !== 'hotel-panel') {
+            document.querySelectorAll('[data-provider-results]').forEach((section) => {
+                section.hidden = true;
+            });
+        } else {
+            document.querySelector('.hotel-provider-tab.is-active')?.click();
+        }
+    });
+});
+
+document.querySelectorAll('.flight-provider-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.flight-provider-tab').forEach((item) => {
+            const active = item === tab;
+            item.classList.toggle('is-active', active);
+            item.setAttribute('aria-selected', String(active));
+            item.tabIndex = active ? 0 : -1;
+        });
+        document.querySelectorAll('.flight-provider-panel').forEach((panel) => {
+            panel.hidden = panel.id !== tab.dataset.flightProviderPanel;
+        });
+        document.querySelectorAll('[data-flight-tab-content]').forEach((content) => {
+            const scope = tab.id === 'overseas-flight-tab' ? 'overseas' : 'domestic';
+            content.hidden = content.dataset.flightScope !== scope;
         });
     });
 });
@@ -33,17 +60,18 @@ document.querySelectorAll('.hotel-provider-tab').forEach((tab) => {
     });
 });
 
-const tripTypeInputs = document.querySelectorAll('input[name="trip_type"]');
-const returnDateInput = document.querySelector('input[name="return_date"]');
-function updateReturnDate() {
-    if (!returnDateInput) return;
-    const oneWay = document.querySelector('input[name="trip_type"]:checked')?.value === 'oneway';
-    if (oneWay) returnDateInput.value = '';
-    returnDateInput.disabled = oneWay;
-    returnDateInput.required = !oneWay;
-}
-tripTypeInputs.forEach((input) => input.addEventListener('change', updateReturnDate));
-updateReturnDate();
+document.querySelectorAll('.flight-search-form').forEach((form) => {
+    const returnDateInput = form.querySelector('input[name="return_date"]');
+    const updateReturnDate = () => {
+        if (!returnDateInput) return;
+        const oneWay = form.querySelector('input[name="trip_type"]:checked')?.value === 'oneway';
+        if (oneWay) returnDateInput.value = '';
+        returnDateInput.disabled = oneWay;
+        returnDateInput.required = !oneWay;
+    };
+    form.querySelectorAll('input[name="trip_type"]').forEach((input) => input.addEventListener('change', updateReturnDate));
+    updateReturnDate();
+});
 
 document.querySelectorAll('.flight-offers-toggle').forEach((button) => {
     const extraOffers = document.querySelectorAll('[data-extra-offer]');
@@ -75,8 +103,9 @@ document.querySelectorAll('.recent-search-card').forEach((card) => {
         const tripType = card.dataset.returnDate ? 'roundtrip' : 'oneway';
         const tripTypeInput = flightForm.querySelector(`input[name="trip_type"][value="${tripType}"]`);
         if (tripTypeInput) tripTypeInput.checked = true;
-        updateReturnDate();
+        tripTypeInput?.dispatchEvent(new Event('change'));
         document.getElementById('flight-tab')?.click();
+        document.getElementById('domestic-flight-tab')?.click();
         flightForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
 });
