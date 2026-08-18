@@ -5,7 +5,9 @@ namespace App\Controllers;
 use App\Models\TravelSearch;
 use App\Models\FlightCity;
 use App\Services\FlightSearchService;
+use App\Services\ApifyService;
 use App\Services\RakutenTravelService;
+use App\Services\ScrapeDoService;
 use App\Services\TravelLinkBuilder;
 use App\ViewModels\SearchViewData;
 use App\ViewModels\SeoViewData;
@@ -18,6 +20,8 @@ final class SearchController
         private FlightCity $flightCity,
         private FlightSearchService $flightSearch,
         private RakutenTravelService $rakutenTravel,
+        private ApifyService $apify,
+        private ScrapeDoService $scrapeDo,
         private TravelLinkBuilder $travelLinks,
         private array $config
     ) {}
@@ -27,7 +31,6 @@ final class SearchController
         $errors = [];
         $result = null;
         $flightOffers = [];
-        $flightRoutes = [];
         $flightOffersStatus = 'idle';
         $flightOffersSource = 'none';
         $isDomesticFlight = false;
@@ -39,6 +42,9 @@ final class SearchController
         $rakutenErrors = [];
         $rakutenHotels = [];
         $rakutenStatus = 'idle';
+        $overseasHotels = [];
+        $overseasBookingLinks = [];
+        $overseasHotelStatus = 'idle';
         $rakutenValues = [
             'rakuten_destination' => '',
             'rakuten_check_in' => '',
@@ -160,7 +166,6 @@ final class SearchController
                     $values['return_date'], (int)$values['travelers']
                 );
                 $flightOffers = $flightResult['offers'];
-                $flightRoutes = (array)($flightResult['routes'] ?? []);
                 $flightOffersStatus = $flightResult['status'];
                 $flightOffersSource = (string)($flightResult['source'] ?? 'none');
             }
@@ -171,7 +176,7 @@ final class SearchController
             (string)($_POST['search_type'] ?? '') === 'hotel'
         ) {
             $activeTab = 'hotel';
-            $activeHotelScope = 'domestic';
+            $activeHotelScope = (string)($_POST['hotel_scope'] ?? 'domestic') === 'overseas' ? 'overseas' : 'domestic';
 
             if (!hash_equals($_SESSION['csrf'] ?? '', (string)($_POST['csrf'] ?? ''))) {
                 $hotelErrors[] = '送信内容を確認できませんでした。';
@@ -204,7 +209,36 @@ final class SearchController
 
             if (!$hotelErrors) {
                 $destination = $hotelValues['hotel_destination'];
-                if ($this->rakutenTravel->isConfigured()) {
+                if ($activeHotelScope === 'overseas') {
+                    $preferredHotelProvider = (string)($this->config['search_providers']['overseas_hotels'] ?? 'apify');
+                    $useApify = $preferredHotelProvider === 'apify';
+                    $activeHotelProvider = $useApify ? 'apify' : 'scrapedo';
+                    $hotelService = $useApify ? $this->apify : $this->scrapeDo;
+                    if (!$hotelService->isConfigured()) {
+                        $overseasHotelStatus = 'not_configured';
+                    } else {
+                        try {
+                            $overseasHotels = $hotelService->searchHotels(
+                                $destination,
+                                $hotelValues['check_in_date'],
+                                $hotelValues['check_out_date'],
+                                (int)$adults,
+                                (int)$children
+                            );
+                            $overseasBookingLinks = $this->scrapeDo->buildHotelBookingLinks(
+                                $destination,
+                                $hotelValues['check_in_date'],
+                                $hotelValues['check_out_date'],
+                                (int)$adults,
+                                (int)$children
+                            );
+                            $overseasHotelStatus = $overseasHotels ? 'success' : 'empty';
+                        } catch (\Throwable $e) {
+                            error_log(ucfirst($activeHotelProvider) . ' hotel search: ' . $e->getMessage());
+                            $overseasHotelStatus = 'error';
+                        }
+                    }
+                } elseif ($this->rakutenTravel->isConfigured()) {
                     try {
                         $rakutenHotels = $this->rakutenTravel->search(
                             $destination,
@@ -299,12 +333,13 @@ final class SearchController
         $appName =
             $this->config['app']['name']
             ?? 'Travel Compass';
-        $appVersion = $this->config['app']['version'] ?? '1.5.0';
+        $appVersion = $this->config['app']['version'] ?? '1.6.0';
         $publicPath = dirname(__DIR__, 2) . '/public/assets/';
         $cssVersion = (string)(filemtime($publicPath . 'app.css') ?: $appVersion);
         $jsVersion = (string)(filemtime($publicPath . 'app.js') ?: $appVersion);
         $flightOffersMessage = SearchViewData::flightMessage($flightOffersStatus);
         $rakutenMessage = SearchViewData::rakutenMessage($rakutenStatus);
+        $overseasHotelMessage = SearchViewData::overseasHotelMessage($overseasHotelStatus);
         $isSearchResult = $_SERVER['REQUEST_METHOD'] === 'POST';
         $seo = SeoViewData::create($this->config, $isSearchResult);
         if ($isSearchResult) {

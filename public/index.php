@@ -49,21 +49,46 @@ try {
         (string)($aviasalesConfig['cache_dir'] ?? $root . '/storage/cache/aviasales'),
         max(0, (int)($aviasalesConfig['cache_ttl'] ?? 21600))
     );
-    $aeroDataBoxConfig = $config['aerodatabox'] ?? [];
-    $aeroDataBoxCache = new App\Services\SerpApiCache(
-        (string)($aeroDataBoxConfig['cache_dir'] ?? $root . '/storage/cache/aerodatabox'),
-        max(0, (int)($aeroDataBoxConfig['cache_ttl'] ?? 86400))
+    $scrapeDoConfig = $config['scrapedo'] ?? [];
+    $scrapeDoTtl = max(0, (int)($scrapeDoConfig['cache_ttl'] ?? 3600));
+    $scrapeDo = new App\Services\ScrapeDoService(
+        $scrapeDoConfig,
+        new App\Services\SerpApiCache(
+            (string)($scrapeDoConfig['flight_cache_dir'] ?? $root . '/storage/cache/scrapedo/flights'),
+            $scrapeDoTtl
+        ),
+        new App\Services\SerpApiCache(
+            (string)($scrapeDoConfig['hotel_cache_dir'] ?? $root . '/storage/cache/scrapedo/hotels'),
+            $scrapeDoTtl
+        )
+    );
+    $apifyConfig = $config['apify'] ?? [];
+    $apifyTtl = max(0, (int)($apifyConfig['cache_ttl'] ?? 3600));
+    $apify = new App\Services\ApifyService(
+        $apifyConfig,
+        new App\Services\SerpApiCache(
+            (string)($apifyConfig['flight_cache_dir'] ?? $root . '/storage/cache/apify/flights'),
+            $apifyTtl
+        ),
+        new App\Services\SerpApiCache(
+            (string)($apifyConfig['hotel_cache_dir'] ?? $root . '/storage/cache/apify/hotels'),
+            $apifyTtl
+        )
     );
     (new App\Controllers\SearchController(
         new App\Models\TravelSearch($db),
         $flightCity,
         new App\Services\FlightSearchService(
             $flightCity,
-            new App\Services\AeroDataBoxRouteSearch($aeroDataBoxConfig, $aeroDataBoxCache, $airlines),
+            $apify,
+            $scrapeDo,
             new App\Services\AviasalesPriceSearch($aviasalesConfig, $aviasalesCache, $airlines),
-            new App\Services\SerpApiFlightSearch($serpApiConfig, $serpApiCache)
+            new App\Services\SerpApiFlightSearch($serpApiConfig, $serpApiCache),
+            (string)($config['search_providers']['flights'] ?? 'apify')
         ),
         new App\Services\RakutenTravelService($config['rakuten'] ?? []),
+        $apify,
+        $scrapeDo,
         new App\Services\TravelLinkBuilder(
             $flightCity,
             $config

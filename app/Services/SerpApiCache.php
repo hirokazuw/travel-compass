@@ -20,7 +20,7 @@ final class SerpApiCache
             return $fetch();
         }
 
-        unset($query['api_key']);
+        unset($query['api_key'], $query['token']);
         $this->sortRecursively($query);
         $key = hash('sha256', json_encode($query, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         $cacheFile = $this->directory . DIRECTORY_SEPARATOR . $key . '.json';

@@ -1,25 +1,22 @@
 # Travel Compass
 
-Version 1.5.0
+Version 1.6.0
 
 **Travel Compass** は、PHP 8 / MySQLで開発した旅行検索Webアプリケーションです。
 
 航空券・ホテルを一つの画面から検索し、複数の旅行予約サービスを比較・利用できるようにしています。
 
-## V1.5.0
+## V1.6.0
 
-V1.5.0では、国内・海外航空券検索と国内ホテル検索を完成させ、検索結果から各OTAへ移動できる予約導線を整理しました。
+V1.6.0では、国内ホテルの楽天トラベルAPIを維持しながら、海外ホテルと国内・海外航空券の通常検索をApify Actor対応にしました。既存取得元への切替・フォールバックと、各OTAへ移動できる予約導線も維持しています。
 
 ### 国内・海外航空券検索
 
 * 都市名・別名・IATAコードから出発地と目的地を解決
 * 複数空港を持つ都市では、`iata_cities.airports` に登録された空港を検索対象として使用
-* AeroDataBox Routes APIから直行便の就航航空会社を取得
-* 航空会社コードを`airlines.iata_code`と照合し、日本語名を優先して表示
 * Aviasales Data APIの価格傾向データを航空会社別の参考価格として表示
 * Aviasalesで価格を取得できない場合は、既存のSerpAPI処理へフォールバック
 * Aviasales CDNから航空会社ロゴを表示し、取得できない場合はIATAコードを表示
-* AeroDataBoxのレスポンスを出発空港単位で24時間キャッシュ
 * AviasalesおよびSerpAPIの価格データをキャッシュ
 * 国内・海外航空券の検索履歴を表示
 
@@ -57,7 +54,16 @@ V1.5.0では、国内・海外航空券検索と国内ホテル検索を完成�
 * 一休.com
 * Expedia
 
-海外ホテル検索は開発中です。
+### Apify Actorによる通常検索
+
+* 国内・海外航空券はApifyのGoogle Flights Actorを主取得元として使用
+* 海外ホテルはApifyのGoogle Hotels Actorを使用（国内ホテルは楽天トラベルAPIを維持）
+* 海外ホテル検索からExpedia・Hotels.com・JTB（バリューコマース）へ遷移
+* 同一条件のレスポンスを1時間キャッシュし、航空券のタイムアウトやAPIエラー時は既存APIへフォールバック
+* 海外ホテルのAPIエラー時は結果領域に案内を表示し、画面全体の表示を維持
+* `APIFY_TOKEN` はサーバー側の環境変数から読み込み、ブラウザへ出力しない
+* `FLIGHT_PROVIDER` と `OVERSEAS_HOTEL_PROVIDER` を `scrapedo` に変更すれば既存取得元へ切替可能
+* Scrape.do、SerpAPI、AeroDataBox、Travelpayouts関連コードは互換用として維持
 
 ### その他
 

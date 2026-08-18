@@ -19,6 +19,12 @@ final class SearchViewData
         'error' => '楽天トラベルのホテル情報を取得できませんでした。時間を置いて再度お試しください。',
     ];
 
+    private const OVERSEAS_HOTEL_MESSAGES = [
+        'not_configured' => '現在、海外ホテル情報を取得できません。',
+        'empty' => '条件に一致する海外ホテルが見つかりませんでした。',
+        'error' => '海外ホテル情報を取得できませんでした。時間を置いて再度お試しください。',
+    ];
+
     public static function flightMessage(string $status): string
     {
         return self::FLIGHT_MESSAGES[$status] ?? '';
@@ -27,5 +33,10 @@ final class SearchViewData
     public static function rakutenMessage(string $status): string
     {
         return self::RAKUTEN_MESSAGES[$status] ?? '';
+    }
+
+    public static function overseasHotelMessage(string $status): string
+    {
+        return self::OVERSEAS_HOTEL_MESSAGES[$status] ?? '';
     }
 }

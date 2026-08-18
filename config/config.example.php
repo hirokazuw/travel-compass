@@ -3,7 +3,7 @@
 return [
     'app' => [
         'name' => 'Travel Compass',
-        'version' => '1.5.0',
+        'version' => '1.6.0',
         'timezone' => 'Asia/Tokyo',
     ],
 
@@ -34,6 +34,34 @@ return [
         'cache_dir' => dirname(__DIR__) . '/storage/cache/serpapi',
         'monthly_limit' => 225,
         'usage_file' => dirname(__DIR__) . '/storage/cache/serpapi-usage.json',
+    ],
+
+    'scrapedo' => [
+        'token' => getenv('SCRAPEDO_API_TOKEN') ?: '',
+        'hotels_url' => 'https://api.scrape.do/plugin/google/hotels',
+        'flights_url' => 'https://api.scrape.do/plugin/google/flights',
+        'cache_ttl' => 3600,
+        'hotel_cache_dir' => dirname(__DIR__) . '/storage/cache/scrapedo/hotels',
+        'flight_cache_dir' => dirname(__DIR__) . '/storage/cache/scrapedo/flights',
+        'timeout' => 20,
+        'connect_timeout' => 5,
+    ],
+
+    'apify' => [
+        'token' => getenv('APIFY_TOKEN') ?: '',
+        'hotels_url' => 'https://api.apify.com/v2/acts/johnvc~google-hotels-search-scraper/run-sync-get-dataset-items',
+        'flights_url' => 'https://api.apify.com/v2/acts/johnvc~google-flights-data-scraper-flight-and-price-search/run-sync-get-dataset-items',
+        'cache_ttl' => 3600,
+        'hotel_cache_dir' => dirname(__DIR__) . '/storage/cache/apify/hotels',
+        'flight_cache_dir' => dirname(__DIR__) . '/storage/cache/apify/flights',
+        'timeout' => 120,
+        'connect_timeout' => 10,
+        'max_pages' => 1,
+    ],
+
+    'search_providers' => [
+        'overseas_hotels' => getenv('OVERSEAS_HOTEL_PROVIDER') ?: 'apify',
+        'flights' => getenv('FLIGHT_PROVIDER') ?: 'apify',
     ],
 
     'aviasales' => [

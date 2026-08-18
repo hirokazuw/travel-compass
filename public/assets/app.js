@@ -94,6 +94,31 @@ document.querySelectorAll('.rakuten-results-toggle').forEach((button) => {
     });
 });
 
+document.querySelectorAll('.overseas-hotels-toggle').forEach((button) => {
+    const extraHotels = document.querySelectorAll('[data-extra-overseas-hotel]');
+    button.addEventListener('click', () => {
+        const expanded = button.getAttribute('aria-expanded') === 'true';
+        extraHotels.forEach((hotel) => { hotel.hidden = expanded; });
+        button.setAttribute('aria-expanded', String(!expanded));
+        button.textContent = expanded ? 'もっと見る' : '閉じる';
+    });
+});
+
+document.querySelectorAll('[data-hotel-image]').forEach((image) => {
+    let fallbacks = [];
+    try { fallbacks = JSON.parse(image.dataset.fallbackImages || '[]'); } catch (_) {}
+    image.addEventListener('error', () => {
+        const next = fallbacks.shift();
+        if (next) {
+            image.src = next;
+            return;
+        }
+        image.hidden = true;
+        const placeholder = image.parentElement?.querySelector('.overseas-hotel-placeholder');
+        if (placeholder) placeholder.hidden = false;
+    });
+});
+
 document.querySelectorAll('[data-airline-logo]').forEach((logo) => {
     logo.addEventListener('error', () => {
         logo.hidden = true;
