@@ -25,6 +25,12 @@ final class SearchViewData
         'error' => '海外ホテル情報を取得できませんでした。時間を置いて再度お試しください。',
     ];
 
+    private const HOTEL_MESSAGES = [
+        'not_configured' => '現在、ホテル情報を取得できません。',
+        'empty' => '条件に一致するホテルが見つかりませんでした。',
+        'error' => 'ホテル情報を取得できませんでした。時間を置いて再度お試しください。',
+    ];
+
     public static function flightMessage(string $status): string
     {
         return self::FLIGHT_MESSAGES[$status] ?? '';
@@ -38,5 +44,10 @@ final class SearchViewData
     public static function overseasHotelMessage(string $status): string
     {
         return self::OVERSEAS_HOTEL_MESSAGES[$status] ?? '';
+    }
+
+    public static function hotelMessage(string $status): string
+    {
+        return self::HOTEL_MESSAGES[$status] ?? '';
     }
 }

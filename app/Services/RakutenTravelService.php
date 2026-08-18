@@ -20,6 +20,11 @@ final class RakutenTravelService
             && trim((string)($this->config['referer'] ?? '')) !== '';
     }
 
+    public function isAffiliateConfigured(): bool
+    {
+        return $this->isConfigured() && trim((string)($this->config['affiliate_id'] ?? '')) !== '';
+    }
+
     public function search(string $destination, string $checkIn, string $checkOut, int $adults, int $children): array
     {
         if (!$this->isConfigured()) return [];
@@ -77,6 +82,39 @@ final class RakutenTravelService
             );
         }
         return array_values(array_filter($hotels, static fn(array $hotel): bool => $hotel['name'] !== ''));
+    }
+
+    /**
+     * Fetches one keyword-search page for linking Apify results to Rakuten.
+     * Hotel information displayed by the application continues to come from Apify.
+     */
+    public function searchAffiliateLinks(
+        string $destination,
+        string $checkIn,
+        string $checkOut,
+        int $adults,
+        int $children
+    ): array {
+        if (!$this->isConfigured()) return [];
+
+        $response = $this->request(self::KEYWORD_URL, [
+            'keyword' => $destination,
+            'hits' => 30,
+            'page' => 1,
+            'searchField' => 0,
+            'hotelThumbnailSize' => 1,
+            'responseType' => 'large',
+            'sort' => 'standard',
+        ]);
+
+        $links = [];
+        foreach ($this->hotelRecords($response) as $hotel) {
+            $normalized = $this->normalize($hotel, $checkIn, $checkOut, $adults, $children);
+            if ($normalized['name'] !== '' && $normalized['url'] !== 'https://travel.rakuten.co.jp/') {
+                $links[] = ['name' => $normalized['name'], 'url' => $normalized['url']];
+            }
+        }
+        return $links;
     }
 
     private function request(string $url, array $params): array

@@ -23,7 +23,7 @@ final class ApifyService
         string $destination,
         string $checkIn,
         string $checkOut,
-        int $adults = 2,
+        int $adults = 1,
         int $children = 0
     ): array {
         if (!$this->isConfigured()) return [];
@@ -121,7 +121,7 @@ final class ApifyService
         return $decoded;
     }
 
-    private function normalizeHotels(array $items): array
+    public function normalizeHotels(array $items): array
     {
         $properties = [];
         foreach ($items as $item) {
@@ -146,23 +146,39 @@ final class ApifyService
             $hotels[] = [
                 'name' => $name,
                 'description' => trim((string)($hotel['description'] ?? '')),
-                'hotel_class' => (string)($hotel['hotel_class'] ?? $hotel['extracted_hotel_class'] ?? ''),
-                'overall_rating' => isset($hotel['overall_rating']) ? (string)$hotel['overall_rating'] : '',
-                'reviews' => max(0, (int)($hotel['reviews'] ?? 0)),
-                'price' => $this->rateValue($hotel['rate_per_night'] ?? 0),
-                'total_rate' => $this->rateValue($hotel['total_rate'] ?? 0),
-                'check_in_time' => trim((string)($hotel['check_in_time'] ?? '')),
-                'check_out_time' => trim((string)($hotel['check_out_time'] ?? '')),
-                'gps_coordinates' => (array)($hotel['gps_coordinates'] ?? []),
-                'images' => array_values(array_unique($images)),
+                'official_url' => $this->httpsUrl((string)($hotel['link'] ?? '')),
+                'property_token' => trim((string)($hotel['property_token'] ?? '')),
+                'latitude' => $this->coordinate($hotel['gps_coordinates'] ?? [], 'latitude'),
+                'longitude' => $this->coordinate($hotel['gps_coordinates'] ?? [], 'longitude'),
+                'hotel_class' => $this->nullableText($hotel['hotel_class'] ?? $hotel['extracted_hotel_class'] ?? null),
+                'rating' => isset($hotel['overall_rating']) && is_numeric($hotel['overall_rating']) ? (float)$hotel['overall_rating'] : null,
+                'reviews' => isset($hotel['reviews']) && is_numeric($hotel['reviews']) ? max(0, (int)$hotel['reviews']) : null,
+                'price_per_night' => ($price = $this->rateValue($hotel['rate_per_night'] ?? 0)) > 0 ? $price : null,
+                'total_price' => ($total = $this->rateValue($hotel['total_rate'] ?? 0)) > 0 ? $total : null,
+                'check_in_time' => $this->nullableText($hotel['check_in_time'] ?? null),
+                'check_out_time' => $this->nullableText($hotel['check_out_time'] ?? null),
+                'image_urls' => array_values(array_unique($images)),
                 'amenities' => array_values(array_filter(array_map('strval', (array)($hotel['amenities'] ?? [])))),
                 'deal' => $hotel['deal'] ?? null,
-                'property_token' => (string)($hotel['property_token'] ?? ''),
-                // Kept for reference only. It is never rendered as an affiliate URL.
-                'link' => $this->httpsUrl((string)($hotel['link'] ?? '')),
             ];
         }
         return $hotels;
+    }
+
+    private function nullableText(mixed $value): ?string
+    {
+        $value = trim((string)$value);
+        return $value !== '' ? $value : null;
+    }
+
+    private function coordinate(mixed $coordinates, string $axis): ?float
+    {
+        if (!is_array($coordinates)) return null;
+        $aliases = $axis === 'latitude' ? ['latitude', 'lat'] : ['longitude', 'lng', 'lon'];
+        foreach ($aliases as $key) {
+            if (isset($coordinates[$key]) && is_numeric($coordinates[$key])) return (float)$coordinates[$key];
+        }
+        return null;
     }
 
     private function normalizeFlights(array $items): array

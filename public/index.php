@@ -87,6 +87,7 @@ try {
             (string)($config['search_providers']['flights'] ?? 'apify')
         ),
         new App\Services\RakutenTravelService($config['rakuten'] ?? []),
+        new App\Services\HotelSearchService($apify),
         $apify,
         $scrapeDo,
         new App\Services\TravelLinkBuilder(

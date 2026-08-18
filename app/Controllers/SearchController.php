@@ -6,6 +6,7 @@ use App\Models\TravelSearch;
 use App\Models\FlightCity;
 use App\Services\FlightSearchService;
 use App\Services\ApifyService;
+use App\Services\HotelSearchService;
 use App\Services\RakutenTravelService;
 use App\Services\ScrapeDoService;
 use App\Services\TravelLinkBuilder;
@@ -20,6 +21,7 @@ final class SearchController
         private FlightCity $flightCity,
         private FlightSearchService $flightSearch,
         private RakutenTravelService $rakutenTravel,
+        private HotelSearchService $hotelSearch,
         private ApifyService $apify,
         private ScrapeDoService $scrapeDo,
         private TravelLinkBuilder $travelLinks,
@@ -45,11 +47,15 @@ final class SearchController
         $overseasHotels = [];
         $overseasBookingLinks = [];
         $overseasHotelStatus = 'idle';
+        $hotels = [];
+        $hotelBookingLinks = [];
+        $rakutenHotelLinks = [];
+        $hotelStatus = 'idle';
         $rakutenValues = [
             'rakuten_destination' => '',
             'rakuten_check_in' => '',
             'rakuten_check_out' => '',
-            'rakuten_adults' => '2',
+            'rakuten_adults' => '1',
             'rakuten_children' => '0',
         ];
 
@@ -57,7 +63,7 @@ final class SearchController
             'hotel_destination' => '',
             'check_in_date' => '',
             'check_out_date' => '',
-            'hotel_adults' => '2',
+            'hotel_adults' => '1',
             'hotel_children' => '0',
         ];
 
@@ -73,10 +79,6 @@ final class SearchController
             $_SERVER['REQUEST_METHOD'] === 'POST' &&
             (string)($_POST['search_type'] ?? 'flight') === 'flight'
         ) {
-            $activeFlightScope = (string)($_POST['flight_scope'] ?? 'domestic') === 'overseas'
-                ? 'overseas'
-                : 'domestic';
-
             if (
                 !hash_equals(
                     $_SESSION['csrf'] ?? '',
@@ -177,7 +179,6 @@ final class SearchController
         ) {
             $activeTab = 'hotel';
             $activeHotelScope = (string)($_POST['hotel_scope'] ?? 'domestic') === 'overseas' ? 'overseas' : 'domestic';
-
             if (!hash_equals($_SESSION['csrf'] ?? '', (string)($_POST['csrf'] ?? ''))) {
                 $hotelErrors[] = '送信内容を確認できませんでした。';
             }
@@ -209,59 +210,38 @@ final class SearchController
 
             if (!$hotelErrors) {
                 $destination = $hotelValues['hotel_destination'];
-                if ($activeHotelScope === 'overseas') {
-                    $preferredHotelProvider = (string)($this->config['search_providers']['overseas_hotels'] ?? 'apify');
-                    $useApify = $preferredHotelProvider === 'apify';
-                    $activeHotelProvider = $useApify ? 'apify' : 'scrapedo';
-                    $hotelService = $useApify ? $this->apify : $this->scrapeDo;
-                    if (!$hotelService->isConfigured()) {
-                        $overseasHotelStatus = 'not_configured';
-                    } else {
-                        try {
-                            $overseasHotels = $hotelService->searchHotels(
-                                $destination,
-                                $hotelValues['check_in_date'],
-                                $hotelValues['check_out_date'],
-                                (int)$adults,
-                                (int)$children
-                            );
-                            $overseasBookingLinks = $this->scrapeDo->buildHotelBookingLinks(
-                                $destination,
-                                $hotelValues['check_in_date'],
-                                $hotelValues['check_out_date'],
-                                (int)$adults,
-                                (int)$children
-                            );
-                            $overseasHotelStatus = $overseasHotels ? 'success' : 'empty';
-                        } catch (\Throwable $e) {
-                            error_log(ucfirst($activeHotelProvider) . ' hotel search: ' . $e->getMessage());
-                            $overseasHotelStatus = 'error';
-                        }
-                    }
-                } elseif ($this->rakutenTravel->isConfigured()) {
+                $activeHotelProvider = 'apify';
+                if (!$this->hotelSearch->isConfigured()) {
+                    $hotelStatus = 'not_configured';
+                } else {
                     try {
-                        $rakutenHotels = $this->rakutenTravel->search(
+                        $hotels = $this->hotelSearch->search(
                             $destination,
                             $hotelValues['check_in_date'],
                             $hotelValues['check_out_date'],
                             (int)$adults,
                             (int)$children
                         );
-                        $activeHotelProvider = 'rakuten';
-                        $rakutenStatus = $rakutenHotels ? 'success' : 'empty';
-                        $rakutenValues = [
-                            'rakuten_destination' => $destination,
-                            'rakuten_check_in' => $hotelValues['check_in_date'],
-                            'rakuten_check_out' => $hotelValues['check_out_date'],
-                            'rakuten_adults' => (string)$adults,
-                            'rakuten_children' => (string)$children,
-                        ];
+                        $hotelBookingLinks = $this->hotelSearch->bookingLinks(
+                            $destination, $hotelValues['check_in_date'], $hotelValues['check_out_date'],
+                            (int)$adults, (int)$children, $activeHotelScope === 'domestic'
+                        );
+                        if ($activeHotelScope === 'domestic' && $this->rakutenTravel->isAffiliateConfigured()) {
+                            try {
+                                $rakutenLinks = $this->rakutenTravel->searchAffiliateLinks(
+                                    $destination, $hotelValues['check_in_date'], $hotelValues['check_out_date'],
+                                    (int)$adults, (int)$children
+                                );
+                                $rakutenHotelLinks = $this->hotelSearch->matchRakutenLinks($hotels, $rakutenLinks);
+                            } catch (\Throwable $e) {
+                                error_log('Rakuten hotel link search: ' . $e->getMessage());
+                            }
+                        }
+                        $hotelStatus = $hotels ? 'success' : 'empty';
                     } catch (\Throwable $e) {
-                        error_log('Rakuten hotel search: ' . $e->getMessage());
-                        $rakutenStatus = 'error';
+                        error_log('Apify hotel search: ' . $e->getMessage());
+                        $hotelStatus = 'error';
                     }
-                } else {
-                    $rakutenStatus = 'not_configured';
                 }
             }
         }
@@ -280,7 +260,7 @@ final class SearchController
                 'hotel_destination' => trim((string)($_POST['hotel_destination'] ?? '')),
                 'check_in_date' => trim((string)($_POST['check_in_date'] ?? '')),
                 'check_out_date' => trim((string)($_POST['check_out_date'] ?? '')),
-                'hotel_adults' => trim((string)($_POST['hotel_adults'] ?? '2')),
+                'hotel_adults' => trim((string)($_POST['hotel_adults'] ?? '1')),
                 'hotel_children' => trim((string)($_POST['hotel_children'] ?? '0')),
             ];
             $rakutenValues = [
@@ -333,13 +313,14 @@ final class SearchController
         $appName =
             $this->config['app']['name']
             ?? 'Travel Compass';
-        $appVersion = $this->config['app']['version'] ?? '1.6.0';
+        $appVersion = $this->config['app']['version'] ?? '1.6.1';
         $publicPath = dirname(__DIR__, 2) . '/public/assets/';
         $cssVersion = (string)(filemtime($publicPath . 'app.css') ?: $appVersion);
         $jsVersion = (string)(filemtime($publicPath . 'app.js') ?: $appVersion);
         $flightOffersMessage = SearchViewData::flightMessage($flightOffersStatus);
         $rakutenMessage = SearchViewData::rakutenMessage($rakutenStatus);
         $overseasHotelMessage = SearchViewData::overseasHotelMessage($overseasHotelStatus);
+        $hotelMessage = SearchViewData::hotelMessage($hotelStatus);
         $isSearchResult = $_SERVER['REQUEST_METHOD'] === 'POST';
         $seo = SeoViewData::create($this->config, $isSearchResult);
         if ($isSearchResult) {

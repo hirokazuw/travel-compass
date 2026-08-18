@@ -39,8 +39,8 @@
 </section>
 <?php require __DIR__ . '/partials/search-panel.php'; ?>
 <?php require __DIR__ . '/partials/flight-results.php'; ?>
+<?php require __DIR__ . '/partials/hotel-results.php'; ?>
 <?php require __DIR__ . '/partials/rakuten-results.php'; ?>
-<?php require __DIR__ . '/partials/overseas-hotel-results.php'; ?>
 <?php require __DIR__ . '/partials/recent-searches.php'; ?>
 </main><footer class="site-footer"><div class="site-footer-inner"><div><strong>✈ <?= $h($appName) ?></strong><p>航空券とホテルを比較できる旅行検索サービス</p></div><div class="site-footer-credit"><span>Created by Hirokazu WATABE · v<?= $h($appVersion) ?></span><small>© <?= date('Y') ?> Hirokazu WATABE</small></div></div></footer><script src="//statics.a8.net/a8link/a8linkmgr.js"></script><script>
 a8linkmgr({

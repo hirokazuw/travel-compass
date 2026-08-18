@@ -10,9 +10,7 @@ document.querySelectorAll('.search-tab').forEach((tab) => {
             panel.hidden = panel.id !== tab.dataset.tab;
         });
         document.querySelectorAll('[data-flight-tab-content]').forEach((content) => {
-            const activeProvider = document.querySelector('.flight-provider-tab.is-active')?.id;
-            const activeScope = activeProvider === 'overseas-flight-tab' ? 'overseas' : 'domestic';
-            content.hidden = tab.dataset.tab !== 'flight-panel' || content.dataset.flightScope !== activeScope;
+            content.hidden = tab.dataset.tab !== 'flight-panel';
         });
         document.querySelectorAll('[data-flight-history]').forEach((history) => {
             history.hidden = tab.dataset.tab !== 'flight-panel';
@@ -27,22 +25,17 @@ document.querySelectorAll('.search-tab').forEach((tab) => {
     });
 });
 
-document.querySelectorAll('.flight-provider-tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.flight-provider-tab').forEach((item) => {
-            const active = item === tab;
-            item.classList.toggle('is-active', active);
-            item.setAttribute('aria-selected', String(active));
-            item.tabIndex = active ? 0 : -1;
-        });
-        document.querySelectorAll('.flight-provider-panel').forEach((panel) => {
-            panel.hidden = panel.id !== tab.dataset.flightProviderPanel;
-        });
-        document.querySelectorAll('[data-flight-tab-content]').forEach((content) => {
-            const scope = tab.id === 'overseas-flight-tab' ? 'overseas' : 'domestic';
-            content.hidden = content.dataset.flightScope !== scope;
-        });
-    });
+document.querySelectorAll('.flight-search-form').forEach((form) => {
+    const returnDateInput = form.querySelector('input[name="return_date"]');
+    const updateReturnDate = () => {
+        if (!returnDateInput) return;
+        const oneWay = form.querySelector('input[name="trip_type"]:checked')?.value === 'oneway';
+        if (oneWay) returnDateInput.value = '';
+        returnDateInput.disabled = oneWay;
+        returnDateInput.required = !oneWay;
+    };
+    form.querySelectorAll('input[name="trip_type"]').forEach((input) => input.addEventListener('change', updateReturnDate));
+    updateReturnDate();
 });
 
 document.querySelectorAll('.hotel-provider-tab').forEach((tab) => {
@@ -56,24 +49,11 @@ document.querySelectorAll('.hotel-provider-tab').forEach((tab) => {
         document.querySelectorAll('.hotel-provider-panel').forEach((panel) => {
             panel.hidden = panel.id !== tab.dataset.providerPanel;
         });
-        const provider = tab.dataset.resultProvider || tab.dataset.providerPanel.replace('-hotel-panel', '');
-        document.querySelectorAll('[data-provider-results]').forEach((section) => {
-            section.hidden = section.dataset.providerResults !== provider;
+        const scope = tab.id === 'overseas-hotel-tab' ? 'overseas' : 'domestic';
+        document.querySelectorAll('[data-hotel-result-scope]').forEach((section) => {
+            section.hidden = section.dataset.hotelResultScope !== scope;
         });
     });
-});
-
-document.querySelectorAll('.flight-search-form').forEach((form) => {
-    const returnDateInput = form.querySelector('input[name="return_date"]');
-    const updateReturnDate = () => {
-        if (!returnDateInput) return;
-        const oneWay = form.querySelector('input[name="trip_type"]:checked')?.value === 'oneway';
-        if (oneWay) returnDateInput.value = '';
-        returnDateInput.disabled = oneWay;
-        returnDateInput.required = !oneWay;
-    };
-    form.querySelectorAll('input[name="trip_type"]').forEach((input) => input.addEventListener('change', updateReturnDate));
-    updateReturnDate();
 });
 
 document.querySelectorAll('.flight-offers-toggle').forEach((button) => {
@@ -141,7 +121,6 @@ document.querySelectorAll('.recent-search-card').forEach((card) => {
         if (tripTypeInput) tripTypeInput.checked = true;
         tripTypeInput?.dispatchEvent(new Event('change'));
         document.getElementById('flight-tab')?.click();
-        document.getElementById('domestic-flight-tab')?.click();
         flightForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
 });

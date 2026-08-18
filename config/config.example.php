@@ -3,7 +3,7 @@
 return [
     'app' => [
         'name' => 'Travel Compass',
-        'version' => '1.6.0',
+        'version' => '1.6.1',
         'timezone' => 'Asia/Tokyo',
     ],
 
@@ -60,6 +60,7 @@ return [
     ],
 
     'search_providers' => [
+        'hotels' => 'apify',
         'overseas_hotels' => getenv('OVERSEAS_HOTEL_PROVIDER') ?: 'apify',
         'flights' => getenv('FLIGHT_PROVIDER') ?: 'apify',
     ],

@@ -53,7 +53,7 @@ final class ScrapeDoService
         string $queryText,
         string $checkIn,
         string $checkOut,
-        int $adults = 2,
+        int $adults = 1,
         int $children = 0
     ): array
     {
