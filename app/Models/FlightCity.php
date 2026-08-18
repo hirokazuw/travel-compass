@@ -9,17 +9,17 @@ final class FlightCity
     private const BUILTIN_CITIES = [
         'ホノルル' => ['iata' => 'HNL', 'code_type' => 'airport'],
         'グアム' => ['iata' => 'GUM', 'code_type' => 'airport'],
-        'ソウル' => ['iata' => 'SEL', 'code_type' => 'metropolitan'],
+        'ソウル' => ['iata' => 'SEL', 'code_type' => 'metropolitan', 'airports' => ['ICN', 'GMP']],
         '台北' => ['iata' => 'TPE', 'code_type' => 'airport'],
         '香港' => ['iata' => 'HKG', 'code_type' => 'airport'],
-        'バンコク' => ['iata' => 'BKK', 'code_type' => 'metropolitan'],
+        'バンコク' => ['iata' => 'BKK', 'code_type' => 'metropolitan', 'airports' => ['BKK', 'DMK']],
         'シンガポール' => ['iata' => 'SIN', 'code_type' => 'airport'],
         'マニラ' => ['iata' => 'MNL', 'code_type' => 'airport'],
         'セブ' => ['iata' => 'CEB', 'code_type' => 'airport'],
         'ロサンゼルス' => ['iata' => 'LAX', 'code_type' => 'airport'],
-        'ニューヨーク' => ['iata' => 'NYC', 'code_type' => 'metropolitan'],
-        'ロンドン' => ['iata' => 'LON', 'code_type' => 'metropolitan'],
-        'パリ' => ['iata' => 'PAR', 'code_type' => 'metropolitan'],
+        'ニューヨーク' => ['iata' => 'NYC', 'code_type' => 'metropolitan', 'airports' => ['JFK', 'LGA', 'EWR']],
+        'ロンドン' => ['iata' => 'LON', 'code_type' => 'metropolitan', 'airports' => ['LHR', 'LGW', 'LCY', 'LTN', 'STN']],
+        'パリ' => ['iata' => 'PAR', 'code_type' => 'metropolitan', 'airports' => ['CDG', 'ORY']],
         'シドニー' => ['iata' => 'SYD', 'code_type' => 'airport'],
     ];
     private string|false|null $countryColumn = null;
@@ -141,6 +141,25 @@ final class FlightCity
 
         $airports = $this->airportCodes($result['airports'] ?? null);
         return $airports === [] ? $iata : implode(',', $airports);
+    }
+
+    /** @return list<array{iata: string, name: string}> */
+    public function airportCandidates(string $city): array
+    {
+        $result = $this->find($city);
+        if ($result === null) return [];
+
+        $iata = strtoupper((string)$result['iata']);
+        $codes = ($result['code_type'] ?? '') === 'metropolitan'
+            ? $this->airportCodes($result['airports'] ?? null)
+            : [$iata];
+        if ($codes === []) $codes = [$iata];
+
+        $name = trim((string)($result['city'] ?? $city));
+        return array_map(
+            static fn(string $code): array => ['iata' => $code, 'name' => $name !== '' ? $name : $code],
+            $codes
+        );
     }
 
     /** @return list<string> */

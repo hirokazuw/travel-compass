@@ -3,7 +3,7 @@
 return [
     'app' => [
         'name' => 'Travel Compass',
-        'version' => '1.4.0',
+        'version' => '1.5.0',
         'timezone' => 'Asia/Tokyo',
     ],
 
@@ -35,6 +35,21 @@ return [
         'cache_dir' => dirname(__DIR__) . '/storage/cache/serpapi',
         'monthly_limit' => 225,
         'usage_file' => dirname(__DIR__) . '/storage/cache/serpapi-usage.json',
+    ],
+
+    'aviasales' => [
+        'base_url' => 'https://api.travelpayouts.com/v1/prices/calendar',
+        'token' => getenv('TRAVELPAYOUTS_API_TOKEN') ?: '',
+        'cache_ttl' => 21600,
+        'cache_dir' => dirname(__DIR__) . '/storage/cache/aviasales',
+    ],
+
+    'aerodatabox' => [
+        'base_url' => 'https://aerodatabox.p.rapidapi.com',
+        'api_key' => getenv('AERODATABOX_API_KEY') ?: '',
+        'rapidapi_host' => 'aerodatabox.p.rapidapi.com',
+        'cache_ttl' => 86400,
+        'cache_dir' => dirname(__DIR__) . '/storage/cache/aerodatabox',
     ],
 
     'rakuten' => [

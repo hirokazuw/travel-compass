@@ -3,20 +3,41 @@
     <small>YOUR PLAN</small>
     <h2><?= $h($values['origin']) ?> → <?= $h($values['destination']) ?></h2>
     <p><?= $h($values['departure_date']) ?><?= $values['return_date']?' 〜 '.$h($values['return_date']):'' ?>・<?= $values['return_date']!==''?'往復':'片道' ?>・<?= $h($values['travelers']) ?>名</p>
+    <?php if ($flightRoutes): ?>
+    <h3 class="flight-result-subheading">運航航空会社</h3>
+    <div class="route-cards" aria-label="直行便の運航航空会社">
+        <?php foreach($flightRoutes as $route): ?>
+        <article class="route-card">
+            <div class="route-card-logo">
+                <?php if($route['logo_url']!==''): ?><img src="<?= $h($route['logo_url']) ?>" alt="" width="120" height="40" loading="lazy" data-airline-logo><span class="carrier-code" data-airline-logo-fallback hidden><?= $h($route['carrier_iata']) ?></span><?php elseif($route['carrier_code']!==''): ?><span class="carrier-code"><?= $h($route['carrier_code']) ?></span><?php endif ?>
+            </div>
+            <div class="route-card-body">
+                <div class="route-airline-heading">
+                    <b><?= $h($route['carrier_name']) ?></b>
+                </div>
+                <p><?= $h($route['origin_name']) ?> (<?= $h($route['origin_iata']) ?>) → <?= $h($route['destination_name']) ?> (<?= $h($route['destination_iata']) ?>)</p>
+                <span class="flight-stops">直行便</span>
+            </div>
+        </article>
+        <?php endforeach ?>
+    </div>
+    <?php endif ?>
     <?php if ($flightOffers): ?>
+    <h3 class="flight-result-subheading">参考価格</h3>
     <div class="flight-offers" aria-label="参考フライト">
         <?php foreach($flightOffers as $offerIndex=>$offer): ?>
+        <?php $offerLogo = $offer['carrier_code'] !== '' ? 'https://pics.avs.io/120/40/' . rawurlencode($offer['carrier_code']) . '.png' : $offer['airline_logo']; ?>
         <article class="flight-offer"<?= $offerIndex>=6?' hidden data-extra-offer':'' ?>>
             <div class="flight-carrier">
-                <?php if($offer['airline_logo']!==''): ?><img src="<?= $h($offer['airline_logo']) ?>" alt="" width="70" height="70" loading="lazy"><?php elseif($offer['carrier_code']!==''): ?><span class="carrier-code"><?= $h($offer['carrier_code']) ?></span><?php endif ?>
+                <?php if($offerLogo!==''): ?><img src="<?= $h($offerLogo) ?>" alt="" width="120" height="40" loading="lazy" data-airline-logo><span class="carrier-code" data-airline-logo-fallback hidden><?= $h($offer['carrier_code']) ?></span><?php elseif($offer['carrier_code']!==''): ?><span class="carrier-code"><?= $h($offer['carrier_code']) ?></span><?php endif ?>
                 <b><?= $h($offer['carrier_name']) ?></b><span class="flight-stops"><?= $offer['stops']===0?'直行便':$h($offer['stops']).'回乗継' ?></span>
             </div>
-            <div class="flight-price"><small>参考価格</small><strong><?= $offer['currency']==='JPY'?'¥':$h($offer['currency']).' ' ?><?= $h($offer['price']) ?></strong></div>
+            <div class="flight-price"><small>参考価格</small><strong><?= $offer['currency']==='JPY'?'¥':$h($offer['currency']).' ' ?><?= $h($offer['price']) ?>〜</strong></div>
         </article>
         <?php endforeach ?>
     </div>
     <?php if(count($flightOffers)>6): ?><button type="button" class="flight-offers-toggle" aria-expanded="false">もっと見る</button><?php endif ?>
-    <p class="price-note">表示価格はGoogle Flightsの検索結果です。最新の価格・空席は各予約サイトでご確認ください。</p>
+    <p class="price-note"><?php if($flightOffersSource==='aviasales'): ?>表示価格はAviasales Data APIで各航空会社が月間最安値として記録された価格傾向データです。<?php else: ?>表示価格はGoogle Flightsの検索結果による参考価格です。<?php endif ?> 実際の料金は予約サイトでご確認ください。</p>
     <?php elseif($flightOffersMessage !== ''): ?><div class="flight-offers-message"><?= $h($flightOffersMessage) ?></div><?php endif ?>
     <section class="booking-sites">
         <h3>予約サイト</h3><p>同じ条件を各予約サイトで確認できます。</p>

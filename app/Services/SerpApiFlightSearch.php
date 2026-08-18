@@ -135,7 +135,9 @@ final class SerpApiFlightSearch
             $carrierKey = mb_strtolower(
                 $carrierName !== '航空会社' ? $carrierName : $carrierCode
             );
-            $logo = (string)($result['airline_logo'] ?? $first['airline_logo'] ?? '');
+            $logo = $carrierCode !== ''
+                ? 'https://pics.avs.io/120/40/' . rawurlencode($carrierCode) . '.png'
+                : (string)($result['airline_logo'] ?? $first['airline_logo'] ?? '');
             $price = (float)($result['price'] ?? 0);
 
             if ($price <= 0) {

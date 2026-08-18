@@ -14,6 +14,9 @@ document.querySelectorAll('.search-tab').forEach((tab) => {
             const activeScope = activeProvider === 'overseas-flight-tab' ? 'overseas' : 'domestic';
             content.hidden = tab.dataset.tab !== 'flight-panel' || content.dataset.flightScope !== activeScope;
         });
+        document.querySelectorAll('[data-flight-history]').forEach((history) => {
+            history.hidden = tab.dataset.tab !== 'flight-panel';
+        });
         if (tab.dataset.tab !== 'hotel-panel') {
             document.querySelectorAll('[data-provider-results]').forEach((section) => {
                 section.hidden = true;
@@ -88,6 +91,14 @@ document.querySelectorAll('.rakuten-results-toggle').forEach((button) => {
         const hiddenHotels = [...document.querySelectorAll('[data-extra-rakuten-hotel][hidden]')];
         hiddenHotels.slice(0, Number(button.dataset.step) || 5).forEach((hotel) => { hotel.hidden = false; });
         if (!document.querySelector('[data-extra-rakuten-hotel][hidden]')) button.hidden = true;
+    });
+});
+
+document.querySelectorAll('[data-airline-logo]').forEach((logo) => {
+    logo.addEventListener('error', () => {
+        logo.hidden = true;
+        const fallback = logo.parentElement?.querySelector('[data-airline-logo-fallback]');
+        if (fallback) fallback.hidden = false;
     });
 });
 

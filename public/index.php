@@ -36,6 +36,7 @@ date_default_timezone_set(
 try {
     $db = App\Core\Database::connect($config['db']);
     $flightCity = new App\Models\FlightCity($db);
+    $airlines = new App\Models\Airline($db);
     $serpApiConfig = $config['serpapi'] ?? [];
     $serpApiCache = new App\Services\SerpApiCache(
         (string)($serpApiConfig['cache_dir'] ?? $root . '/storage/cache/serpapi'),
@@ -43,11 +44,23 @@ try {
         max(0, (int)($serpApiConfig['monthly_limit'] ?? 225)),
         (string)($serpApiConfig['usage_file'] ?? $root . '/storage/cache/serpapi-usage.json')
     );
+    $aviasalesConfig = $config['aviasales'] ?? [];
+    $aviasalesCache = new App\Services\SerpApiCache(
+        (string)($aviasalesConfig['cache_dir'] ?? $root . '/storage/cache/aviasales'),
+        max(0, (int)($aviasalesConfig['cache_ttl'] ?? 21600))
+    );
+    $aeroDataBoxConfig = $config['aerodatabox'] ?? [];
+    $aeroDataBoxCache = new App\Services\SerpApiCache(
+        (string)($aeroDataBoxConfig['cache_dir'] ?? $root . '/storage/cache/aerodatabox'),
+        max(0, (int)($aeroDataBoxConfig['cache_ttl'] ?? 86400))
+    );
     (new App\Controllers\SearchController(
         new App\Models\TravelSearch($db),
         $flightCity,
         new App\Services\FlightSearchService(
             $flightCity,
+            new App\Services\AeroDataBoxRouteSearch($aeroDataBoxConfig, $aeroDataBoxCache, $airlines),
+            new App\Services\AviasalesPriceSearch($aviasalesConfig, $aviasalesCache, $airlines),
             new App\Services\SerpApiFlightSearch($serpApiConfig, $serpApiCache)
         ),
         new App\Services\RakutenTravelService($config['rakuten'] ?? []),

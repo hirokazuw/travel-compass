@@ -27,7 +27,9 @@ final class SearchController
         $errors = [];
         $result = null;
         $flightOffers = [];
+        $flightRoutes = [];
         $flightOffersStatus = 'idle';
+        $flightOffersSource = 'none';
         $isDomesticFlight = false;
         $activeFlightScope = 'domestic';
         $hotelErrors = [];
@@ -158,7 +160,9 @@ final class SearchController
                     $values['return_date'], (int)$values['travelers']
                 );
                 $flightOffers = $flightResult['offers'];
+                $flightRoutes = (array)($flightResult['routes'] ?? []);
                 $flightOffersStatus = $flightResult['status'];
+                $flightOffersSource = (string)($flightResult['source'] ?? 'none');
             }
         }
 
@@ -295,7 +299,7 @@ final class SearchController
         $appName =
             $this->config['app']['name']
             ?? 'Travel Compass';
-        $appVersion = $this->config['app']['version'] ?? '1.4.0';
+        $appVersion = $this->config['app']['version'] ?? '1.5.0';
         $publicPath = dirname(__DIR__, 2) . '/public/assets/';
         $cssVersion = (string)(filemtime($publicPath . 'app.css') ?: $appVersion);
         $jsVersion = (string)(filemtime($publicPath . 'app.js') ?: $appVersion);
