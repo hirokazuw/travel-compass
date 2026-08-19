@@ -38,6 +38,7 @@ Version 1.7.0.0
 * Agoda
 * JTB
 * SkyTicket
+* エアトリ（Skygate）
 
 ### ホテル検索
 

@@ -29,6 +29,9 @@
         <div class="booking-site-links">
             <a href="<?= $h($result['expedia']) ?>" target="_blank" rel="sponsored noopener">Expedia</a>
             <a href="<?= $h($result['agoda']) ?>" target="_blank" rel="sponsored noopener">Agoda</a>
+            <?php if(!$isDomesticFlight): ?>
+            <a href="<?= $h($result['skygate']) ?>" target="_blank" rel="sponsored noopener">エアトリ（海外航空券）</a>
+            <?php endif ?>
             <?php if($isDomesticFlight): ?>
             <a href="<?= $h($result['airtrip']) ?>" target="_blank" rel="sponsored noopener">エアトリ</a>
             <a href="<?= $h($result['travelist']) ?>" target="_blank" rel="sponsored noopener">トラベリスト</a>

@@ -58,7 +58,7 @@ flight-search-form.php → app.js → POST
 - 国内: 出発地・目的地の両方が`FlightCity::isDomestic()`で国内
 - Apify入力: 出発／到着コード、日付、大人、economy、ja/jp、JPY、最大page数
 - 変換: `best_flights`, `other_flights`, `all_flights`をカード形式へ変換し価格昇順
-- OTA: 共通Expedia／Agoda、国内エアトリ／トラベリスト／リアルチケット、海外JTB／SkyTicket
+- OTA: 共通Expedia／Agoda、国内エアトリ／トラベリスト／リアルチケット、海外JTB／SkyTicket／エアトリ（Skygate）
 - status: `not_configured`, `unsupported_route`, `empty`, `error`
 - 別航空券APIへのfallbackはない。Apify失敗時もOTA導線は生成される
 
