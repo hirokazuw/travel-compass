@@ -50,13 +50,17 @@ return [
     'apify' => [
         'token' => getenv('APIFY_TOKEN') ?: '',
         'hotels_url' => 'https://api.apify.com/v2/acts/johnvc~google-hotels-search-scraper/run-sync-get-dataset-items',
+        'places_url' => 'https://api.apify.com/v2/acts/xtracto~gmaps-suggestion/run-sync-get-dataset-items',
         'flights_url' => 'https://api.apify.com/v2/acts/johnvc~google-flights-data-scraper-flight-and-price-search/run-sync-get-dataset-items',
         'cache_ttl' => 3600,
         'hotel_cache_dir' => dirname(__DIR__) . '/storage/cache/apify/hotels',
+        'places_cache_dir' => dirname(__DIR__) . '/storage/cache/apify/place-suggestions',
+        'places_cache_ttl' => 900,
         'flight_cache_dir' => dirname(__DIR__) . '/storage/cache/apify/flights',
         'timeout' => 120,
         'connect_timeout' => 10,
         'max_pages' => 1,
+        'max_place_suggestions' => 8,
     ],
 
     'search_providers' => [

@@ -30,6 +30,14 @@ final class SearchController
 
     public function index(): void
     {
+        if (
+            $_SERVER['REQUEST_METHOD'] === 'POST'
+            && (string)($_POST['search_type'] ?? '') === 'hotel_destination_suggestions'
+        ) {
+            $this->destinationSuggestions();
+            return;
+        }
+
         $errors = [];
         $result = null;
         $flightOffers = [];
@@ -342,6 +350,40 @@ final class SearchController
             $date->format('Y-m-d') === $value
             ? $date
             : null;
+    }
+
+    private function destinationSuggestions(): void
+    {
+        header('Content-Type: application/json; charset=UTF-8');
+        if (!hash_equals($_SESSION['csrf'] ?? '', (string)($_POST['csrf'] ?? ''))) {
+            http_response_code(403);
+            echo json_encode(['suggestions' => [], 'message' => '送信内容を確認できませんでした。'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $query = trim((string)($_POST['query'] ?? ''));
+        if (mb_strlen($query) < 2 || mb_strlen($query) > 100) {
+            http_response_code(422);
+            echo json_encode(['suggestions' => [], 'message' => '目的地を2〜100文字で入力してください。'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        if (!$this->apify->isConfigured()) {
+            http_response_code(503);
+            echo json_encode(['suggestions' => [], 'message' => '候補検索を現在利用できません。手入力で検索できます。'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        try {
+            $suggestions = $this->apify->searchDestinationSuggestions($query);
+            echo json_encode([
+                'suggestions' => $suggestions,
+                'message' => $suggestions === [] ? '候補が見つかりませんでした。手入力で検索できます。' : '',
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            error_log('Apify destination suggestion search: ' . $e->getMessage());
+            http_response_code(502);
+            echo json_encode(['suggestions' => [], 'message' => '候補を取得できませんでした。手入力で検索できます。'], JSON_UNESCAPED_UNICODE);
+        }
     }
 
 

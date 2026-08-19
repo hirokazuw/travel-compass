@@ -11,7 +11,8 @@ final class ApifyService
     public function __construct(
         private array $config,
         private SerpApiCache $flightCache,
-        private SerpApiCache $hotelCache
+        private SerpApiCache $hotelCache,
+        private ?SerpApiCache $placesCache = null
     ) {}
 
     public function isConfigured(): bool
@@ -50,6 +51,22 @@ final class ApifyService
         );
 
         return $this->normalizeHotels($items);
+    }
+
+    public function searchDestinationSuggestions(string $query): array
+    {
+        if (!$this->isConfigured()) return [];
+
+        $input = [
+            'keyword' => $query,
+            'language' => 'ja',
+        ];
+        $cache = $this->placesCache ?? $this->hotelCache;
+        $items = $cache->remember(
+            ['source' => 'destination-suggestions', ...$input],
+            fn(): array => $this->request((string)($this->config['places_url'] ?? ''), $input)
+        );
+        return $this->normalizeDestinationSuggestions($items);
     }
 
     public function searchFlights(
@@ -148,6 +165,8 @@ final class ApifyService
                 'description' => trim((string)($hotel['description'] ?? '')),
                 'official_url' => $this->httpsUrl((string)($hotel['link'] ?? '')),
                 'property_token' => trim((string)($hotel['property_token'] ?? '')),
+                'google_place_id' => trim((string)($hotel['place_id'] ?? $hotel['placeId'] ?? '')),
+                'address' => trim((string)($hotel['address'] ?? '')),
                 'latitude' => $this->coordinate($hotel['gps_coordinates'] ?? [], 'latitude'),
                 'longitude' => $this->coordinate($hotel['gps_coordinates'] ?? [], 'longitude'),
                 'hotel_class' => $this->nullableText($hotel['hotel_class'] ?? $hotel['extracted_hotel_class'] ?? null),
@@ -163,6 +182,27 @@ final class ApifyService
             ];
         }
         return $hotels;
+    }
+
+    public function normalizeDestinationSuggestions(array $items): array
+    {
+        $suggestions = [];
+        foreach ($items as $place) {
+            if (!is_array($place)) continue;
+            $name = trim((string)($place['name'] ?? $place['keyword'] ?? ''));
+            if ($name === '') continue;
+            $coordinate = is_array($place['coordinate'] ?? null) ? array_values($place['coordinate']) : [];
+            $suggestions[] = [
+                'name' => $name,
+                'category' => trim((string)($place['type'] ?? $place['category'] ?? '')),
+                'address' => trim((string)($place['address'] ?? '')),
+                'place_id' => trim((string)($place['item_id'] ?? $place['place_id'] ?? '')),
+                'country_code' => strtoupper(trim((string)($place['country_code'] ?? ''))),
+                'latitude' => isset($coordinate[0]) && is_numeric($coordinate[0]) ? (float)$coordinate[0] : null,
+                'longitude' => isset($coordinate[1]) && is_numeric($coordinate[1]) ? (float)$coordinate[1] : null,
+            ];
+        }
+        return array_slice($suggestions, 0, max(1, (int)($this->config['max_place_suggestions'] ?? 8)));
     }
 
     private function nullableText(mixed $value): ?string
@@ -275,6 +315,7 @@ final class ApifyService
     {
         return filter_var($url, FILTER_VALIDATE_URL) && str_starts_with($url, 'https://') ? $url : '';
     }
+
 
     private function time(string $value): string
     {

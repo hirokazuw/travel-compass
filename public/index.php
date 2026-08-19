@@ -73,6 +73,10 @@ try {
         new App\Services\SerpApiCache(
             (string)($apifyConfig['hotel_cache_dir'] ?? $root . '/storage/cache/apify/hotels'),
             $apifyTtl
+        ),
+        new App\Services\SerpApiCache(
+            (string)($apifyConfig['places_cache_dir'] ?? $root . '/storage/cache/apify/place-suggestions'),
+            max(0, (int)($apifyConfig['places_cache_ttl'] ?? 900))
         )
     );
     (new App\Controllers\SearchController(
