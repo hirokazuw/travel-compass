@@ -8,7 +8,7 @@ return [
     ],
 
     'seo' => [
-        'title' => 'Travel Compass｜航空券・ホテルをまとめて比較',
+        'title' => 'Travel Compass（トラベルコンパス）｜航空券・ホテル比較',
         'description' => 'Travel Compassは、航空券とホテルを一つの画面から検索し、複数の旅行予約サイトを比較できる旅行検索サービスです。',
         'canonical_url' => 'https://hirokazu-watabe.jp/travel-compass/',
         'og_image_url' => 'https://hirokazu-watabe.jp/travel-compass/public/assets/og-travel-compass.png',

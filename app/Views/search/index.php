@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php require __DIR__ . '/partials/hotel-results.php'; ?>
 <?php require __DIR__ . '/partials/recent-searches.php'; ?>
 <?php require __DIR__ . '/partials/search-loading.php'; ?>
-</main><footer class="site-footer"><div class="site-footer-inner"><div><strong>✈ <?= $h($appName) ?></strong><p>航空券とホテルを比較できる旅行検索サービス</p></div><div class="site-footer-credit"><span>Created by Hirokazu WATABE · v<?= $h($appVersion) ?></span><small>© <?= date('Y') ?> Hirokazu WATABE</small></div></div></footer><script src="//statics.a8.net/a8link/a8linkmgr.js"></script><script>
+</main><footer class="site-footer"><div class="site-footer-inner"><div><strong>✈ <?= $h($appName) ?></strong><p>Travel Compass（トラベルコンパス）は、航空券とホテルを比較できる旅行検索サービスです。</p></div><div class="site-footer-credit"><span>Created by Hirokazu WATABE · v<?= $h($appVersion) ?></span><small>© <?= date('Y') ?> Hirokazu WATABE</small></div></div></footer><script src="//statics.a8.net/a8link/a8linkmgr.js"></script><script>
 a8linkmgr({
   "config_id": "mENmBoJBInmbobSt2c0A"
 });

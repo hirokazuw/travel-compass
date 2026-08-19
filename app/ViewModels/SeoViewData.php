@@ -24,6 +24,10 @@ final class SeoViewData
                     '@type' => 'WebSite',
                     '@id' => $url . '#website',
                     'name' => $name,
+                    'alternateName' => [
+                        'トラベルコンパス',
+                        'TravelCompass',
+                    ],
                     'url' => $url,
                     'inLanguage' => 'ja',
                 ],
