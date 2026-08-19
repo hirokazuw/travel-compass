@@ -3,7 +3,7 @@
 return [
     'app' => [
         'name' => 'Travel Compass',
-        'version' => '1.6.1.2',
+        'version' => '1.6.1.3',
         'timezone' => 'Asia/Tokyo',
     ],
 

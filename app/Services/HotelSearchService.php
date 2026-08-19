@@ -6,7 +6,7 @@ namespace App\Services;
 
 final class HotelSearchService
 {
-    public function __construct(private ApifyService $apify) {}
+    public function __construct(private ApifyHotelSearch $apify, private HotelUrlBuilder $urls) {}
 
     public function isConfigured(): bool
     {
@@ -20,7 +20,7 @@ final class HotelSearchService
         int $adults,
         int $children
     ): array {
-        return $this->apify->searchHotels($destination, $checkIn, $checkOut, $adults, $children);
+        return $this->apify->search($destination, $checkIn, $checkOut, $adults, $children);
     }
 
     public function bookingLinks(
@@ -31,30 +31,7 @@ final class HotelSearchService
         int $children,
         bool $domestic
     ): array {
-        $common = [
-            'destination' => $destination,
-            'startDate' => $checkIn,
-            'endDate' => $checkOut,
-            'adults' => max(1, $adults),
-            'children' => max(0, $children),
-        ];
-
-        if (!$domestic) {
-            return [
-                'expedia' => 'https://www.expedia.co.jp/Hotel-Search?' . http_build_query($common, '', '&', PHP_QUERY_RFC3986),
-                'hotels' => 'https://jp.hotels.com/Hotel-Search?' . http_build_query($common, '', '&', PHP_QUERY_RFC3986),
-                'jtb' => 'https://www.jtb.co.jp/kokunai-hotel/list/?' . http_build_query(['q' => $destination], '', '&', PHP_QUERY_RFC3986),
-            ];
-        }
-
-        $keyword = rawurlencode($destination);
-        return [
-            'rakuten' => 'https://travel.rakuten.co.jp/yado/keyword/' . $keyword . '.html',
-            'jalan' => 'https://www.jalan.net/uw/uwp2011/uww2011init.do?' . http_build_query(['keyword' => $destination], '', '&', PHP_QUERY_RFC3986),
-            'yahoo' => 'https://travel.yahoo.co.jp/search/?' . http_build_query(['keyword' => $destination], '', '&', PHP_QUERY_RFC3986),
-            'ikyu' => 'https://www.ikyu.com/search/?' . http_build_query(['keyword' => $destination], '', '&', PHP_QUERY_RFC3986),
-            'expedia' => 'https://www.expedia.co.jp/Hotel-Search?' . http_build_query($common, '', '&', PHP_QUERY_RFC3986),
-        ];
+        return $this->urls->build($destination, $checkIn, $checkOut, $adults, $children, $domestic);
     }
 
     /** @return array<int, string> Apify result index => matched Rakuten affiliate URL */

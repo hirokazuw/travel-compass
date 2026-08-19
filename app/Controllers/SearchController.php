@@ -8,10 +8,10 @@ use App\Requests\DestinationSuggestionRequest;
 use App\Requests\FlightSearchRequest;
 use App\Requests\HotelSearchRequest;
 use App\Services\FlightSearchService;
-use App\Services\ApifyService;
+use App\Services\ApifyDestinationSearch;
 use App\Services\HotelSearchService;
 use App\Services\RakutenTravelService;
-use App\Services\TravelLinkBuilder;
+use App\Services\FlightUrlBuilder;
 use App\ViewModels\SearchViewData;
 use App\ViewModels\SeoViewData;
 
@@ -23,8 +23,8 @@ final class SearchController
         private FlightSearchService $flightSearch,
         private RakutenTravelService $rakutenTravel,
         private HotelSearchService $hotelSearch,
-        private ApifyService $apify,
-        private TravelLinkBuilder $travelLinks,
+        private ApifyDestinationSearch $apify,
+        private FlightUrlBuilder $travelLinks,
         private array $config
     ) {}
 
@@ -84,7 +84,7 @@ final class SearchController
         $appName =
             $this->config['app']['name']
             ?? 'Travel Compass';
-        $appVersion = $this->config['app']['version'] ?? '1.6.1.2';
+        $appVersion = $this->config['app']['version'] ?? '1.6.1.3';
         $publicPath = dirname(__DIR__, 2) . '/public/assets/';
         $cssVersion = (string)(filemtime($publicPath . 'app.css') ?: $appVersion);
         $jsVersion = (string)(filemtime($publicPath . 'app.js') ?: $appVersion);
@@ -186,7 +186,7 @@ final class SearchController
         }
 
         try {
-            $suggestions = $this->apify->searchDestinationSuggestions($request->query);
+            $suggestions = $this->apify->search($request->query);
             echo json_encode([
                 'suggestions' => $suggestions,
                 'message' => $suggestions === [] ? '候補が見つかりませんでした。手入力で検索できます。' : '',

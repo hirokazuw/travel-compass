@@ -6,7 +6,7 @@ namespace App\Services;
 
 use App\Models\FlightCity;
 
-final class TravelLinkBuilder
+final class FlightUrlBuilder
 {
     public function __construct(
         private FlightCity $cities,
@@ -24,7 +24,6 @@ final class TravelLinkBuilder
     ): array {
         $links = [
             'maps' => 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode($destination),
-            'hotel' => $this->tripHotel($destination, $departure, $return, $travelers),
             'flight' => $this->tripFlight($origin, $destination, $departure, $return, $travelers),
             'bookingcom' => $this->booking($origin, $destination, $departure, $return, $travelers),
             'expedia' => $this->expedia($origin, $destination, $departure, $return, $travelers),
@@ -42,25 +41,6 @@ final class TravelLinkBuilder
         }
 
         return $links;
-    }
-
-    private function tripHotel(string $destination, string $checkIn, string $checkOut, int $travelers): string
-    {
-        $cities = ['福岡' => ['city_id' => 248, 'country_id' => 78]];
-        $city = $cities[mb_convert_kana(trim($destination), 'asKV')] ?? null;
-        if ($city === null || $checkOut === '') {
-            return $this->affiliateUrl('hotel_url');
-        }
-
-        return 'https://jp.trip.com/hotels/list?' . $this->query([
-            'city' => $city['city_id'], 'provinceId' => 0, 'countryId' => $city['country_id'],
-            'checkIn' => $checkIn, 'checkOut' => $checkOut, 'lat' => 0, 'lon' => 0,
-            'districtId' => 0, 'barCurr' => 'JPY', 'searchType' => 'CT', 'searchValue' => '___',
-            'crn' => 1, 'adult' => $travelers, 'children' => 0, 'searchBoxArg' => 't',
-            'travelPurpose' => 0, 'domestic' => 'false',
-            'Allianceid' => $this->config['trip']['alliance_id'] ?? '',
-            'SID' => $this->config['trip']['sid'] ?? '',
-        ]);
     }
 
     private function tripFlight(string $origin, string $destination, string $departure, string $return, int $travelers): string

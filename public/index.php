@@ -38,32 +38,43 @@ try {
     $flightCity = new App\Models\FlightCity($db);
     $apifyConfig = $config['apify'] ?? [];
     $apifyTtl = max(0, (int)($apifyConfig['cache_ttl'] ?? 3600));
-    $apify = new App\Services\ApifyService(
-        $apifyConfig,
+    $apifyClient = new App\Services\ApifyClient($apifyConfig);
+    $apifyNormalizer = new App\Services\ApifyResponseNormalizer($apifyConfig);
+    $apifyFlight = new App\Services\ApifyFlightSearch(
+        $apifyClient,
         new App\Services\ApiCache(
             (string)($apifyConfig['flight_cache_dir'] ?? $root . '/storage/cache/apify/flights'),
             $apifyTtl
         ),
+        $apifyNormalizer
+    );
+    $apifyHotel = new App\Services\ApifyHotelSearch(
+        $apifyClient,
         new App\Services\ApiCache(
             (string)($apifyConfig['hotel_cache_dir'] ?? $root . '/storage/cache/apify/hotels'),
             $apifyTtl
         ),
+        $apifyNormalizer
+    );
+    $apifyDestination = new App\Services\ApifyDestinationSearch(
+        $apifyClient,
         new App\Services\ApiCache(
             (string)($apifyConfig['places_cache_dir'] ?? $root . '/storage/cache/apify/place-suggestions'),
             max(0, (int)($apifyConfig['places_cache_ttl'] ?? 900))
-        )
+        ),
+        $apifyNormalizer
     );
     (new App\Controllers\SearchController(
         new App\Models\TravelSearch($db),
         $flightCity,
         new App\Services\FlightSearchService(
             $flightCity,
-            $apify
+            $apifyFlight
         ),
         new App\Services\RakutenTravelService($config['rakuten'] ?? []),
-        new App\Services\HotelSearchService($apify),
-        $apify,
-        new App\Services\TravelLinkBuilder(
+        new App\Services\HotelSearchService($apifyHotel, new App\Services\HotelUrlBuilder()),
+        $apifyDestination,
+        new App\Services\FlightUrlBuilder(
             $flightCity,
             $config
         ),
