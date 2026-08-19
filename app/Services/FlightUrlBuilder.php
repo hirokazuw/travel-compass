@@ -266,7 +266,7 @@ final class FlightUrlBuilder
         }
         $params['caCd'] = '';
         return 'https://www.jtb.co.jp/ovs_air/search/search_result/?'
-            . http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+            . $this->query($params);
     }
 
     private function skyTicketInternational(string $origin, string $destination, string $departure, string $return, int $travelers): string

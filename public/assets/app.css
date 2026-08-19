@@ -35,6 +35,7 @@ input[name="return_date"]:disabled{background:#eef1f5;color:#98a1b2;cursor:not-a
 .booking-site-links a{flex:0 1 auto;padding:11px 15px;border-radius:9px;background:var(--blue);color:white;text-align:center;text-decoration:none;font-size:.82rem;font-weight:700;white-space:nowrap}
 .hotel-official-link{color:inherit;text-decoration:none}.hotel-official-link:hover{text-decoration:underline}.hotel-official-button{display:block;width:100%;margin-top:12px;padding:9px 10px;border-radius:8px;background:var(--blue);color:#fff;text-align:center;text-decoration:none;font-size:.78rem;font-weight:800}
 .hotel-rakuten-button{display:block;width:100%;margin-top:7px;padding:9px 10px;border-radius:8px;background:#bf0000;color:#fff;text-align:center;text-decoration:none;font-size:.78rem;font-weight:800}
+.hotel-booking-button{display:block;width:100%;margin-top:7px;padding:9px 10px;border-radius:8px;color:#fff;text-align:center;text-decoration:none;font-size:.78rem;font-weight:800}.hotel-booking-button.is-jalan{background:#f58220}.hotel-booking-button.is-yahoo{background:#6b21a8}.hotel-booking-button.is-ikyu{background:#9a7b4f}.hotel-booking-button.is-expedia{background:#173a8f}.hotel-booking-button.is-hotels{background:#d71920}
 .hotel-address{margin:0 0 10px;color:#66728a;font-size:.72rem;line-height:1.5}
 .price-note,.flight-offers-message{color:#66728a;font-size:.78rem}
 .flight-offers-message{margin:22px 0;padding:14px 16px;border-radius:10px;background:#f1f5fa}

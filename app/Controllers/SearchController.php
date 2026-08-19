@@ -48,7 +48,6 @@ final class SearchController
         $activeTab = 'flight';
         $activeHotelScope = 'domestic';
         $hotels = [];
-        $hotelBookingLinks = [];
         $rakutenHotelLinks = [];
         $hotelStatus = 'idle';
         $hotelValues = [
@@ -84,7 +83,7 @@ final class SearchController
         $appName =
             $this->config['app']['name']
             ?? 'Travel Compass';
-        $appVersion = $this->config['app']['version'] ?? '1.6.1.3';
+        $appVersion = $this->config['app']['version'] ?? '1.6.2.0';
         $publicPath = dirname(__DIR__, 2) . '/public/assets/';
         $cssVersion = (string)(filemtime($publicPath . 'app.css') ?: $appVersion);
         $jsVersion = (string)(filemtime($publicPath . 'app.js') ?: $appVersion);
@@ -144,23 +143,34 @@ final class SearchController
                 $request->adults, $request->children
             );
             $rakutenHotelLinks = [];
+            $rakutenHotelMatches = [];
             if ($request->scope === 'domestic' && $this->rakutenTravel->isAffiliateConfigured()) {
                 try {
                     $links = $this->rakutenTravel->searchAffiliateLinks(
                         $destination, $request->values['check_in_date'], $request->values['check_out_date'],
                         $request->adults, $request->children
                     );
-                    $rakutenHotelLinks = $this->hotelSearch->matchRakutenLinks($hotels, $links);
+                    $rakutenHotelMatches = $this->hotelSearch->matchRakutenHotels($hotels, $links);
+                    $rakutenHotelLinks = array_map(
+                        static fn(array $match): string => $match['url'],
+                        $rakutenHotelMatches
+                    );
                 } catch (\Throwable $e) {
                     error_log('Rakuten hotel link search: ' . $e->getMessage());
                 }
             }
+            try {
+                $hotels = $this->hotelSearch->addHotelCardLinks(
+                    $hotels, $destination,
+                    $request->values['check_in_date'], $request->values['check_out_date'],
+                    $request->adults, $request->children, $request->scope === 'domestic',
+                    $request->scope === 'domestic' ? $rakutenHotelMatches : null
+                );
+            } catch (\Throwable $e) {
+                error_log('Hotel card link generation: ' . $e->getMessage());
+            }
             return $state + [
                 'hotels' => $hotels,
-                'hotelBookingLinks' => $this->hotelSearch->bookingLinks(
-                    $destination, $request->values['check_in_date'], $request->values['check_out_date'],
-                    $request->adults, $request->children, $request->scope === 'domestic'
-                ),
                 'rakutenHotelLinks' => $rakutenHotelLinks,
                 'hotelStatus' => $hotels ? 'success' : 'empty',
             ];

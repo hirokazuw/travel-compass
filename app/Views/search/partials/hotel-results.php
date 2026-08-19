@@ -16,6 +16,7 @@
             $nightlyRate = (int)($hotel['price_per_night'] ?? 0);
             $stayTotal = (int)($hotel['total_price'] ?? 0);
             $officialUrl = (string)($hotel['official_url'] ?? '');
+            $bookingLinks = (array)($hotel['booking_links'] ?? []);
         ?>
         <article class="overseas-hotel-card"<?= $hotelIndex >= 6 ? ' hidden data-extra-overseas-hotel' : '' ?>>
             <div class="overseas-hotel-image-wrap"><?php if($image !== ''): ?><img src="<?= $h($image) ?>" alt="<?= $h($hotel['name']) ?>" loading="lazy" data-hotel-image data-fallback-images="<?= $h(json_encode($fallbackImages, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>"><div class="overseas-hotel-placeholder" hidden>NO IMAGE</div><?php else: ?><div class="overseas-hotel-placeholder">NO IMAGE</div><?php endif ?></div>
@@ -32,13 +33,17 @@
                 <?php if($stayTotal > 0): ?><small>宿泊合計 ￥<?= number_format($stayTotal) ?></small><?php endif ?>
                 <?php if($officialUrl !== ''): ?><a class="hotel-official-button" href="<?= $h($officialUrl) ?>" target="_blank" rel="noopener noreferrer">公式サイト</a><?php endif ?>
                 <?php if(isset($rakutenHotelLinks[$hotelIndex])): ?><a class="hotel-rakuten-button" href="<?= $h($rakutenHotelLinks[$hotelIndex]) ?>" target="_blank" rel="sponsored noopener">楽天トラベルで予約</a><?php endif ?>
+                <?php if(($bookingLinks['jalan'] ?? '') !== ''): ?><a class="hotel-booking-button is-jalan" href="<?= $h($bookingLinks['jalan']) ?>" target="_blank" rel="sponsored noopener">じゃらん</a><?php endif ?>
+                <?php if(($bookingLinks['yahoo'] ?? '') !== ''): ?><a class="hotel-booking-button is-yahoo" href="<?= $h($bookingLinks['yahoo']) ?>" target="_blank" rel="sponsored noopener">Yahoo!トラベル</a><?php endif ?>
+                <?php if(($bookingLinks['ikyu'] ?? '') !== ''): ?><a class="hotel-booking-button is-ikyu" href="<?= $h($bookingLinks['ikyu']) ?>" target="_blank" rel="sponsored noopener">一休.com</a><?php endif ?>
+                <?php if(($bookingLinks['expedia'] ?? '') !== ''): ?><a class="hotel-booking-button is-expedia" href="<?= $h($bookingLinks['expedia']) ?>" target="_blank" rel="sponsored noopener">Expedia</a><?php endif ?>
+                <?php if(($bookingLinks['hotels'] ?? '') !== ''): ?><a class="hotel-booking-button is-hotels" href="<?= $h($bookingLinks['hotels']) ?>" target="_blank" rel="sponsored noopener">Hotels.com</a><?php endif ?>
             </div>
         </article>
         <?php endforeach ?>
     </div>
     <?php if(count($hotels) > 6): ?><button type="button" class="overseas-hotels-toggle" aria-expanded="false">もっと見る</button><?php endif ?>
     <p class="price-note">表示価格はGoogle Hotelsの検索結果による参考価格です。実際の料金は予約サイトでご確認ください。</p>
-    <section class="booking-sites"><h3><?= $activeHotelScope === 'domestic' ? '国内向け予約サイト' : '海外向け予約サイト' ?></h3><p>同じ条件を各予約サイトで確認できます。</p><div class="booking-site-links"><?php $siteNames=$activeHotelScope === 'domestic'?['jalan'=>'じゃらん','yahoo'=>'Yahoo!トラベル','ikyu'=>'一休.com','expedia'=>'Expedia']:['expedia'=>'Expedia','hotels'=>'Hotels.com','jtb'=>'JTB']; foreach($siteNames as $siteKey=>$siteName): ?><?php if(isset($hotelBookingLinks[$siteKey])): ?><a href="<?= $h($hotelBookingLinks[$siteKey]) ?>" target="_blank" rel="sponsored noopener"><?= $h($siteName) ?></a><?php endif ?><?php endforeach ?></div></section>
     <?php elseif($hotelMessage !== ''): ?><div class="flight-offers-message"><?= $h($hotelMessage) ?></div><?php endif ?>
 </section>
 <?php endif ?>

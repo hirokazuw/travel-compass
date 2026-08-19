@@ -23,27 +23,50 @@ final class HotelSearchService
         return $this->apify->search($destination, $checkIn, $checkOut, $adults, $children);
     }
 
-    public function bookingLinks(
+    public function addHotelCardLinks(
+        array $hotels,
         string $destination,
         string $checkIn,
         string $checkOut,
         int $adults,
         int $children,
-        bool $domestic
+        bool $domestic,
+        ?array $allowedIndexes = null
     ): array {
-        return $this->urls->build($destination, $checkIn, $checkOut, $adults, $children, $domestic);
+        foreach ($hotels as $index => $hotel) {
+            if (!is_array($hotel)) continue;
+            if ($allowedIndexes !== null && !array_key_exists($index, $allowedIndexes)) {
+                $hotels[$index]['booking_links'] = [];
+                continue;
+            }
+            try {
+                $hotelForLinks = $hotel;
+                if (is_array($allowedIndexes[$index] ?? null)) {
+                    $rakutenName = trim((string)($allowedIndexes[$index]['name'] ?? ''));
+                    if ($rakutenName !== '') $hotelForLinks['name'] = $rakutenName;
+                }
+                $hotels[$index]['booking_links'] = $this->urls->buildHotelCardLinks(
+                    $hotelForLinks, $destination, $checkIn, $checkOut, $adults, $children, $domestic
+                );
+            } catch (\Throwable $e) {
+                error_log('Hotel card link generation: ' . $e->getMessage());
+                $hotels[$index]['booking_links'] = [];
+            }
+        }
+        return $hotels;
     }
 
-    /** @return array<int, string> Apify result index => matched Rakuten affiliate URL */
-    public function matchRakutenLinks(array $hotels, array $rakutenLinks): array
+    /** @return array<int, array{name: string, url: string}> Apify result index => matched Rakuten hotel */
+    public function matchRakutenHotels(array $hotels, array $rakutenLinks): array
     {
         $candidates = [];
         foreach ($rakutenLinks as $link) {
             if (!is_array($link)) continue;
-            $name = $this->matchName((string)($link['name'] ?? ''));
+            $hotelName = trim((string)($link['name'] ?? ''));
+            $name = $this->matchName($hotelName);
             $url = (string)($link['url'] ?? '');
             if ($name !== '' && filter_var($url, FILTER_VALIDATE_URL) && str_starts_with($url, 'https://')) {
-                $candidates[] = ['name' => $name, 'url' => $url];
+                $candidates[] = ['match_name' => $name, 'name' => $hotelName, 'url' => $url];
             }
         }
 
@@ -53,19 +76,22 @@ final class HotelSearchService
             $name = $this->matchName((string)($hotel['name'] ?? ''));
             if ($name === '') continue;
 
-            $exact = array_values(array_filter($candidates, static fn(array $candidate): bool => $candidate['name'] === $name));
+            $exact = array_values(array_filter($candidates, static fn(array $candidate): bool => $candidate['match_name'] === $name));
             if (count($exact) === 1) {
-                $matches[(int)$index] = $exact[0]['url'];
+                $matches[(int)$index] = ['name' => $exact[0]['name'], 'url' => $exact[0]['url']];
                 continue;
             }
 
             // Accept a partial match only when it is sufficiently specific and unique.
             $partial = array_values(array_filter($candidates, static function (array $candidate) use ($name): bool {
-                $shorter = mb_strlen($name) <= mb_strlen($candidate['name']) ? $name : $candidate['name'];
+                $candidateName = $candidate['match_name'];
+                $shorter = mb_strlen($name) <= mb_strlen($candidateName) ? $name : $candidateName;
                 return mb_strlen($shorter) >= 8
-                    && (str_contains($name, $candidate['name']) || str_contains($candidate['name'], $name));
+                    && (str_contains($name, $candidateName) || str_contains($candidateName, $name));
             }));
-            if (count($partial) === 1) $matches[(int)$index] = $partial[0]['url'];
+            if (count($partial) === 1) {
+                $matches[(int)$index] = ['name' => $partial[0]['name'], 'url' => $partial[0]['url']];
+            }
         }
         return $matches;
     }
