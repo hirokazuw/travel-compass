@@ -9,7 +9,6 @@ use RuntimeException;
 final class RakutenTravelService
 {
     private const KEYWORD_URL = 'https://openapi.rakuten.co.jp/engine/api/Travel/KeywordHotelSearch/20260731';
-    private const VACANT_URL = 'https://openapi.rakuten.co.jp/engine/api/Travel/VacantHotelSearch/20170426';
 
     public function __construct(private array $config) {}
 
@@ -23,65 +22,6 @@ final class RakutenTravelService
     public function isAffiliateConfigured(): bool
     {
         return $this->isConfigured() && trim((string)($this->config['affiliate_id'] ?? '')) !== '';
-    }
-
-    public function search(string $destination, string $checkIn, string $checkOut, int $adults, int $children): array
-    {
-        if (!$this->isConfigured()) return [];
-
-        $keywordResponse = $this->request(self::KEYWORD_URL, [
-            'keyword' => $destination,
-            'hits' => 30,
-            'page' => 1,
-            'searchField' => 0,
-            'hotelThumbnailSize' => 3,
-            'responseType' => 'large',
-            'sort' => 'standard',
-        ]);
-        $keywordHotels = $this->hotelRecords($keywordResponse);
-        $hotelNumbers = array_values(array_slice(array_filter(array_map(
-            static fn(array $hotel): int => (int)($hotel['hotelNo'] ?? 0),
-            $keywordHotels
-        )), 0, 15));
-
-        $vacantByHotel = [];
-        if ($hotelNumbers !== []) {
-            try {
-                $vacantResponse = $this->request(self::VACANT_URL, [
-                    'hotelNo' => implode(',', $hotelNumbers),
-                    'checkinDate' => $checkIn,
-                    'checkoutDate' => $checkOut,
-                    'adultNum' => $adults,
-                    // 年齢入力がないため、子供人数は小学生低学年として検索する。
-                    'lowClassNum' => $children,
-                    'roomNum' => 1,
-                    'hits' => 30,
-                    'searchPattern' => 0,
-                    'hotelThumbnailSize' => 3,
-                    'responseType' => 'large',
-                    'sort' => 'standard',
-                ]);
-                foreach ($this->hotelRecords($vacantResponse) as $hotel) {
-                    $hotelNo = (int)($hotel['hotelNo'] ?? 0);
-                    if ($hotelNo > 0) $vacantByHotel[$hotelNo] = $hotel;
-                }
-            } catch (\Throwable $e) {
-                error_log('Rakuten vacant hotel search: ' . $e->getMessage());
-            }
-        }
-
-        $hotels = [];
-        foreach ($keywordHotels as $hotel) {
-            $hotelNo = (int)($hotel['hotelNo'] ?? 0);
-            $hotels[] = $this->normalize(
-                array_replace($hotel, $vacantByHotel[$hotelNo] ?? []),
-                $checkIn,
-                $checkOut,
-                $adults,
-                $children
-            );
-        }
-        return array_values(array_filter($hotels, static fn(array $hotel): bool => $hotel['name'] !== ''));
     }
 
     /**
@@ -109,10 +49,14 @@ final class RakutenTravelService
 
         $links = [];
         foreach ($this->hotelRecords($response) as $hotel) {
-            $normalized = $this->normalize($hotel, $checkIn, $checkOut, $adults, $children);
-            if ($normalized['name'] !== '' && $normalized['url'] !== 'https://travel.rakuten.co.jp/') {
-                $links[] = ['name' => $normalized['name'], 'url' => $normalized['url']];
-            }
+            $name = trim((string)($hotel['hotelName'] ?? ''));
+            $url = $this->httpsUrl((string)($hotel['planListUrl'] ?? ''))
+                ?: $this->httpsUrl((string)($hotel['hotelInformationUrl'] ?? ''));
+            if ($name === '' || $url === '') continue;
+            $links[] = [
+                'name' => $name,
+                'url' => $this->withStayConditions($url, $checkIn, $checkOut, $adults, $children),
+            ];
         }
         return $links;
     }
@@ -182,68 +126,6 @@ final class RakutenTravelService
             if ($record !== []) $records[] = $record;
         }
         return $records;
-    }
-
-    private function normalize(array $hotel, string $checkIn, string $checkOut, int $adults, int $children): array
-    {
-        $hotelNo = (int)($hotel['hotelNo'] ?? 0);
-        $url = $this->httpsUrl((string)($hotel['planListUrl'] ?? '')) ?: $this->httpsUrl((string)($hotel['hotelInformationUrl'] ?? ''));
-        if ($url !== '') {
-            $url = $this->withStayConditions($url, $checkIn, $checkOut, $adults, $children);
-        }
-        $facilities = $this->stringList($hotel['hotelFacilities'] ?? []);
-        return [
-            'hotel_no' => $hotelNo,
-            'booking_links' => $this->bookingLinks(
-                trim((string)($hotel['hotelName'] ?? '')),
-                $checkIn,
-                $checkOut,
-                $adults
-            ),
-            'name' => trim((string)($hotel['hotelName'] ?? '')),
-            'image' => $this->httpsUrl((string)($hotel['hotelImageUrl'] ?? $hotel['hotelThumbnailUrl'] ?? '')),
-            'rating' => isset($hotel['reviewAverage']) && is_numeric($hotel['reviewAverage']) ? number_format((float)$hotel['reviewAverage'], 1) : '',
-            'reviews' => max(0, (int)($hotel['reviewCount'] ?? 0)),
-            'address' => trim((string)($hotel['address1'] ?? '') . (string)($hotel['address2'] ?? '')),
-            'access' => trim((string)($hotel['access'] ?? '')),
-            'description' => trim((string)($hotel['hotelSpecial'] ?? '')),
-            'facilities' => array_slice($facilities, 0, 5),
-            'price' => max(0, (int)($hotel['hotelMinCharge'] ?? 0)),
-            'url' => $url ?: 'https://travel.rakuten.co.jp/',
-        ];
-    }
-
-    private function bookingLinks(string $hotelName, string $checkIn, string $checkOut, int $adults): array
-    {
-        if ($hotelName === '') return [];
-
-        $jalanKeyword = rawurlencode(mb_convert_encoding($hotelName, 'SJIS-win', 'UTF-8'));
-        $utf8Keyword = rawurlencode($hotelName);
-        return [
-            'jalan' => 'https://www.jalan.net/uw/uwp2011/uww2011init.do?keyword=' . $jalanKeyword,
-            'yahoo' => 'https://travel.yahoo.co.jp/search?kwd=' . $utf8Keyword,
-            'ikyu' => 'https://www.ikyu.com/search?kwd=' . $utf8Keyword,
-            'expedia' => 'https://www.expedia.co.jp/Hotel-Search?' . http_build_query([
-                'destination' => $hotelName,
-                'd1' => $checkIn,
-                'startDate' => $checkIn,
-                'd2' => $checkOut,
-                'endDate' => $checkOut,
-                'adults' => max(1, $adults),
-                'rooms' => 1,
-                'sort' => 'RECOMMENDED',
-            ], '', '&', PHP_QUERY_RFC3986),
-        ];
-    }
-
-    private function stringList(mixed $value): array
-    {
-        $items = [];
-        $values = (array)$value;
-        array_walk_recursive($values, static function (mixed $item) use (&$items): void {
-            if (is_scalar($item) && trim((string)$item) !== '') $items[] = trim((string)$item);
-        });
-        return array_values(array_unique($items));
     }
 
     private function httpsUrl(string $url): string

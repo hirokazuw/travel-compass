@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-final class SerpApiCache
+final class ApiCache
 {
     public function __construct(
         private string $directory,
@@ -59,12 +59,12 @@ final class SerpApiCache
         if ($this->monthlyLimit <= 0 || $this->usageFile === '') return;
         $directory = dirname($this->usageFile);
         if (!is_dir($directory) && !@mkdir($directory, 0775, true) && !is_dir($directory)) {
-            throw new \RuntimeException('SerpApi usage counter directory is not writable.');
+            throw new \RuntimeException('API usage counter directory is not writable.');
         }
         $handle = @fopen($this->usageFile, 'c+');
         if ($handle === false || !flock($handle, LOCK_EX)) {
             if (is_resource($handle)) fclose($handle);
-            throw new \RuntimeException('SerpApi usage counter is not writable.');
+            throw new \RuntimeException('API usage counter is not writable.');
         }
         try {
             rewind($handle);
@@ -72,7 +72,7 @@ final class SerpApiCache
             $month = date('Y-m');
             $count = is_array($stored) && ($stored['month'] ?? '') === $month ? (int)($stored['count'] ?? 0) : 0;
             if ($count >= $this->monthlyLimit) {
-                throw new \RuntimeException('SerpApi monthly safety limit reached.');
+                throw new \RuntimeException('API monthly safety limit reached.');
             }
             ftruncate($handle, 0);
             rewind($handle);

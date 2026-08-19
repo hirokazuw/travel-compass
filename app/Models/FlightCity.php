@@ -121,7 +121,7 @@ final class FlightCity
     }
 
     /**
-     * SerpApi Google Flights用の空港コードを取得
+     * Google Flights Actor用の空港コードを取得
      *
      * metropolitanは実空港コードをカンマ区切りで返し、
      * 通常のOTAリンクで使うcode()には影響させない。

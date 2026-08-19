@@ -204,14 +204,6 @@ document.querySelectorAll('.flight-offers-toggle').forEach((button) => {
     });
 });
 
-document.querySelectorAll('.rakuten-results-toggle').forEach((button) => {
-    button.addEventListener('click', () => {
-        const hiddenHotels = [...document.querySelectorAll('[data-extra-rakuten-hotel][hidden]')];
-        hiddenHotels.slice(0, Number(button.dataset.step) || 5).forEach((hotel) => { hotel.hidden = false; });
-        if (!document.querySelector('[data-extra-rakuten-hotel][hidden]')) button.hidden = true;
-    });
-});
-
 document.querySelectorAll('.overseas-hotels-toggle').forEach((button) => {
     const extraHotels = document.querySelectorAll('[data-extra-overseas-hotel]');
     button.addEventListener('click', () => {

@@ -10,9 +10,9 @@ final class ApifyService
 {
     public function __construct(
         private array $config,
-        private SerpApiCache $flightCache,
-        private SerpApiCache $hotelCache,
-        private ?SerpApiCache $placesCache = null
+        private ApiCache $flightCache,
+        private ApiCache $hotelCache,
+        private ?ApiCache $placesCache = null
     ) {}
 
     public function isConfigured(): bool

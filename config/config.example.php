@@ -3,7 +3,7 @@
 return [
     'app' => [
         'name' => 'Travel Compass',
-        'version' => '1.6.1',
+        'version' => '1.6.1.2',
         'timezone' => 'Asia/Tokyo',
     ],
 
@@ -27,26 +27,6 @@ return [
         'sid' => 'YOUR_SID',
     ],
 
-    'serpapi' => [
-        'base_url' => 'https://serpapi.com/search',
-        'api_key' => getenv('SERPAPI_API_KEY') ?: '',
-        'cache_ttl' => 3600,
-        'cache_dir' => dirname(__DIR__) . '/storage/cache/serpapi',
-        'monthly_limit' => 225,
-        'usage_file' => dirname(__DIR__) . '/storage/cache/serpapi-usage.json',
-    ],
-
-    'scrapedo' => [
-        'token' => getenv('SCRAPEDO_API_TOKEN') ?: '',
-        'hotels_url' => 'https://api.scrape.do/plugin/google/hotels',
-        'flights_url' => 'https://api.scrape.do/plugin/google/flights',
-        'cache_ttl' => 3600,
-        'hotel_cache_dir' => dirname(__DIR__) . '/storage/cache/scrapedo/hotels',
-        'flight_cache_dir' => dirname(__DIR__) . '/storage/cache/scrapedo/flights',
-        'timeout' => 20,
-        'connect_timeout' => 5,
-    ],
-
     'apify' => [
         'token' => getenv('APIFY_TOKEN') ?: '',
         'hotels_url' => 'https://api.apify.com/v2/acts/johnvc~google-hotels-search-scraper/run-sync-get-dataset-items',
@@ -61,27 +41,6 @@ return [
         'connect_timeout' => 10,
         'max_pages' => 1,
         'max_place_suggestions' => 8,
-    ],
-
-    'search_providers' => [
-        'hotels' => 'apify',
-        'overseas_hotels' => getenv('OVERSEAS_HOTEL_PROVIDER') ?: 'apify',
-        'flights' => getenv('FLIGHT_PROVIDER') ?: 'apify',
-    ],
-
-    'aviasales' => [
-        'base_url' => 'https://api.travelpayouts.com/v1/prices/calendar',
-        'token' => getenv('TRAVELPAYOUTS_API_TOKEN') ?: '',
-        'cache_ttl' => 21600,
-        'cache_dir' => dirname(__DIR__) . '/storage/cache/aviasales',
-    ],
-
-    'aerodatabox' => [
-        'base_url' => 'https://aerodatabox.p.rapidapi.com',
-        'api_key' => getenv('AERODATABOX_API_KEY') ?: '',
-        'rapidapi_host' => 'aerodatabox.p.rapidapi.com',
-        'cache_ttl' => 86400,
-        'cache_dir' => dirname(__DIR__) . '/storage/cache/aerodatabox',
     ],
 
     'rakuten' => [

@@ -1,4 +1,4 @@
-<?php if($activeTab === 'hotel' && $activeHotelProvider === 'apify' && !$hotelErrors): ?>
+<?php if($activeTab === 'hotel' && !$hotelErrors): ?>
 <section class="result overseas-hotel-result" data-provider-results="apify" data-hotel-result-scope="<?= $h($activeHotelScope) ?>">
     <small>YOUR PLAN</small>
     <h2><?= $h($hotelValues['hotel_destination']) ?>のホテル</h2>

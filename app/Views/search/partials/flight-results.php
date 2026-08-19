@@ -22,7 +22,7 @@
         <?php endforeach ?>
     </div>
     <?php if(count($flightOffers)>6): ?><button type="button" class="flight-offers-toggle" aria-expanded="false">もっと見る</button><?php endif ?>
-    <p class="price-note"><?php if($flightOffersSource==='aviasales'): ?>表示価格はAviasales Data APIで各航空会社が月間最安値として記録された価格傾向データです。<?php else: ?>表示価格はGoogle Flightsの検索結果による参考価格です。<?php endif ?> 実際の料金は予約サイトでご確認ください。</p>
+    <p class="price-note">表示価格はApifyで取得したGoogle Flightsの検索結果による参考価格です。航空会社ロゴはAviasales CDNから取得しています。実際の料金は予約サイトでご確認ください。</p>
     <?php elseif($flightOffersMessage !== ''): ?><div class="flight-offers-message"><?= $h($flightOffersMessage) ?></div><?php endif ?>
     <section class="booking-sites">
         <h3><?= $isDomesticFlight ? '国内向け' : '海外向け' ?>予約サイト</h3><p>出発地と目的地から自動判定しています。</p>

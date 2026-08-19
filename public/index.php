@@ -36,45 +36,19 @@ date_default_timezone_set(
 try {
     $db = App\Core\Database::connect($config['db']);
     $flightCity = new App\Models\FlightCity($db);
-    $airlines = new App\Models\Airline($db);
-    $serpApiConfig = $config['serpapi'] ?? [];
-    $serpApiCache = new App\Services\SerpApiCache(
-        (string)($serpApiConfig['cache_dir'] ?? $root . '/storage/cache/serpapi'),
-        max(0, (int)($serpApiConfig['cache_ttl'] ?? 3600)),
-        max(0, (int)($serpApiConfig['monthly_limit'] ?? 225)),
-        (string)($serpApiConfig['usage_file'] ?? $root . '/storage/cache/serpapi-usage.json')
-    );
-    $aviasalesConfig = $config['aviasales'] ?? [];
-    $aviasalesCache = new App\Services\SerpApiCache(
-        (string)($aviasalesConfig['cache_dir'] ?? $root . '/storage/cache/aviasales'),
-        max(0, (int)($aviasalesConfig['cache_ttl'] ?? 21600))
-    );
-    $scrapeDoConfig = $config['scrapedo'] ?? [];
-    $scrapeDoTtl = max(0, (int)($scrapeDoConfig['cache_ttl'] ?? 3600));
-    $scrapeDo = new App\Services\ScrapeDoService(
-        $scrapeDoConfig,
-        new App\Services\SerpApiCache(
-            (string)($scrapeDoConfig['flight_cache_dir'] ?? $root . '/storage/cache/scrapedo/flights'),
-            $scrapeDoTtl
-        ),
-        new App\Services\SerpApiCache(
-            (string)($scrapeDoConfig['hotel_cache_dir'] ?? $root . '/storage/cache/scrapedo/hotels'),
-            $scrapeDoTtl
-        )
-    );
     $apifyConfig = $config['apify'] ?? [];
     $apifyTtl = max(0, (int)($apifyConfig['cache_ttl'] ?? 3600));
     $apify = new App\Services\ApifyService(
         $apifyConfig,
-        new App\Services\SerpApiCache(
+        new App\Services\ApiCache(
             (string)($apifyConfig['flight_cache_dir'] ?? $root . '/storage/cache/apify/flights'),
             $apifyTtl
         ),
-        new App\Services\SerpApiCache(
+        new App\Services\ApiCache(
             (string)($apifyConfig['hotel_cache_dir'] ?? $root . '/storage/cache/apify/hotels'),
             $apifyTtl
         ),
-        new App\Services\SerpApiCache(
+        new App\Services\ApiCache(
             (string)($apifyConfig['places_cache_dir'] ?? $root . '/storage/cache/apify/place-suggestions'),
             max(0, (int)($apifyConfig['places_cache_ttl'] ?? 900))
         )
@@ -84,16 +58,11 @@ try {
         $flightCity,
         new App\Services\FlightSearchService(
             $flightCity,
-            $apify,
-            $scrapeDo,
-            new App\Services\AviasalesPriceSearch($aviasalesConfig, $aviasalesCache, $airlines),
-            new App\Services\SerpApiFlightSearch($serpApiConfig, $serpApiCache),
-            (string)($config['search_providers']['flights'] ?? 'apify')
+            $apify
         ),
         new App\Services\RakutenTravelService($config['rakuten'] ?? []),
         new App\Services\HotelSearchService($apify),
         $apify,
-        $scrapeDo,
         new App\Services\TravelLinkBuilder(
             $flightCity,
             $config
