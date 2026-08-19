@@ -10,14 +10,15 @@ final class SearchHistory
     {
     }
 
-    public function createFlight(array $values): void
+    public function createFlight(array $values, string $visitorId): void
     {
         $stmt = $this->db->prepare(
             'INSERT INTO flight_searches
-                (origin, destination, departure_date, return_date, travelers)
-             VALUES (?, ?, ?, ?, ?)'
+                (visitor_id, origin, destination, departure_date, return_date, travelers)
+             VALUES (?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
+            $visitorId,
             $values['origin'],
             $values['destination'],
             $values['departure_date'],
@@ -26,16 +27,17 @@ final class SearchHistory
         ]);
     }
 
-    public function createHotel(array $values): void
+    public function createHotel(array $values, string $visitorId): void
     {
         $stmt = $this->db->prepare(
             'INSERT INTO hotel_searches
-                (destination, check_in, check_out, adults, children, guests)
-             VALUES (?, ?, ?, ?, ?, ?)'
+                (visitor_id, destination, check_in, check_out, adults, children, guests)
+             VALUES (?, ?, ?, ?, ?, ?, ?)'
         );
         $adults = (int)$values['hotel_adults'];
         $children = (int)$values['hotel_children'];
         $stmt->execute([
+            $visitorId,
             $values['hotel_destination'],
             $values['check_in_date'],
             $values['check_out_date'],
@@ -45,24 +47,31 @@ final class SearchHistory
         ]);
     }
 
-    public function recent(int $limit = 6): array
+    public function recent(string $visitorId, int $limit = 6): array
     {
         $limit = max(1, $limit);
-        $flightSearches = $this->db->query(
+        $flightStmt = $this->db->prepare(
             'SELECT id, origin, destination, departure_date, return_date,
                     travelers, created_at, \'flight\' AS search_type
              FROM flight_searches
+             WHERE visitor_id = ?
              ORDER BY created_at DESC, id DESC
              LIMIT ' . $limit
-        )->fetchAll();
-        $hotelSearches = $this->db->query(
+        );
+        $flightStmt->execute([$visitorId]);
+        $flightSearches = $flightStmt->fetchAll();
+
+        $hotelStmt = $this->db->prepare(
             'SELECT id, destination, check_in, check_out, adults, children,
                     guests, created_at,
                     \'hotel\' AS search_type
              FROM hotel_searches
+             WHERE visitor_id = ?
              ORDER BY created_at DESC, id DESC
              LIMIT ' . $limit
-        )->fetchAll();
+        );
+        $hotelStmt->execute([$visitorId]);
+        $hotelSearches = $hotelStmt->fetchAll();
 
         $recent = array_merge($flightSearches, $hotelSearches);
         usort($recent, static function (array $left, array $right): int {

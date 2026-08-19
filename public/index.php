@@ -34,6 +34,7 @@ date_default_timezone_set(
 );
 
 try {
+    $visitorId = App\Core\VisitorIdCookie::resolve();
     $db = App\Core\Database::connect($config['db']);
     $flightCity = new App\Models\FlightCity($db);
     $apifyConfig = $config['apify'] ?? [];
@@ -78,7 +79,8 @@ try {
             $flightCity,
             $config
         ),
-        $config
+        $config,
+        $visitorId
     ))->index();
 
 } catch (Throwable $e) {

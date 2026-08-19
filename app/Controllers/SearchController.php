@@ -25,7 +25,8 @@ final class SearchController
         private HotelSearchService $hotelSearch,
         private ApifyDestinationSearch $apify,
         private FlightUrlBuilder $travelLinks,
-        private array $config
+        private array $config,
+        private string $visitorId
     ) {}
 
     public function index(): void
@@ -78,7 +79,7 @@ final class SearchController
 
         $_SESSION['csrf'] = bin2hex(random_bytes(32));
 
-        $recent = $this->searchHistory->recent();
+        $recent = $this->searchHistory->recent($this->visitorId);
 
         $appName =
             $this->config['app']['name']
@@ -106,7 +107,7 @@ final class SearchController
         if ($request->errors !== []) return $state;
 
         $values = $request->values;
-        $this->searchHistory->createFlight($values);
+        $this->searchHistory->createFlight($values, $this->visitorId);
         $isDomestic = $this->flightCity->isDomestic($values['origin'])
             && $this->flightCity->isDomestic($values['destination']);
         $flightResult = $this->flightSearch->search(
@@ -134,7 +135,7 @@ final class SearchController
             'activeHotelScope' => $request->scope,
         ];
         if ($request->errors !== []) return $state;
-        $this->searchHistory->createHotel($request->values);
+        $this->searchHistory->createHotel($request->values, $this->visitorId);
         if (!$this->hotelSearch->isConfigured()) return $state + ['hotelStatus' => 'not_configured'];
 
         $destination = $request->values['hotel_destination'];

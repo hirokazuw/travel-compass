@@ -96,12 +96,14 @@ search-panel.php → app.js → POST
 
 | Table | 用途 | 書込 | 読込 |
 |---|---|---|---|
-| `flight_searches` | 航空券履歴 | `createFlight()` | `recent()` |
-| `hotel_searches` | ホテル履歴 | `createHotel()` | `recent()` |
+| `flight_searches` | 航空券履歴 | `createFlight()` | `recent()`（`visitor_id`で絞込） |
+| `hotel_searches` | ホテル履歴 | `createHotel()` | `recent()`（`visitor_id`で絞込） |
 | `iata_cities` | IATA・都市圏・国内判定 | 現行アプリなし | `FlightCity` |
 | `travel_searches` | 旧履歴 | なし | なし |
 
-`recent(6)`は航空券とホテルを各6件取得し、PHPで統合・再sortして全体6件にします。利用者単位ではなく全体共通です。`iata_cities`のDDL・初期dataはrepositoryにありません。
+初回アクセス時に256-bitの匿名`visitor_id`をCookieへ発行します。Cookieには検索条件を保存せず、90日有効、`HttpOnly`、`SameSite=Lax`、HTTPS通信時は`Secure`です。
+
+`recent($visitorId, 6)`は現在の匿名利用者に一致する航空券とホテルを各6件取得し、PHPで統合・再sortして全体6件にします。別のCookie IDの履歴は取得しません。`iata_cities`のDDL・Index・初期dataは`database/schema.sql`に収録しています。
 
 ## 5. 外部サービス
 

@@ -15,24 +15,14 @@ Scrape.do、SerpAPI、Travelpayoutsの現行実装や、大規模なコメント
 
 ## 2. P0
 
-### P0-1. IATA DBを再現可能にする
-
-- 対象: `database/schema.sql`, `FlightCity`
-- 現状: 必須`iata_cities`のDDL・seedがない
-- 問題: repository単体で再構築できない
-- 理由: 航空券検索、国内判定、全OTAの基盤
-- 改善: 本番schema採取後にDDL、Index、JSON形式、国列、seedをmigration化
-- 影響: 航空券機能全体
-- risk: 本番との差異で検索結果が変わる
-
 ### P0-2. 検索履歴の公開範囲
 
-- 対象: `SearchHistory::recent()`, `recent-searches.php`
-- 現状: 全利用者の目的地・日程・人数を共通表示
-- 問題: privacy risk
-- 改善: Session、匿名ID、利用者ID、または履歴非表示を仕様化
-- 影響: DB、Session、View、JS
-- risk: 既存履歴と保存期間の扱い
+- 対象: `VisitorIdCookie`, `SearchHistory`, `SearchController`, 履歴テーブル
+- 対応済み: 256-bitの匿名`visitor_id`を90日Cookieへ保存し、履歴の保存・取得を利用者単位に分離
+- Cookie属性: `HttpOnly`, `SameSite=Lax`, HTTPS通信時は`Secure`
+- DB: 航空券・ホテル履歴へ`visitor_id`列と複合Indexを追加
+- privacy: Cookieには検索条件を保存せず、推測困難な匿名IDのみ保存
+- migration: 所有者を特定できない既存履歴は削除してから新しい列を追加
 
 ### P0-3. 環境固有設定をGitから分離
 
@@ -97,8 +87,8 @@ Actorの`link`が公式siteか検証し、保証できなければ「詳細を�
 
 ## 5. 技術的負債 TOP 5
 
-1. `iata_cities` schema・seed欠落
-2. 全利用者共通履歴
+1. `iata_cities` schema・seed欠落（解消済み）
+2. 全利用者共通履歴（匿名Cookie IDによる分離で解消済み）
 3. 実設定・SFTP情報のGit管理
 4. 自動testなし
 5. 履歴DB障害が検索停止

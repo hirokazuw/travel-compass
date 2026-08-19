@@ -1,16 +1,19 @@
 CREATE TABLE flight_searches (
  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ visitor_id CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
  origin VARCHAR(100) NOT NULL,
  destination VARCHAR(100) NOT NULL,
  departure_date DATE NOT NULL,
  return_date DATE NULL,
  travelers TINYINT UNSIGNED NOT NULL DEFAULT 1,
  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
- KEY idx_created_at (created_at)
+ KEY idx_created_at (created_at),
+ KEY idx_visitor_created (visitor_id, created_at, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE hotel_searches (
  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ visitor_id CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
  destination VARCHAR(150) NOT NULL,
  check_in DATE NOT NULL,
  check_out DATE NOT NULL,
@@ -18,7 +21,8 @@ CREATE TABLE hotel_searches (
  children TINYINT UNSIGNED NOT NULL DEFAULT 0,
  guests TINYINT UNSIGNED NOT NULL DEFAULT 1,
  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
- KEY idx_created_at (created_at)
+ KEY idx_created_at (created_at),
+ KEY idx_visitor_created (visitor_id, created_at, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- phpMyAdmin SQL Dump
