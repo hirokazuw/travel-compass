@@ -65,7 +65,7 @@ try {
         $apifyNormalizer
     );
     (new App\Controllers\SearchController(
-        new App\Models\TravelSearch($db),
+        new App\Models\SearchHistory($db),
         $flightCity,
         new App\Services\FlightSearchService(
             $flightCity,

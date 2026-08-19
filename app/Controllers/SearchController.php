@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\TravelSearch;
+use App\Models\SearchHistory;
 use App\Models\FlightCity;
 use App\Requests\DestinationSuggestionRequest;
 use App\Requests\FlightSearchRequest;
@@ -18,7 +18,7 @@ use App\ViewModels\SeoViewData;
 final class SearchController
 {
     public function __construct(
-        private TravelSearch $model,
+        private SearchHistory $searchHistory,
         private FlightCity $flightCity,
         private FlightSearchService $flightSearch,
         private RakutenTravelService $rakutenTravel,
@@ -78,12 +78,12 @@ final class SearchController
 
         $_SESSION['csrf'] = bin2hex(random_bytes(32));
 
-        $recent = $this->model->recent();
+        $recent = $this->searchHistory->recent();
 
         $appName =
             $this->config['app']['name']
             ?? 'Travel Compass';
-        $appVersion = $this->config['app']['version'] ?? '1.6.2.0';
+        $appVersion = $this->config['app']['version'] ?? '1.7.0.0';
         $publicPath = dirname(__DIR__, 2) . '/public/assets/';
         $cssVersion = (string)(filemtime($publicPath . 'app.css') ?: $appVersion);
         $jsVersion = (string)(filemtime($publicPath . 'app.js') ?: $appVersion);
@@ -106,7 +106,7 @@ final class SearchController
         if ($request->errors !== []) return $state;
 
         $values = $request->values;
-        $this->model->create($values);
+        $this->searchHistory->createFlight($values);
         $isDomestic = $this->flightCity->isDomestic($values['origin'])
             && $this->flightCity->isDomestic($values['destination']);
         $flightResult = $this->flightSearch->search(
@@ -134,6 +134,7 @@ final class SearchController
             'activeHotelScope' => $request->scope,
         ];
         if ($request->errors !== []) return $state;
+        $this->searchHistory->createHotel($request->values);
         if (!$this->hotelSearch->isConfigured()) return $state + ['hotelStatus' => 'not_configured'];
 
         $destination = $request->values['hotel_destination'];

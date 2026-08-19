@@ -1,4 +1,12 @@
-<?php $h = fn($value) => htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8'); ?>
+<?php
+$h = fn($value) => htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+$searchOutcome = 'idle';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $searchOutcome = ($errors || $hotelErrors || $flightOffersStatus === 'error' || in_array($hotelStatus, ['error', 'not_configured'], true))
+        ? 'error'
+        : 'success';
+}
+?>
 <!doctype html>
 <html lang="ja" prefix="og: https://ogp.me/ns#">
 <head>
@@ -26,7 +34,7 @@
 <meta name="csrf-token" content="<?= $h($_SESSION['csrf']) ?>">
 <script type="application/ld+json"><?= $seo['structuredData'] ?></script>
 <link rel="stylesheet" href="public/assets/app.css?v=<?= $h($cssVersion) ?>">
-</head><body>
+</head><body data-search-outcome="<?= $h($searchOutcome) ?>">
 <header><a class="site-home-link" href="https://hirokazu-watabe.jp/travel-compass/">✈ <?= $h($appName) ?></a><span>旅をもっとシンプルに</span></header><main>
 <p class="affiliate-disclosure">広告・PRを含みます</p>
 <section class="hero hero-visual">
@@ -41,6 +49,7 @@
 <?php require __DIR__ . '/partials/flight-results.php'; ?>
 <?php require __DIR__ . '/partials/hotel-results.php'; ?>
 <?php require __DIR__ . '/partials/recent-searches.php'; ?>
+<?php require __DIR__ . '/partials/search-loading.php'; ?>
 </main><footer class="site-footer"><div class="site-footer-inner"><div><strong>✈ <?= $h($appName) ?></strong><p>航空券とホテルを比較できる旅行検索サービス</p></div><div class="site-footer-credit"><span>Created by Hirokazu WATABE · v<?= $h($appVersion) ?></span><small>© <?= date('Y') ?> Hirokazu WATABE</small></div></div></footer><script src="//statics.a8.net/a8link/a8linkmgr.js"></script><script>
 a8linkmgr({
   "config_id": "mENmBoJBInmbobSt2c0A"

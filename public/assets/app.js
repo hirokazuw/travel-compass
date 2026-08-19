@@ -12,9 +12,6 @@ document.querySelectorAll('.search-tab').forEach((tab) => {
         document.querySelectorAll('[data-flight-tab-content]').forEach((content) => {
             content.hidden = tab.dataset.tab !== 'flight-panel';
         });
-        document.querySelectorAll('[data-flight-history]').forEach((history) => {
-            history.hidden = tab.dataset.tab !== 'flight-panel';
-        });
         if (tab.dataset.tab !== 'hotel-panel') {
             document.querySelectorAll('[data-provider-results]').forEach((section) => {
                 section.hidden = true;
@@ -239,6 +236,21 @@ document.querySelectorAll('[data-airline-logo]').forEach((logo) => {
 
 document.querySelectorAll('.recent-search-card').forEach((card) => {
     card.addEventListener('click', () => {
+        if (card.dataset.searchType === 'hotel') {
+            const adults = Math.max(1, Math.min(9, Number.parseInt(card.dataset.adults || '1', 10) || 1));
+            const children = Math.max(0, Math.min(9, Number.parseInt(card.dataset.children || '0', 10) || 0));
+            document.querySelectorAll('.hotel-search-form').forEach((hotelForm) => {
+                hotelForm.elements.hotel_destination.value = card.dataset.destination || '';
+                hotelForm.elements.check_in_date.value = card.dataset.checkIn || '';
+                hotelForm.elements.check_out_date.value = card.dataset.checkOut || '';
+                hotelForm.elements.hotel_adults.value = String(adults);
+                hotelForm.elements.hotel_children.value = String(children);
+            });
+            document.getElementById('hotel-tab')?.click();
+            document.querySelector('.hotel-provider-panel:not([hidden]) .hotel-search-form')
+                ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
         const flightForm = document.querySelector('.flight-search-form');
         if (!flightForm) return;
         flightForm.elements.origin.value = card.dataset.origin || '';
@@ -253,4 +265,128 @@ document.querySelectorAll('.recent-search-card').forEach((card) => {
         document.getElementById('flight-tab')?.click();
         flightForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
+});
+
+const searchLoading = document.querySelector('[data-search-loading]');
+let searchLoadingTimer;
+
+const closeSearchLoading = () => {
+    clearInterval(searchLoadingTimer);
+    if (searchLoading) searchLoading.hidden = true;
+    document.body.removeAttribute('aria-busy');
+    document.documentElement.classList.remove('is-search-loading');
+    document.querySelectorAll('[data-loading-submit]').forEach((button) => {
+        button.disabled = false;
+        button.removeAttribute('aria-disabled');
+        button.removeAttribute('data-loading-submit');
+    });
+    document.querySelectorAll('[data-loading-generated]').forEach((input) => input.remove());
+};
+
+const showSearchLoading = (form, type) => {
+    if (!searchLoading) return;
+    const isFlight = type === 'flight';
+    const value = (name) => form.elements[name]?.value?.trim() || '';
+    const departure = isFlight ? value('departure_date') : value('check_in_date');
+    const arrival = isFlight ? value('return_date') : value('check_out_date');
+
+    searchLoading.querySelector('[data-search-loading-kind]').textContent = isFlight ? 'FLIGHT SEARCH' : 'HOTEL SEARCH';
+    searchLoading.querySelector('[data-search-loading-title]').textContent = isFlight ? '航空券を検索しています…' : 'ホテルを検索しています…';
+    searchLoading.querySelector('[data-search-loading-detail]').textContent = isFlight ? 'フライト情報を取得中です' : '宿泊施設の情報を取得中です';
+    searchLoading.querySelector('[data-search-loading-route-label]').textContent = isFlight ? '区間' : '目的地';
+    searchLoading.querySelector('[data-search-loading-route]').textContent = isFlight
+        ? `${value('origin')} → ${value('destination')}`
+        : value('hotel_destination');
+    searchLoading.querySelector('[data-search-loading-dates]').textContent = arrival ? `${departure} → ${arrival}` : departure;
+    searchLoading.querySelector('[data-search-loading-travelers]').textContent = isFlight
+        ? `${value('travelers')}名`
+        : `大人${value('hotel_adults')}名・子供${value('hotel_children')}名`;
+
+    try {
+        sessionStorage.setItem('travelCompassSearchLoading', JSON.stringify({
+            kind: searchLoading.querySelector('[data-search-loading-kind]').textContent,
+            title: searchLoading.querySelector('[data-search-loading-title]').textContent,
+            detail: searchLoading.querySelector('[data-search-loading-detail]').textContent,
+            routeLabel: searchLoading.querySelector('[data-search-loading-route-label]').textContent,
+            route: searchLoading.querySelector('[data-search-loading-route]').textContent,
+            dates: searchLoading.querySelector('[data-search-loading-dates]').textContent,
+            travelers: searchLoading.querySelector('[data-search-loading-travelers]').textContent,
+        }));
+    } catch (error) {
+        // Storage may be unavailable in privacy-restricted browsing contexts.
+    }
+
+    const progress = searchLoading.querySelector('[data-search-loading-progress]');
+    let progressValue = 3;
+    progress.style.width = `${progressValue}%`;
+    searchLoading.hidden = false;
+    document.body.setAttribute('aria-busy', 'true');
+    document.documentElement.classList.add('is-search-loading');
+    searchLoading.querySelector('.search-loading-card')?.focus({ preventScroll: true });
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reducedMotion) {
+        searchLoadingTimer = window.setInterval(() => {
+            progressValue = Math.min(88, progressValue + Math.max(0.35, (88 - progressValue) * 0.035));
+            progress.style.width = `${progressValue}%`;
+            if (progressValue >= 88) clearInterval(searchLoadingTimer);
+        }, 450);
+    }
+};
+
+document.querySelectorAll('.flight-search-form, .hotel-search-form').forEach((form) => {
+    form.addEventListener('submit', (event) => {
+        if (form.dataset.submitting === 'true') {
+            event.preventDefault();
+            return;
+        }
+        form.dataset.submitting = 'true';
+        const submitter = event.submitter || form.querySelector('button[type="submit"], button:not([type])');
+        if (submitter?.name) {
+            const submittedValue = document.createElement('input');
+            submittedValue.type = 'hidden';
+            submittedValue.name = submitter.name;
+            submittedValue.value = submitter.value;
+            submittedValue.dataset.loadingGenerated = '';
+            form.append(submittedValue);
+        }
+        if (submitter) {
+            submitter.disabled = true;
+            submitter.setAttribute('aria-disabled', 'true');
+            submitter.dataset.loadingSubmit = '';
+        }
+        showSearchLoading(form, form.classList.contains('flight-search-form') ? 'flight' : 'hotel');
+    });
+});
+
+window.addEventListener('pageshow', () => {
+    document.querySelectorAll('.flight-search-form, .hotel-search-form').forEach((form) => delete form.dataset.submitting);
+    closeSearchLoading();
+    let previousSearch = null;
+    try {
+        previousSearch = JSON.parse(sessionStorage.getItem('travelCompassSearchLoading'));
+        sessionStorage.removeItem('travelCompassSearchLoading');
+    } catch (error) {
+        previousSearch = null;
+    }
+    if (document.body.dataset.searchOutcome !== 'success' || !previousSearch || !searchLoading) return;
+
+    const content = {
+        kind: '[data-search-loading-kind]',
+        title: '[data-search-loading-title]',
+        detail: '[data-search-loading-detail]',
+        routeLabel: '[data-search-loading-route-label]',
+        route: '[data-search-loading-route]',
+        dates: '[data-search-loading-dates]',
+        travelers: '[data-search-loading-travelers]',
+    };
+    Object.entries(content).forEach(([key, selector]) => {
+        searchLoading.querySelector(selector).textContent = previousSearch[key] || '';
+    });
+    searchLoading.querySelector('[data-search-loading-progress]').style.width = '100%';
+    searchLoading.hidden = false;
+    document.body.setAttribute('aria-busy', 'true');
+    document.documentElement.classList.add('is-search-loading');
+    const completionDelay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 180 : 600;
+    window.setTimeout(closeSearchLoading, completionDelay);
 });
