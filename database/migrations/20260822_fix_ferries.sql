@@ -1,4 +1,89 @@
 -- ================================================================
+-- Travel Compass - Ferry Final Consolidated Fix Migration
+-- Date: 2026-08-22
+-- Includes table creation, base seed, MOL Sunflower URL fix,
+-- and added Setouchi routes.
+-- Execute this file alone for the complete ferry migration.
+-- ================================================================
+
+-- Travel Compass
+-- Migration: Create ferry master tables
+-- Date: 2026-08-22
+--
+-- Tables:
+--   ferry_companies : ferry operator master
+--   ferry_routes    : route master
+
+CREATE TABLE IF NOT EXISTS `ferry_companies` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(150) NOT NULL,
+    `name_ja` VARCHAR(150) DEFAULT NULL,
+    `slug` VARCHAR(100) DEFAULT NULL,
+    `logo_url` VARCHAR(500) DEFAULT NULL,
+    `official_url` VARCHAR(500) DEFAULT NULL,
+    `reservation_url` VARCHAR(500) DEFAULT NULL,
+    `active` TINYINT(1) NOT NULL DEFAULT 1,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_ferry_companies_slug` (`slug`),
+    KEY `idx_ferry_companies_name` (`name`),
+    KEY `idx_ferry_companies_active` (`active`)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE IF NOT EXISTS `ferry_routes` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `company_id` INT UNSIGNED NOT NULL,
+
+    `route_name` VARCHAR(200) DEFAULT NULL,
+
+    `departure_port` VARCHAR(150) NOT NULL,
+    `departure_prefecture` VARCHAR(100) DEFAULT NULL,
+
+    `arrival_port` VARCHAR(150) NOT NULL,
+    `arrival_prefecture` VARCHAR(100) DEFAULT NULL,
+
+    `duration_minutes` INT UNSIGNED DEFAULT NULL,
+
+    `fare_from` INT UNSIGNED DEFAULT NULL,
+    `fare_currency` CHAR(3) NOT NULL DEFAULT 'JPY',
+    `fare_updated_at` DATE DEFAULT NULL,
+
+    `vehicle_available` TINYINT(1) NOT NULL DEFAULT 0,
+    `overnight` TINYINT(1) NOT NULL DEFAULT 0,
+
+    `reservation_url` VARCHAR(500) DEFAULT NULL,
+    `timetable_url` VARCHAR(500) DEFAULT NULL,
+
+    `notes` TEXT DEFAULT NULL,
+    `active` TINYINT(1) NOT NULL DEFAULT 1,
+
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (`id`),
+
+    KEY `idx_ferry_routes_company_id` (`company_id`),
+    KEY `idx_ferry_routes_departure_port` (`departure_port`),
+    KEY `idx_ferry_routes_arrival_port` (`arrival_port`),
+    KEY `idx_ferry_routes_active` (`active`),
+
+    CONSTRAINT `fk_ferry_routes_company`
+        FOREIGN KEY (`company_id`)
+        REFERENCES `ferry_companies` (`id`)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
+-- ==================== BASE FERRY MASTER DATA ====================
+-- ================================================================
 -- Travel Compass
 -- Ferry companies/routes seed migration
 -- Snapshot: 2026-08-22
@@ -1136,3 +1221,95 @@ COMMIT;
 -- Seed summary:
 -- Companies: 21
 -- Routes: 32
+
+
+-- ==================== MOL SUNFLOWER URL FIX ====================
+-- Correct MOL Sunflower's Hokkaido route URLs in databases seeded previously.
+START TRANSACTION;
+
+UPDATE `ferry_companies`
+SET `official_url` = 'https://www.sunflower.co.jp/',
+    `reservation_url` = 'https://www.sunflower.co.jp/'
+WHERE `slug` = 'mol-sunflower-hokkaido';
+
+UPDATE `ferry_routes` r
+SET r.`reservation_url` = 'https://www.sunflower.co.jp/',
+    r.`timetable_url` = 'https://www.sunflower.co.jp/'
+WHERE (
+      (r.`departure_port` = '大洗港' AND r.`arrival_port` = '苫小牧港')
+      OR
+      (r.`departure_port` = '苫小牧港' AND r.`arrival_port` = '大洗港')
+  );
+
+COMMIT;
+
+
+-- ==================== SETOUCHI ROUTE ADDITIONS ====================
+-- Travel Compass
+-- Add Setouchi and Shikoku-Kyushu ferry companies/routes.
+-- Re-runnable: companies use unique slugs and routes use NOT EXISTS.
+START TRANSACTION;
+
+INSERT INTO `ferry_companies`
+    (`name`, `name_ja`, `slug`, `official_url`, `reservation_url`, `active`)
+VALUES
+    ('Setonaikai Kisen', '瀬戸内海汽船', 'setonaikai-kisen', 'https://setonaikaikisen.co.jp/', NULL, 1),
+    ('Uwajima Unyu Ferry', '宇和島運輸フェリー', 'uwajima-unyu-ferry', 'https://www.uwajimaunyu.co.jp/', NULL, 1),
+    ('Koku94 Ferry', '国道九四フェリー', 'koku94-ferry', 'https://www.koku94.jp/', 'https://reservation.koku94.jp/webyoyaku/WY/WYG0410.aspx', 1)
+ON DUPLICATE KEY UPDATE
+    `name` = VALUES(`name`),
+    `name_ja` = VALUES(`name_ja`),
+    `official_url` = VALUES(`official_url`),
+    `reservation_url` = VALUES(`reservation_url`),
+    `active` = 1;
+
+INSERT INTO `ferry_routes`
+    (`company_id`, `route_name`,
+     `departure_port`, `departure_prefecture`,
+     `arrival_port`, `arrival_prefecture`,
+     `duration_minutes`, `fare_from`, `fare_currency`, `fare_updated_at`,
+     `vehicle_available`, `overnight`,
+     `reservation_url`, `timetable_url`, `notes`, `active`)
+SELECT
+    c.`id`, d.`route_name`,
+    d.`departure_port`, d.`departure_prefecture`,
+    d.`arrival_port`, d.`arrival_prefecture`,
+    d.`duration_minutes`, d.`fare_from`, 'JPY', d.`fare_updated_at`,
+    1, d.`overnight`, d.`reservation_url`, d.`timetable_url`, d.`notes`, 1
+FROM (
+    SELECT 'setonaikai-kisen' AS company_slug, '広島～松山' AS route_name,
+           '広島港' AS departure_port, '広島県' AS departure_prefecture,
+           '松山観光港' AS arrival_port, '愛媛県' AS arrival_prefecture,
+           162 AS duration_minutes, 5800 AS fare_from, DATE('2026-08-22') AS fare_updated_at,
+           0 AS overnight, NULL AS reservation_url,
+           'https://setonaikaikisen.co.jp/kouro/cruise/' AS timetable_url,
+           'クルーズフェリー' AS notes
+    UNION ALL SELECT 'setonaikai-kisen', '松山～広島', '松山観光港', '愛媛県', '広島港', '広島県',
+           162, 5800, DATE('2026-08-22'), 0, NULL, 'https://setonaikaikisen.co.jp/kouro/cruise/', 'クルーズフェリー'
+    UNION ALL SELECT 'setonaikai-kisen', '呉～松山', '呉港', '広島県', '松山観光港', '愛媛県',
+           117, 4700, DATE('2026-08-22'), 0, NULL, 'https://setonaikaikisen.co.jp/kouro/cruise/', 'クルーズフェリー'
+    UNION ALL SELECT 'setonaikai-kisen', '松山～呉', '松山観光港', '愛媛県', '呉港', '広島県',
+           117, 4700, DATE('2026-08-22'), 0, NULL, 'https://setonaikaikisen.co.jp/kouro/cruise/', 'クルーズフェリー'
+    UNION ALL SELECT 'uwajima-unyu-ferry', '八幡浜～別府', '八幡浜港', '愛媛県', '別府港', '大分県',
+           170, 4900, DATE('2026-08-22'), 1, NULL, 'https://www.uwajimaunyu.co.jp/timetable/', NULL
+    UNION ALL SELECT 'uwajima-unyu-ferry', '別府～八幡浜', '別府港', '大分県', '八幡浜港', '愛媛県',
+           170, 4900, DATE('2026-08-22'), 1, NULL, 'https://www.uwajimaunyu.co.jp/timetable/', NULL
+    UNION ALL SELECT 'uwajima-unyu-ferry', '八幡浜～臼杵', '八幡浜港', '愛媛県', '臼杵港', '大分県',
+           145, 3800, DATE('2026-08-22'), 1, NULL, 'https://www.uwajimaunyu.co.jp/timetable/', NULL
+    UNION ALL SELECT 'uwajima-unyu-ferry', '臼杵～八幡浜', '臼杵港', '大分県', '八幡浜港', '愛媛県',
+           145, 3800, DATE('2026-08-22'), 1, NULL, 'https://www.uwajimaunyu.co.jp/timetable/', NULL
+    UNION ALL SELECT 'koku94-ferry', '三崎～佐賀関', '三崎港', '愛媛県', '佐賀関港', '大分県',
+           70, NULL, NULL, 0, 'https://reservation.koku94.jp/webyoyaku/WY/WYG0410.aspx', 'https://www.koku94.jp/operation', NULL
+    UNION ALL SELECT 'koku94-ferry', '佐賀関～三崎', '佐賀関港', '大分県', '三崎港', '愛媛県',
+           70, NULL, NULL, 0, 'https://reservation.koku94.jp/webyoyaku/WY/WYG0410.aspx', 'https://www.koku94.jp/operation', NULL
+) AS d
+INNER JOIN `ferry_companies` c ON c.`slug` = d.`company_slug`
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM `ferry_routes` r
+    WHERE r.`company_id` = c.`id`
+      AND r.`departure_port` = d.`departure_port`
+      AND r.`arrival_port` = d.`arrival_port`
+);
+
+COMMIT;

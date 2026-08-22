@@ -1,7 +1,8 @@
 -- ================================================================
--- Travel Compass - Airlines Master Final Consolidated Migration
+-- Travel Compass - Airlines Consolidated Fix Migration
 -- Date: 2026-08-22
 --
+-- Execute this file alone for the complete airline migration.
 -- This file consolidates:
 --   * Japanese major airlines
 --   * Japan-serving LCCs
