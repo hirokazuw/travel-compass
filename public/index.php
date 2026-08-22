@@ -70,7 +70,8 @@ try {
         $flightCity,
         new App\Services\FlightSearchService(
             $flightCity,
-            $apifyFlight
+            $apifyFlight,
+            new App\Services\FlightOfferAggregator(new App\Models\Airline($db))
         ),
         new App\Services\RakutenTravelService($config['rakuten'] ?? []),
         new App\Services\HotelSearchService($apifyHotel, new App\Services\HotelUrlBuilder()),

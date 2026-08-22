@@ -10,7 +10,8 @@ final class FlightSearchService
 {
     public function __construct(
         private FlightCity $cities,
-        private ApifyFlightSearch $apify
+        private ApifyFlightSearch $apify,
+        private FlightOfferAggregator $aggregator
     ) {}
 
     public function search(
@@ -31,7 +32,9 @@ final class FlightSearchService
         }
 
         try {
-            $offers = $this->apify->search($originCode, $destinationCode, $departure, $return, $travelers);
+            $offers = $this->aggregator->byAirline(
+                $this->apify->search($originCode, $destinationCode, $departure, $return, $travelers)
+            );
             return [
                 'offers' => $offers,
                 'status' => $offers ? 'success' : 'empty',

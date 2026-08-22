@@ -4,19 +4,20 @@
     <h2><?= $h($values['origin']) ?> → <?= $h($values['destination']) ?></h2>
     <p><?= $h($values['departure_date']) ?><?= $values['return_date']?' 〜 '.$h($values['return_date']):'' ?>・<?= $values['return_date']!==''?'往復':'片道' ?>・<?= $h($values['travelers']) ?>名</p>
     <?php if ($flightOffers): ?>
-    <h3 class="flight-result-subheading">参考価格</h3>
-    <div class="flight-offers" aria-label="参考フライト">
+    <h3 class="flight-result-subheading">航空会社別の参考価格</h3>
+    <div class="flight-offers" aria-label="航空会社別の参考価格">
         <?php foreach($flightOffers as $offerIndex=>$offer): ?>
         <?php $offerLogo = $offer['carrier_code'] !== '' ? 'https://pics.avs.io/120/40/' . rawurlencode($offer['carrier_code']) . '.png' : $offer['airline_logo']; ?>
         <article class="flight-offer"<?= $offerIndex>=6?' hidden data-extra-offer':'' ?>>
-            <div class="flight-carrier">
+            <?php if($offer['official_url']!==''): ?><a class="flight-carrier flight-airline-link" href="<?= $h($offer['official_url']) ?>" target="_blank" rel="noopener" aria-label="<?= $h($offer['carrier_name']) ?>公式サイトを新しいタブで開く"><?php else: ?><div class="flight-carrier"><?php endif ?>
                 <?php if($offerLogo!==''): ?><img src="<?= $h($offerLogo) ?>" alt="" width="120" height="40" loading="lazy" data-airline-logo><span class="carrier-code" data-airline-logo-fallback hidden><?= $h($offer['carrier_code']) ?></span><?php elseif($offer['carrier_code']!==''): ?><span class="carrier-code"><?= $h($offer['carrier_code']) ?></span><?php endif ?>
                 <b><?= $h($offer['carrier_name']) ?></b>
-                <?php if(($offer['flight_number']??'')!==''): ?><small><?= $h($offer['flight_number']) ?></small><?php endif ?>
-                <?php if(($offer['departure_time']??'')!==''): ?><span class="flight-schedule"><?= $h($offer['origin']??'') ?> <?= $h($offer['departure_time']) ?> → <?= $h($offer['destination']??'') ?> <?= $h($offer['arrival_time']??'') ?></span><?php endif ?>
-                <?php if(($offer['duration']??'')!==''): ?><small><?= $h($offer['duration']) ?><?= ($offer['travel_class']??'')!==''?'・'.$h($offer['travel_class']):'' ?></small><?php endif ?>
-                <span class="flight-stops"><?= $offer['stops']===0?'直行便':$h($offer['stops']).'回乗継' ?><?= ($offer['group']??'')==='best'?'・おすすめ':'' ?></span>
-            </div>
+                <?php if($offer['carrier_code']!==''): ?><small class="flight-iata-code"><?= $h($offer['carrier_code']) ?></small><?php endif ?>
+                <?php if($offer['alliance']!==''): ?><span class="flight-airline-meta"><?= $h($offer['alliance']) ?></span><?php endif ?>
+                <?php if($offer['ffp_name']!==''): ?><span class="flight-airline-meta"><?= $h($offer['ffp_name']) ?></span><?php endif ?>
+                <span class="flight-count">該当便 <?= $h($offer['flight_count']) ?>便</span>
+                <?php if($offer['direct_flight_count']>0): ?><span class="flight-stops">直行便 <?= $h($offer['direct_flight_count']) ?>便</span><?php endif ?>
+            <?= $offer['official_url']!==''?'</a>':'</div>' ?>
             <div class="flight-price"><small>参考価格</small><strong><?= $offer['currency']==='JPY'?'¥':$h($offer['currency']).' ' ?><?= $h($offer['price']) ?>〜</strong></div>
         </article>
         <?php endforeach ?>
