@@ -25,12 +25,28 @@ final class SearchController
         private HotelSearchService $hotelSearch,
         private ApifyDestinationSearch $apify,
         private FlightUrlBuilder $travelLinks,
+        private FerryController $ferryController,
         private array $config,
         private string $visitorId
     ) {}
 
     public function index(): void
     {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $searchType = (string)($_POST['search_type'] ?? '');
+            if ($searchType === 'ferry_company_suggestions') {
+                $this->ferryController->companySuggestions($_POST, (string)($_SESSION['csrf'] ?? ''));
+                return;
+            }
+            if ($searchType === 'ferry_company_routes') {
+                $this->ferryController->companyRoutes($_POST, (string)($_SESSION['csrf'] ?? ''));
+                return;
+            }
+            if ($searchType === 'ferry_map_data') {
+                $this->ferryController->mapData($_POST, (string)($_SESSION['csrf'] ?? ''));
+                return;
+            }
+        }
         if (
             $_SERVER['REQUEST_METHOD'] === 'POST'
             && (string)($_POST['search_type'] ?? '') === 'hotel_destination_suggestions'
@@ -51,6 +67,16 @@ final class SearchController
         $hotels = [];
         $rakutenHotelLinks = [];
         $hotelStatus = 'idle';
+        $ferryErrors = [];
+        $ferryRoutes = [];
+        $ferryRouteOptions = [];
+        $ferryStatus = 'idle';
+        $ferryValues = [
+            'ferry_company_name' => '',
+            'ferry_company_id' => '',
+            'ferry_route_id' => '',
+            'ferry_search_mode' => 'conditions',
+        ];
         $hotelValues = [
             'hotel_destination' => '',
             'check_in_date' => '',
@@ -76,6 +102,13 @@ final class SearchController
             $activeTab = 'hotel';
             extract($this->handleHotelSearch(), EXTR_OVERWRITE);
         }
+        if ($method === 'POST' && $searchType === 'ferry') {
+            $activeTab = 'ferry';
+            extract($this->ferryController->handleSearch(
+                $_POST,
+                (string)($_SESSION['csrf'] ?? '')
+            ), EXTR_OVERWRITE);
+        }
 
         $_SESSION['csrf'] = bin2hex(random_bytes(32));
 
@@ -84,9 +117,10 @@ final class SearchController
         $appName =
             $this->config['app']['name']
             ?? 'Travel Compass';
-        $appVersion = $this->config['app']['version'] ?? '1.7.1';
+        $appVersion = $this->config['app']['version'] ?? '1.8.0';
         $publicPath = dirname(__DIR__, 2) . '/public/assets/';
         $cssVersion = (string)(filemtime($publicPath . 'app.css') ?: $appVersion);
+        $ferryMapCssVersion = (string)(filemtime($publicPath . 'ferry-map.css') ?: $appVersion);
         $jsVersion = (string)(filemtime($publicPath . 'app.js') ?: $appVersion);
         $flightOffersMessage = SearchViewData::flightMessage($flightOffersStatus);
         $hotelMessage = SearchViewData::hotelMessage($hotelStatus);

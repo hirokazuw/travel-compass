@@ -6,8 +6,8 @@
         <p class="search-loading-detail" data-search-loading-detail></p>
         <dl class="search-loading-conditions">
             <div><dt data-search-loading-route-label>検索条件</dt><dd data-search-loading-route></dd></div>
-            <div><dt>日程</dt><dd data-search-loading-dates></dd></div>
-            <div><dt>人数</dt><dd data-search-loading-travelers></dd></div>
+            <div data-search-loading-dates-row><dt>日程</dt><dd data-search-loading-dates></dd></div>
+            <div data-search-loading-travelers-row><dt>人数</dt><dd data-search-loading-travelers></dd></div>
         </dl>
         <div class="search-loading-progress" role="progressbar" aria-label="検索処理中（進捗率は目安です）">
             <span data-search-loading-progress></span>

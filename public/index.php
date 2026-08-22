@@ -65,6 +65,7 @@ try {
         ),
         $apifyNormalizer
     );
+    $ferryRoute = new App\Models\FerryRoute($db);
     (new App\Controllers\SearchController(
         new App\Models\SearchHistory($db),
         $flightCity,
@@ -79,6 +80,15 @@ try {
         new App\Services\FlightUrlBuilder(
             $flightCity,
             $config
+        ),
+        new App\Controllers\FerryController(
+            new App\Models\FerryCompany($db),
+            $ferryRoute,
+            new App\Services\FerrySearchService($ferryRoute),
+            new App\Services\FerryMapService(
+                $ferryRoute,
+                new App\Services\FerrySearchService($ferryRoute)
+            )
         ),
         $config,
         $visitorId

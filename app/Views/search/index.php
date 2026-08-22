@@ -2,7 +2,7 @@
 $h = fn($value) => htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 $searchOutcome = 'idle';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $searchOutcome = ($errors || $hotelErrors || $flightOffersStatus === 'error' || in_array($hotelStatus, ['error', 'not_configured'], true))
+    $searchOutcome = ($errors || $hotelErrors || $ferryErrors || $flightOffersStatus === 'error' || in_array($hotelStatus, ['error', 'not_configured'], true) || $ferryStatus === 'error')
         ? 'error'
         : 'success';
 }
@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta name="csrf-token" content="<?= $h($_SESSION['csrf']) ?>">
 <script type="application/ld+json"><?= $seo['structuredData'] ?></script>
 <link rel="stylesheet" href="public/assets/app.css?v=<?= $h($cssVersion) ?>">
+<link rel="stylesheet" href="public/assets/ferry-map.css?v=<?= $h($ferryMapCssVersion) ?>">
 </head><body data-search-outcome="<?= $h($searchOutcome) ?>">
 <header><a class="site-home-link" href="https://hirokazu-watabe.jp/travel-compass/">✈ <?= $h($appName) ?></a><span>旅をもっとシンプルに</span></header><main>
 <p class="affiliate-disclosure">広告・PRを含みます</p>
@@ -48,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php require __DIR__ . '/partials/search-panel.php'; ?>
 <?php require __DIR__ . '/partials/flight-results.php'; ?>
 <?php require __DIR__ . '/partials/hotel-results.php'; ?>
+<?php require __DIR__ . '/partials/ferry-results.php'; ?>
 <?php require __DIR__ . '/partials/recent-searches.php'; ?>
 <?php require __DIR__ . '/partials/search-loading.php'; ?>
 </main><footer class="site-footer"><div class="site-footer-inner"><div><strong>✈ <?= $h($appName) ?></strong><p>Travel Compass（トラベルコンパス）は、航空券とホテルを比較できる旅行検索サービスです。</p></div><div class="site-footer-credit"><span>Created by Hirokazu WATABE · v<?= $h($appVersion) ?></span><small>© <?= date('Y') ?> Hirokazu WATABE</small></div></div></footer><script src="//statics.a8.net/a8link/a8linkmgr.js"></script><script>

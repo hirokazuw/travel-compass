@@ -1,0 +1,199 @@
+.ferry-map-canvas.is-detail .ferry-map-regions {
+    display: none;
+}
+
+.panel .ferry-port-pin.is-arrival {
+    opacity: .82;
+    transition: opacity .16s ease, transform .16s ease, background-color .16s ease;
+}
+
+.panel .ferry-port-pin.is-arrival:hover,
+.panel .ferry-port-pin.is-arrival:focus-visible,
+.panel .ferry-port-pin.is-arrival.is-highlighted {
+    z-index: 3;
+    opacity: 1;
+    background: #fff4e8;
+    color: #9a4b00;
+    transform: translate(-50%, -50%) scale(1.06);
+}
+
+.panel .ferry-map-route-choice.is-highlighted {
+    border-color: var(--blue);
+    background: #eef5ff;
+}
+
+.ferry-map-layout {
+    display: block;
+}
+
+.ferry-map-layout.has-selection {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 230px;
+    gap: 14px;
+}
+
+.ferry-map-heading {
+    padding: 14px 17px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fff;
+}
+
+.ferry-map-canvas {
+    max-width: 760px;
+    margin: 0 auto;
+    aspect-ratio: 1 / 1;
+    background: linear-gradient(145deg, #eef9ff, #e3f4ff);
+}
+
+.ferry-map-land {
+    display: block;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    mix-blend-mode: multiply;
+    filter: none;
+}
+
+.panel .ferry-region {
+    border-color: #4b8bdc;
+    background: rgba(255, 255, 255, .96);
+    color: #315f9a;
+    box-shadow: 0 2px 7px rgba(41, 91, 151, .16);
+}
+
+.panel .ferry-region:hover,
+.panel .ferry-region:focus-visible,
+.panel .ferry-region.is-selected {
+    background: #176bff;
+    color: #fff;
+}
+
+.ferry-map-routes {
+    position: absolute;
+    z-index: 6;
+    right: 16px;
+    bottom: 16px;
+    width: min(620px, calc(100% - 32px));
+    max-height: 68%;
+    overflow: auto;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 12px 35px rgba(23, 35, 60, .2);
+    grid-template-columns: 1fr;
+}
+
+.ferry-map-routes > div {
+    grid-template-columns: 1fr;
+}
+
+.ferry-map-detail-card .ferry-card-content {
+    min-height: 170px;
+}
+
+.ferry-map-detail-card .ferry-card-main {
+    padding: 17px;
+}
+
+.ferry-map-detail-card .ferry-fare {
+    padding: 15px;
+}
+
+.ferry-map-selection {
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.ferry-map-selection[hidden] {
+    display: none;
+}
+
+.ferry-map-selection h4 {
+    margin: 0 0 10px;
+    font-size: .9rem;
+}
+
+.ferry-map-selection > div {
+    display: grid;
+    gap: 8px;
+    max-height: 610px;
+    overflow: auto;
+}
+
+.panel .ferry-map-selection-choice {
+    display: grid;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+}
+
+.panel .ferry-map-selection-choice:hover,
+.panel .ferry-map-selection-choice:focus-visible,
+.panel .ferry-map-selection-choice.is-selected {
+    border-color: var(--blue);
+    background: #eef5ff;
+    color: var(--blue);
+}
+
+.ferry-map-selection-choice span {
+    margin-top: 3px;
+    color: #66728a;
+    font-size: .68rem;
+}
+
+.ferry-map-route-choice[hidden] {
+    display: none;
+}
+
+.ferry-route-line {
+    stroke-width: 1.1;
+    stroke-dasharray: 140;
+    stroke-dashoffset: 140;
+    animation: ferry-route-draw .38s ease-out forwards;
+}
+
+@keyframes ferry-route-draw {
+    to { stroke-dashoffset: 0; }
+}
+
+@media (max-width: 620px) {
+    .ferry-map-layout.has-selection {
+        grid-template-columns: 1fr;
+    }
+
+    .ferry-map-selection {
+        order: -1;
+    }
+
+    .ferry-map-selection > div {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-height: 260px;
+    }
+
+    .ferry-map-routes {
+        right: 8px;
+        bottom: 8px;
+        width: calc(100% - 16px);
+        max-height: 64%;
+        padding: 10px;
+    }
+
+    .ferry-map-detail-card .ferry-card-content {
+        min-height: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ferry-route-line {
+        animation: none;
+        stroke-dashoffset: 0;
+    }
+}
