@@ -14,6 +14,7 @@ use App\Services\RakutenTravelService;
 use App\Services\FlightUrlBuilder;
 use App\ViewModels\SearchViewData;
 use App\ViewModels\SeoViewData;
+use App\ViewModels\HotelOtaViewData;
 
 final class SearchController
 {
@@ -67,6 +68,7 @@ final class SearchController
         $hotels = [];
         $rakutenHotelLinks = [];
         $hotelStatus = 'idle';
+        $hotelOtaGuide = null;
         $ferryErrors = [];
         $ferryRoutes = [];
         $ferryRouteOptions = [];
@@ -117,7 +119,7 @@ final class SearchController
         $appName =
             $this->config['app']['name']
             ?? 'Travel Compass';
-        $appVersion = $this->config['app']['version'] ?? '1.8.0';
+        $appVersion = $this->config['app']['version'] ?? '1.8.1';
         $publicPath = dirname(__DIR__, 2) . '/public/assets/';
         $cssVersion = (string)(filemtime($publicPath . 'app.css') ?: $appVersion);
         $ferryMapCssVersion = (string)(filemtime($publicPath . 'ferry-map.css') ?: $appVersion);
@@ -209,6 +211,10 @@ final class SearchController
                 'hotels' => $hotels,
                 'rakutenHotelLinks' => $rakutenHotelLinks,
                 'hotelStatus' => $hotels ? 'success' : 'empty',
+                'hotelOtaGuide' => HotelOtaViewData::create(
+                    $request->scope,
+                    $request->values
+                ),
             ];
         } catch (\Throwable $e) {
             error_log('Apify hotel search: ' . $e->getMessage());

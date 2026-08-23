@@ -49,7 +49,7 @@ document.querySelectorAll('.hotel-provider-tab').forEach((tab) => {
         document.querySelectorAll('.hotel-provider-panel').forEach((panel) => {
             panel.hidden = panel.id !== tab.dataset.providerPanel;
         });
-        const scope = tab.id === 'overseas-hotel-tab' ? 'overseas' : 'domestic';
+        const scope = tab.dataset.hotelScope;
         document.querySelectorAll('[data-hotel-result-scope]').forEach((section) => {
             section.hidden = section.dataset.hotelResultScope !== scope;
         });

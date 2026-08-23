@@ -40,7 +40,9 @@ final class HotelSearchRequest
 
         return new self(
             $values,
-            (string)($input['hotel_scope'] ?? 'domestic') === 'overseas' ? 'overseas' : 'domestic',
+            in_array((string)($input['hotel_scope'] ?? ''), ['domestic', 'korea', 'overseas'], true)
+                ? (string)$input['hotel_scope']
+                : 'domestic',
             $adults === false ? 0 : (int)$adults,
             $children === false ? 0 : (int)$children,
             $errors

@@ -4,6 +4,7 @@
     <h2><?= $h($hotelValues['hotel_destination']) ?>のホテル</h2>
     <p><?= $h($hotelValues['check_in_date']) ?> 〜 <?= $h($hotelValues['check_out_date']) ?>・大人<?= $h($hotelValues['hotel_adults']) ?>名・子供<?= $h($hotelValues['hotel_children']) ?>名</p>
     <?php if($hotels): ?>
+    <?php if($hotelOtaGuide['show_guide'] ?? false): ?><aside class="country-hotel-ota"><p><?= $h($hotelOtaGuide['message']) ?></p><a href="<?= $h($hotelOtaGuide['url']) ?>" target="_blank" rel="sponsored noopener"><?= $h($hotelOtaGuide['label']) ?></a></aside><?php endif ?>
     <div class="overseas-hotel-cards" aria-label="ホテル検索結果">
         <?php foreach($hotels as $hotelIndex => $hotel): ?>
         <?php
@@ -36,8 +37,8 @@
                 <?php if(($bookingLinks['jalan'] ?? '') !== ''): ?><a class="hotel-booking-button is-jalan" href="<?= $h($bookingLinks['jalan']) ?>" target="_blank" rel="sponsored noopener">じゃらん</a><?php endif ?>
                 <?php if(($bookingLinks['yahoo'] ?? '') !== ''): ?><a class="hotel-booking-button is-yahoo" href="<?= $h($bookingLinks['yahoo']) ?>" target="_blank" rel="sponsored noopener">Yahoo!トラベル</a><?php endif ?>
                 <?php if(($bookingLinks['ikyu'] ?? '') !== ''): ?><a class="hotel-booking-button is-ikyu" href="<?= $h($bookingLinks['ikyu']) ?>" target="_blank" rel="sponsored noopener">一休.com</a><?php endif ?>
-                <?php if(($bookingLinks['expedia'] ?? '') !== ''): ?><a class="hotel-booking-button is-expedia" href="<?= $h($bookingLinks['expedia']) ?>" target="_blank" rel="sponsored noopener">Expedia</a><?php endif ?>
-                <?php if(($bookingLinks['hotels'] ?? '') !== ''): ?><a class="hotel-booking-button is-hotels" href="<?= $h($bookingLinks['hotels']) ?>" target="_blank" rel="sponsored noopener">Hotels.com</a><?php endif ?>
+                <?php if(!in_array('expedia', (array)($hotelOtaGuide['hidden_booking_links'] ?? []), true) && ($bookingLinks['expedia'] ?? '') !== ''): ?><a class="hotel-booking-button is-expedia" href="<?= $h($bookingLinks['expedia']) ?>" target="_blank" rel="sponsored noopener">Expedia</a><?php endif ?>
+                <?php if(!in_array('hotels', (array)($hotelOtaGuide['hidden_booking_links'] ?? []), true) && ($bookingLinks['hotels'] ?? '') !== ''): ?><a class="hotel-booking-button is-hotels" href="<?= $h($bookingLinks['hotels']) ?>" target="_blank" rel="sponsored noopener">Hotels.com</a><?php endif ?>
             </div>
         </article>
         <?php endforeach ?>
