@@ -1,10 +1,16 @@
 # Travel Compass
 
-Version 1.8.1
+Version 1.9.0
 
 **Travel Compass** は、PHP 8 / MySQLで開発した旅行検索Webアプリケーションです。
 
 航空券・ホテルを一つの画面から検索し、複数の旅行予約サービスを比較・利用できるようにしています。
+
+## V1.9.0
+
+現行DBと照合したfresh install用baseline schemaを整備し、航空会社・フェリーを含む全master dataを一括構築できるようにしました。検索履歴のDB障害は航空券・ホテル検索および画面描画から分離し、補助機能の障害時も主要機能を継続します。
+
+環境固有の`config.php`とSFTP設定をGit管理から分離し、未使用だったTrip.com、Booking.com、ena、さくらトラベルの処理を削除しました。また、PHP単体test、SQLiteによるModel契約test、MySQL baseline integration test、GitHub Actionsを追加しました。
 
 ## V1.8.1
 

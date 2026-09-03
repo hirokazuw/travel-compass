@@ -119,7 +119,7 @@ final class SearchController
         $appName =
             $this->config['app']['name']
             ?? 'Travel Compass';
-        $appVersion = $this->config['app']['version'] ?? '1.8.1';
+        $appVersion = $this->config['app']['version'] ?? '1.9.0';
         $publicPath = dirname(__DIR__, 2) . '/public/assets/';
         $cssVersion = (string)(filemtime($publicPath . 'app.css') ?: $appVersion);
         $ferryMapCssVersion = (string)(filemtime($publicPath . 'ferry-map.css') ?: $appVersion);
