@@ -114,7 +114,7 @@ final class SearchController
 
         $_SESSION['csrf'] = bin2hex(random_bytes(32));
 
-        $recent = $this->searchHistory->recent($this->visitorId);
+        $recent = $this->recentSearches();
 
         $appName =
             $this->config['app']['name']
@@ -143,7 +143,7 @@ final class SearchController
         if ($request->errors !== []) return $state;
 
         $values = $request->values;
-        $this->searchHistory->createFlight($values, $this->visitorId);
+        $this->saveFlightHistory($values);
         $isDomestic = $this->flightCity->isDomestic($values['origin'])
             && $this->flightCity->isDomestic($values['destination']);
         $flightResult = $this->flightSearch->search(
@@ -171,7 +171,7 @@ final class SearchController
             'activeHotelScope' => $request->scope,
         ];
         if ($request->errors !== []) return $state;
-        $this->searchHistory->createHotel($request->values, $this->visitorId);
+        $this->saveHotelHistory($request->values);
         if (!$this->hotelSearch->isConfigured()) return $state + ['hotelStatus' => 'not_configured'];
 
         $destination = $request->values['hotel_destination'];
@@ -250,5 +250,32 @@ final class SearchController
         }
     }
 
+    private function saveFlightHistory(array $values): void
+    {
+        try {
+            $this->searchHistory->createFlight($values, $this->visitorId);
+        } catch (\Throwable $e) {
+            error_log('Flight search history write: ' . $e->getMessage());
+        }
+    }
+
+    private function saveHotelHistory(array $values): void
+    {
+        try {
+            $this->searchHistory->createHotel($values, $this->visitorId);
+        } catch (\Throwable $e) {
+            error_log('Hotel search history write: ' . $e->getMessage());
+        }
+    }
+
+    private function recentSearches(): array
+    {
+        try {
+            return $this->searchHistory->recent($this->visitorId);
+        } catch (\Throwable $e) {
+            error_log('Recent search history read: ' . $e->getMessage());
+            return [];
+        }
+    }
 
 }

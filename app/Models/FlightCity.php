@@ -233,30 +233,6 @@ final class FlightCity
         return null;
     }
     /**
-     * Booking.com用の場所コード
-     *
-     * 例:
-     * 東京 → TYO.CITY
-     * 大阪 → OSA.CITY
-     * 羽田 → HND.AIRPORT
-     * 関西 → KIX.AIRPORT
-     */
-    public function bookingCode(string $city): ?string
-    {
-        $result = $this->find($city);
-
-        if ($result === null) {
-            return null;
-        }
-
-        $suffix = $result['code_type'] === 'metropolitan'
-            ? '.CITY'
-            : '.AIRPORT';
-
-        return $result['iata'] . $suffix;
-    }
-
-    /**
      * AirTrip uses its own metropolitan codes for some Japanese cities.
      */
     public function airtripCode(string $city): ?string

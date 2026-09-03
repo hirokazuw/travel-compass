@@ -8,11 +8,7 @@ use App\Models\FlightCity;
 
 final class FlightUrlBuilder
 {
-    public function __construct(
-        private FlightCity $cities,
-        private array $config
-    ) {
-    }
+    public function __construct(private FlightCity $cities) {}
 
     public function buildFlightLinks(
         string $origin,
@@ -24,11 +20,8 @@ final class FlightUrlBuilder
     ): array {
         $links = [
             'maps' => 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode($destination),
-            'flight' => $this->tripFlight($origin, $destination, $departure, $return, $travelers),
-            'bookingcom' => $this->booking($origin, $destination, $departure, $return, $travelers),
             'expedia' => $this->expedia($origin, $destination, $departure, $return, $travelers),
             'agoda' => $this->agoda($origin, $destination, $departure, $return, $travelers),
-            'ena' => $this->ena($origin, $destination, $departure, $return, $travelers),
         ];
 
         if ($domestic) {
@@ -42,26 +35,6 @@ final class FlightUrlBuilder
         }
 
         return $links;
-    }
-
-    private function tripFlight(string $origin, string $destination, string $departure, string $return, int $travelers): string
-    {
-        $from = $this->cities->code($origin);
-        $to = $this->cities->code($destination);
-        if ($from === null || $to === null) return $this->affiliateUrl('flight_url');
-
-        $params = [
-            'dcity' => $from, 'acity' => $to, 'ddate' => $departure,
-            'triptype' => $return !== '' ? 'rt' : 'ow', 'class' => 'y',
-            'lowpricesource' => 'searchform', 'quantity' => $travelers,
-            'searchboxarg' => 't', 'nonstoponly' => 'off', 'locale' => 'ja-JP', 'curr' => 'JPY',
-            'Allianceid' => $this->config['trip']['alliance_id'] ?? '',
-            'SID' => $this->config['trip']['sid'] ?? '',
-        ];
-        if ($return !== '') $params['rdate'] = $return;
-
-        return ($this->config['trip']['flight_search_url'] ?? 'https://jp.trip.com/flights/showfarefirst')
-            . '?' . $this->query($params);
     }
 
     private function airtrip(string $origin, string $destination, string $departure, string $return, int $travelers): string
@@ -133,22 +106,6 @@ final class FlightUrlBuilder
         }
 
         return 'https://rt.travelwest.jp/search.php?' . $this->query($params);
-    }
-
-    private function sakura(string $origin, string $destination, string $departure, string $return, int $travelers): string
-    {
-        $from = $this->cities->code($origin); $to = $this->cities->code($destination);
-        if ($from === null || $to === null) return 'https://www.sakuratravel.jp/';
-        [$year, $month, $day] = explode('-', $departure);
-        $params = ['search-ticket-type' => $return !== '' ? 'round-trip' : 'one-way',
-            's_from' => strtoupper($from), 's_to' => strtoupper($to), 's_year' => $year,
-            's_month' => (string)(int)$month, 's_day' => (string)(int)$day, 's_adult' => $travelers,
-            's_child' => 0, 's_infant2' => 0, 's_infant' => 0, 'pc_screen_flg' => 4];
-        if ($return !== '') {
-            [$year, $month, $day] = explode('-', $return);
-            $params += ['s_year2' => $year, 's_month2' => (string)(int)$month, 's_day2' => (string)(int)$day];
-        }
-        return 'https://www.sakuratravel.jp/search/search.php?' . $this->query($params);
     }
 
     private function expedia(string $origin, string $destination, string $departure, string $return, int $travelers): string
@@ -350,39 +307,9 @@ final class FlightUrlBuilder
             . substr($hex, 20);
     }
 
-    private function ena(string $origin, string $destination, string $departure, string $return, int $travelers): string
-    {
-        $from = $this->cities->code($origin); $to = $this->cities->code($destination);
-        if ($from === null || $to === null) return 'https://www.ena.travel/';
-        $from = strtoupper($from); $to = strtoupper($to);
-        $routes = [$from . '-' . $to . '-' . str_replace('-', '', $departure) . '-nonselected'];
-        if ($return !== '') $routes[] = $to . '-' . $from . '-' . str_replace('-', '', $return) . '-nonselected';
-        return 'https://www.ena.travel/airsearch?' . $this->query([
-            'route' => implode('|', $routes), 'seatClass' => 'economy', 'airline' => '-',
-            'adt' => $travelers, 'chd' => 0, 'age' => '', 'seat' => '']);
-    }
-
-    private function booking(string $origin, string $destination, string $departure, string $return, int $travelers): string
-    {
-        $from = $this->cities->bookingCode($origin); $to = $this->cities->bookingCode($destination);
-        if ($from === null || $to === null) return 'https://flights.booking.com/';
-        $params = ['type' => $return !== '' ? 'ROUNDTRIP' : 'ONEWAY', 'adults' => $travelers,
-            'cabinClass' => 'ECONOMY', 'children' => '', 'from' => $from, 'to' => $to,
-            'fromLocationName' => $origin, 'toLocationName' => $destination, 'depart' => $departure,
-            'sort' => 'BEST', 'travelPurpose' => 'leisure', 'aid' => '2311236'];
-        if ($return !== '') $params['return'] = $return;
-        return 'https://flights.booking.com/flights/' . $from . '-' . $to . '/?' . $this->query($params);
-    }
-
     private function query(array $params): string
     {
         return http_build_query(array_filter($params, static fn($value) => $value !== ''), '', '&', PHP_QUERY_RFC3986);
     }
 
-    private function affiliateUrl(string $key): string
-    {
-        $url = $this->config['affiliate'][$key] ?? '';
-        return filter_var($url, FILTER_VALIDATE_URL) && str_starts_with($url, 'https://')
-            ? $url : 'https://www.trip.com/';
-    }
 }

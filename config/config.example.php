@@ -21,12 +21,6 @@ return [
         'password' => getenv('DB_PASSWORD') ?: '',
     ],
 
-    'trip' => [
-        'flight_search_url' => 'https://jp.trip.com/flights/showfarefirst',
-        'alliance_id' => 'YOUR_ALLIANCE_ID',
-        'sid' => 'YOUR_SID',
-    ],
-
     'apify' => [
         'token' => getenv('APIFY_TOKEN') ?: '',
         'hotels_url' => 'https://api.apify.com/v2/acts/johnvc~google-hotels-search-scraper/run-sync-get-dataset-items',
@@ -48,11 +42,6 @@ return [
         'access_key' => getenv('RAKUTEN_ACCESS_KEY') ?: '',
         'affiliate_id' => getenv('RAKUTEN_AFFILIATE_ID') ?: '',
         'referer' => getenv('RAKUTEN_REFERER') ?: '',
-    ],
-
-    'affiliate' => [
-        'hotel_url' => 'https://www.trip.com/hotels/',
-        'flight_url' => 'https://www.trip.com/flights/',
     ],
 
 ];

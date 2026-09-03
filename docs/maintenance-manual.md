@@ -25,7 +25,7 @@ Browser → index.php → public/index.php
 | `app/Views/search/` | Form、結果、履歴、loading |
 | `public/assets/app.js` | tab、候補、loading、もっと見る、履歴再入力 |
 | `config/config.php` / `.env` | DB、API、SEO設定 |
-| `database/schema.sql` | 履歴DDL。IATA DDLは含まない |
+| `database/schema.sql` | fresh install用baseline。履歴・IATA・航空会社・フェリーのDDL／seedを収録 |
 
 ### ルーティング
 
@@ -103,7 +103,7 @@ search-panel.php → app.js → POST
 
 初回アクセス時に256-bitの匿名`visitor_id`をCookieへ発行します。Cookieには検索条件を保存せず、90日有効、`HttpOnly`、`SameSite=Lax`、HTTPS通信時は`Secure`です。
 
-`recent($visitorId, 6)`は現在の匿名利用者に一致する航空券とホテルを各6件取得し、PHPで統合・再sortして全体6件にします。別のCookie IDの履歴は取得しません。`iata_cities`のDDL・Index・初期dataは`database/schema.sql`に収録しています。
+`recent($visitorId, 6)`は現在の匿名利用者に一致する航空券とホテルを各6件取得し、PHPで統合・再sortして全体6件にします。別のCookie IDの履歴は取得しません。`database/schema.sql`は現DBの構造dumpと照合したfresh install用baselineで、履歴・IATA・航空会社・フェリーのDDLと現行master seedを収録しています。検索履歴の実データは含みません。既存DBへの現行migration適用は完了済みで、統合済みSQLは`database/migrations/archive/`に保管しています。今後の既存DB更新用SQLは`database/migrations/`直下へ追加し、baselineやarchive内のSQLを既存DBへ再適用しません。
 
 ## 5. 外部サービス
 
@@ -118,7 +118,7 @@ search-panel.php → app.js → POST
 
 環境変数は`DB_DSN`, `DB_USER`, `DB_PASSWORD`, `APIFY_TOKEN`, `RAKUTEN_APPLICATION_ID`, `RAKUTEN_ACCESS_KEY`, `RAKUTEN_AFFILIATE_ID`, `RAKUTEN_REFERER`です。
 
-Scrape.do、SerpAPI、Travelpayoutsの実装はありません。残骸候補は`travel_searches`、`FlightUrlBuilder::sakura()`、非表示Trip.com／Booking.com／ena、未使用`affiliate.hotel_url`、`hotel_place_*`です。
+Scrape.do、SerpAPI、Travelpayouts、Trip.com、Booking.com、ena、さくらトラベルの実装はありません。残骸候補は`travel_searches`、`hotel_place_*`です。
 
 ## 6. Frontend
 
@@ -144,11 +144,17 @@ GETは`index, follow`、POSTはmetaとX-Robots-Tagで`noindex, follow`です。
 | ホテル不可 | `handleHotelSearch()` | `ApifyHotelSearch`、cache権限 |
 | Apify error | `ApifyClient::run()` | token、Actor URL、HTTP body |
 | 楽天 error | `RakutenTravelService::request()` | `RAKUTEN_*`、Referer、名寄せ |
-| 履歴未保存 | `SearchHistory` | PDO、table、列、権限 |
+| 履歴未保存 | `SearchController`の履歴write log、`SearchHistory` | PDO、table、列、権限。検索本体は継続 |
 | OTA異常 | URL Builder | View、affiliate JS |
 | IATA異常 | `FlightCity::find()` | aliases、airports、国列 |
 | loading残留 | `app.js`の`pageshow()` | outcome、JS例外 |
 | 結果非表示 | 対応results View | status、Controller返却値 |
 | 楽天だけ非表示 | `isAffiliateConfigured()` | `matchRakutenHotels()` |
 
-初動順は、PHP log → 設定 → status → Service → 外部API → DB/cache → View → Browser Consoleです。履歴INSERT失敗は検索も停止し、楽天障害は画面に出ずlogだけに残ります。
+初動順は、PHP log → 設定 → status → Service → 外部API → DB/cache → View → Browser Consoleです。履歴のINSERT／SELECT失敗は機能別にlogへ残し、検索・画面描画は継続します。楽天障害は画面に出ずlogだけに残ります。
+
+## 9. 自動テスト
+
+`php tests/run.php`で、外部APIと本番設定を使わない契約testを実行します。Request、Normalizer、URL Builder、IATA、航空会社集約、ホテル名寄せ、フェリーModel／Service、baseline構成が対象です。
+
+GitHub Actionsは全PHPファイルの構文検査と上記testに加え、MySQL 8の空DBへ`database/schema.sql`を適用し、table、master件数、フェリー外部キー、検索履歴dataが含まれないことを検査します。ローカルの`tests/mysql-baseline.php`は`TEST_DB_DSN`が未設定ならskipし、本番DBへ自動接続しません。

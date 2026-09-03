@@ -103,8 +103,8 @@ Expediaなどの商品情報APIは使用せず、各提携サービスのアフ�
 
 1. フォルダをWebサーバーへアップロード
 2. `.env.example` を参考に `.env` へDB・API情報を設定
-3. `config/config.example.php` を `config/config.php` にコピーし、必要な設定を行う
-4. phpMyAdminなどから `database/schema.sql` を実行
+3. `config/config.example.php` をGit管理外の `config/config.php` にコピーし、必要な環境固有設定を行う
+4. 新規DBではphpMyAdminなどから `database/schema.sql` を実行（今後の既存DB更新は `database/migrations/` 直下の未適用SQLを使用。`archive/`は適用済み）
 5. Webブラウザからアプリケーションへアクセス
 
 ## ディレクトリ構成
@@ -114,6 +114,16 @@ Expediaなどの商品情報APIは使用せず、各提携サービスのアフ�
 * Controller: `app/Controllers`
 * Service: `app/Services`
 * ViewModel: `app/ViewModels`
+
+## テスト
+
+外部APIや本番設定を使わない自動テストは、次のコマンドで実行します。
+
+```bash
+php tests/run.php
+```
+
+Request、response正規化、URL生成、IATA、航空会社集約、ホテル名寄せ、フェリーModel／Service、baseline構成を検査します。GitHub ActionsではPHP構文検査に加え、MySQL 8の空DBへ`database/schema.sql`を適用するintegration testも実行します。
 
 ## セキュリティ
 

@@ -1,0 +1,51 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  php-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_sqlite
+          coverage: none
+      - name: Lint PHP files
+        run: find app config public tests -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Run tests
+        run: php tests/run.php
+
+  mysql-baseline:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: travel_compass_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql
+          coverage: none
+      - name: Load baseline schema
+        run: mysql --host=127.0.0.1 --port=3306 --user=root --password=root travel_compass_test < database/schema.sql
+      - name: Verify baseline contract
+        env:
+          TEST_DB_DSN: mysql:host=127.0.0.1;port=3306;dbname=travel_compass_test;charset=utf8mb4
+          TEST_DB_USER: root
+          TEST_DB_PASSWORD: root
+        run: php tests/mysql-baseline.php

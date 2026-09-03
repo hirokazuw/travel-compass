@@ -1,2 +1,4 @@
 .env
+config/config.php
+.vscode/sftp.json
 storage/cache/

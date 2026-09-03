@@ -77,10 +77,7 @@ try {
         new App\Services\RakutenTravelService($config['rakuten'] ?? []),
         new App\Services\HotelSearchService($apifyHotel, new App\Services\HotelUrlBuilder()),
         $apifyDestination,
-        new App\Services\FlightUrlBuilder(
-            $flightCity,
-            $config
-        ),
+        new App\Services\FlightUrlBuilder($flightCity),
         new App\Controllers\FerryController(
             new App\Models\FerryCompany($db),
             $ferryRoute,
