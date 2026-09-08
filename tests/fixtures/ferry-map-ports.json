@@ -1,0 +1,982 @@
+[
+    {
+        "name": "苫小牧東フェリーターミナル",
+        "prefecture": "北海道",
+        "expected": {
+            "name": "苫小牧東フェリーターミナル",
+            "region": "hokkaido",
+            "x": 75,
+            "y": 25
+        }
+    },
+    {
+        "name": "苫小牧フェリーターミナル",
+        "prefecture": "北海道",
+        "expected": {
+            "name": "苫小牧フェリーターミナル",
+            "region": "hokkaido",
+            "x": 72,
+            "y": 26
+        }
+    },
+    {
+        "name": "小樽フェリーターミナル",
+        "prefecture": "北海道",
+        "expected": {
+            "name": "小樽フェリーターミナル",
+            "region": "hokkaido",
+            "x": 68,
+            "y": 22
+        }
+    },
+    {
+        "name": "函館フェリーターミナル",
+        "prefecture": "北海道",
+        "expected": {
+            "name": "函館フェリーターミナル",
+            "region": "hokkaido",
+            "x": 67,
+            "y": 30
+        }
+    },
+    {
+        "name": "稚内フェリーターミナル",
+        "prefecture": "北海道",
+        "expected": {
+            "name": "稚内フェリーターミナル",
+            "region": "hokkaido",
+            "x": 70,
+            "y": 15
+        }
+    },
+    {
+        "name": "鴛泊フェリーターミナル",
+        "prefecture": "北海道",
+        "expected": {
+            "name": "鴛泊フェリーターミナル",
+            "region": "hokkaido",
+            "x": 65,
+            "y": 16
+        }
+    },
+    {
+        "name": "香深フェリーターミナル",
+        "prefecture": "北海道",
+        "expected": {
+            "name": "香深フェリーターミナル",
+            "region": "hokkaido",
+            "x": 63,
+            "y": 14
+        }
+    },
+    {
+        "name": "室蘭フェリーターミナル",
+        "prefecture": "北海道",
+        "expected": {
+            "name": "室蘭フェリーターミナル",
+            "region": "hokkaido",
+            "x": 70,
+            "y": 28
+        }
+    },
+    {
+        "name": "青森フェリーターミナル",
+        "prefecture": "青森県",
+        "expected": {
+            "name": "青森フェリーターミナル",
+            "region": "tohoku",
+            "x": 64,
+            "y": 36
+        }
+    },
+    {
+        "name": "大間フェリーターミナル",
+        "prefecture": "青森県",
+        "expected": {
+            "name": "大間フェリーターミナル",
+            "region": "tohoku",
+            "x": 66,
+            "y": 33
+        }
+    },
+    {
+        "name": "仙台フェリーターミナル",
+        "prefecture": "青森県",
+        "expected": {
+            "name": "仙台フェリーターミナル",
+            "region": "tohoku",
+            "x": 67,
+            "y": 46
+        }
+    },
+    {
+        "name": "大洗フェリーターミナル",
+        "prefecture": "茨城県",
+        "expected": {
+            "name": "大洗フェリーターミナル",
+            "region": "kanto",
+            "x": 64,
+            "y": 57
+        }
+    },
+    {
+        "name": "東京フェリーターミナル",
+        "prefecture": "茨城県",
+        "expected": {
+            "name": "東京フェリーターミナル",
+            "region": "kanto",
+            "x": 60,
+            "y": 62
+        }
+    },
+    {
+        "name": "横須賀フェリーターミナル",
+        "prefecture": "茨城県",
+        "expected": {
+            "name": "横須賀フェリーターミナル",
+            "region": "kanto",
+            "x": 58,
+            "y": 65
+        }
+    },
+    {
+        "name": "新潟フェリーターミナル",
+        "prefecture": "新潟県",
+        "expected": {
+            "name": "新潟フェリーターミナル",
+            "region": "hokuriku",
+            "x": 53,
+            "y": 49
+        }
+    },
+    {
+        "name": "敦賀フェリーターミナル",
+        "prefecture": "新潟県",
+        "expected": {
+            "name": "敦賀フェリーターミナル",
+            "region": "hokuriku",
+            "x": 46,
+            "y": 61
+        }
+    },
+    {
+        "name": "舞鶴フェリーターミナル",
+        "prefecture": "滋賀県",
+        "expected": {
+            "name": "舞鶴フェリーターミナル",
+            "region": "kinki",
+            "x": 42,
+            "y": 60
+        }
+    },
+    {
+        "name": "名古屋フェリーターミナル",
+        "prefecture": "山梨県",
+        "expected": {
+            "name": "名古屋フェリーターミナル",
+            "region": "tokai",
+            "x": 52,
+            "y": 69
+        }
+    },
+    {
+        "name": "大阪港国際フェリーターミナル",
+        "prefecture": "滋賀県",
+        "expected": {
+            "name": "大阪港国際フェリーターミナル",
+            "region": "kinki",
+            "x": 42,
+            "y": 71
+        }
+    },
+    {
+        "name": "大阪南港フェリーターミナル",
+        "prefecture": "滋賀県",
+        "expected": {
+            "name": "大阪南港フェリーターミナル",
+            "region": "kinki",
+            "x": 41,
+            "y": 72
+        }
+    },
+    {
+        "name": "大阪港フェリーターミナル",
+        "prefecture": "滋賀県",
+        "expected": {
+            "name": "大阪港フェリーターミナル",
+            "region": "kinki",
+            "x": 41,
+            "y": 71
+        }
+    },
+    {
+        "name": "神戸フェリーターミナル",
+        "prefecture": "滋賀県",
+        "expected": {
+            "name": "神戸フェリーターミナル",
+            "region": "kinki",
+            "x": 39,
+            "y": 71
+        }
+    },
+    {
+        "name": "泉大津フェリーターミナル",
+        "prefecture": "滋賀県",
+        "expected": {
+            "name": "泉大津フェリーターミナル",
+            "region": "kinki",
+            "x": 41,
+            "y": 74
+        }
+    },
+    {
+        "name": "新門司フェリーターミナル",
+        "prefecture": "福岡県",
+        "expected": {
+            "name": "新門司フェリーターミナル",
+            "region": "kyushu",
+            "x": 26,
+            "y": 71
+        }
+    },
+    {
+        "name": "下関フェリーターミナル",
+        "prefecture": "鳥取県",
+        "expected": {
+            "name": "下関フェリーターミナル",
+            "region": "chugoku",
+            "x": 27,
+            "y": 68
+        }
+    },
+    {
+        "name": "広島フェリーターミナル",
+        "prefecture": "鳥取県",
+        "expected": {
+            "name": "広島フェリーターミナル",
+            "region": "chugoku",
+            "x": 30,
+            "y": 71
+        }
+    },
+    {
+        "name": "呉港フェリーターミナル",
+        "prefecture": "鳥取県",
+        "expected": {
+            "name": "呉港フェリーターミナル",
+            "region": "chugoku",
+            "x": 31,
+            "y": 72
+        }
+    },
+    {
+        "name": "松山観光フェリーターミナル",
+        "prefecture": "徳島県",
+        "expected": {
+            "name": "松山観光フェリーターミナル",
+            "region": "shikoku",
+            "x": 33,
+            "y": 75
+        }
+    },
+    {
+        "name": "徳島フェリーターミナル",
+        "prefecture": "徳島県",
+        "expected": {
+            "name": "徳島フェリーターミナル",
+            "region": "shikoku",
+            "x": 39,
+            "y": 76
+        }
+    },
+    {
+        "name": "高松フェリーターミナル",
+        "prefecture": "徳島県",
+        "expected": {
+            "name": "高松フェリーターミナル",
+            "region": "shikoku",
+            "x": 36,
+            "y": 73
+        }
+    },
+    {
+        "name": "坂手フェリーターミナル",
+        "prefecture": "徳島県",
+        "expected": {
+            "name": "坂手フェリーターミナル",
+            "region": "shikoku",
+            "x": 38,
+            "y": 72
+        }
+    },
+    {
+        "name": "東予フェリーターミナル",
+        "prefecture": "徳島県",
+        "expected": {
+            "name": "東予フェリーターミナル",
+            "region": "shikoku",
+            "x": 32,
+            "y": 76
+        }
+    },
+    {
+        "name": "八幡浜フェリーターミナル",
+        "prefecture": "徳島県",
+        "expected": {
+            "name": "八幡浜フェリーターミナル",
+            "region": "shikoku",
+            "x": 29,
+            "y": 79
+        }
+    },
+    {
+        "name": "別府フェリーターミナル",
+        "prefecture": "福岡県",
+        "expected": {
+            "name": "別府フェリーターミナル",
+            "region": "kyushu",
+            "x": 25,
+            "y": 77
+        }
+    },
+    {
+        "name": "臼杵フェリーターミナル",
+        "prefecture": "福岡県",
+        "expected": {
+            "name": "臼杵フェリーターミナル",
+            "region": "kyushu",
+            "x": 25,
+            "y": 80
+        }
+    },
+    {
+        "name": "佐賀関フェリーターミナル",
+        "prefecture": "福岡県",
+        "expected": {
+            "name": "佐賀関フェリーターミナル",
+            "region": "kyushu",
+            "x": 26,
+            "y": 79
+        }
+    },
+    {
+        "name": "三崎フェリーターミナル",
+        "prefecture": "徳島県",
+        "expected": {
+            "name": "三崎フェリーターミナル",
+            "region": "shikoku",
+            "x": 28,
+            "y": 78
+        }
+    },
+    {
+        "name": "大分フェリーターミナル",
+        "prefecture": "福岡県",
+        "expected": {
+            "name": "大分フェリーターミナル",
+            "region": "kyushu",
+            "x": 27,
+            "y": 78
+        }
+    },
+    {
+        "name": "宮崎フェリーターミナル",
+        "prefecture": "福岡県",
+        "expected": {
+            "name": "宮崎フェリーターミナル",
+            "region": "kyushu",
+            "x": 23,
+            "y": 84
+        }
+    },
+    {
+        "name": "志布志フェリーターミナル",
+        "prefecture": "福岡県",
+        "expected": {
+            "name": "志布志フェリーターミナル",
+            "region": "kyushu",
+            "x": 22,
+            "y": 88
+        }
+    },
+    {
+        "name": "鹿児島フェリーターミナル",
+        "prefecture": "福岡県",
+        "expected": {
+            "name": "鹿児島フェリーターミナル",
+            "region": "kyushu",
+            "x": 18,
+            "y": 88
+        }
+    },
+    {
+        "name": "博多フェリーターミナル",
+        "prefecture": "福岡県",
+        "expected": {
+            "name": "博多フェリーターミナル",
+            "region": "kyushu",
+            "x": 22,
+            "y": 71
+        }
+    },
+    {
+        "name": "那覇フェリーターミナル",
+        "prefecture": "沖縄県",
+        "expected": {
+            "name": "那覇フェリーターミナル",
+            "region": "okinawa",
+            "x": 78,
+            "y": 84
+        }
+    },
+    {
+        "name": "石垣フェリーターミナル",
+        "prefecture": "沖縄県",
+        "expected": {
+            "name": "石垣フェリーターミナル",
+            "region": "okinawa",
+            "x": 74,
+            "y": 88
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "北海道",
+        "expected": {
+            "name": "未登録港",
+            "region": "hokkaido",
+            "x": 70,
+            "y": 21
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "青森県",
+        "expected": {
+            "name": "未登録港",
+            "region": "tohoku",
+            "x": 65,
+            "y": 42
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "岩手県",
+        "expected": {
+            "name": "未登録港",
+            "region": "tohoku",
+            "x": 65,
+            "y": 42
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "宮城県",
+        "expected": {
+            "name": "未登録港",
+            "region": "tohoku",
+            "x": 65,
+            "y": 42
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "秋田県",
+        "expected": {
+            "name": "未登録港",
+            "region": "tohoku",
+            "x": 65,
+            "y": 42
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "山形県",
+        "expected": {
+            "name": "未登録港",
+            "region": "tohoku",
+            "x": 65,
+            "y": 42
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "福島県",
+        "expected": {
+            "name": "未登録港",
+            "region": "tohoku",
+            "x": 65,
+            "y": 42
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "茨城県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kanto",
+            "x": 60,
+            "y": 65
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "栃木県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kanto",
+            "x": 60,
+            "y": 65
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "群馬県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kanto",
+            "x": 60,
+            "y": 65
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "埼玉県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kanto",
+            "x": 60,
+            "y": 65
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "千葉県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kanto",
+            "x": 60,
+            "y": 65
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "東京都",
+        "expected": {
+            "name": "未登録港",
+            "region": "kanto",
+            "x": 60,
+            "y": 65
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "神奈川県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kanto",
+            "x": 60,
+            "y": 65
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "新潟県",
+        "expected": {
+            "name": "未登録港",
+            "region": "hokuriku",
+            "x": 51,
+            "y": 56
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "富山県",
+        "expected": {
+            "name": "未登録港",
+            "region": "hokuriku",
+            "x": 51,
+            "y": 56
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "石川県",
+        "expected": {
+            "name": "未登録港",
+            "region": "hokuriku",
+            "x": 51,
+            "y": 56
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "福井県",
+        "expected": {
+            "name": "未登録港",
+            "region": "hokuriku",
+            "x": 51,
+            "y": 56
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "山梨県",
+        "expected": {
+            "name": "未登録港",
+            "region": "tokai",
+            "x": 51,
+            "y": 68
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "長野県",
+        "expected": {
+            "name": "未登録港",
+            "region": "tokai",
+            "x": 51,
+            "y": 68
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "岐阜県",
+        "expected": {
+            "name": "未登録港",
+            "region": "tokai",
+            "x": 51,
+            "y": 68
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "静岡県",
+        "expected": {
+            "name": "未登録港",
+            "region": "tokai",
+            "x": 51,
+            "y": 68
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "愛知県",
+        "expected": {
+            "name": "未登録港",
+            "region": "tokai",
+            "x": 51,
+            "y": 68
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "三重県",
+        "expected": {
+            "name": "未登録港",
+            "region": "tokai",
+            "x": 51,
+            "y": 68
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "滋賀県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kinki",
+            "x": 41,
+            "y": 71
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "京都府",
+        "expected": {
+            "name": "未登録港",
+            "region": "kinki",
+            "x": 41,
+            "y": 71
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "大阪府",
+        "expected": {
+            "name": "未登録港",
+            "region": "kinki",
+            "x": 41,
+            "y": 71
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "兵庫県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kinki",
+            "x": 41,
+            "y": 71
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "奈良県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kinki",
+            "x": 41,
+            "y": 71
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "和歌山県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kinki",
+            "x": 41,
+            "y": 71
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "鳥取県",
+        "expected": {
+            "name": "未登録港",
+            "region": "chugoku",
+            "x": 29,
+            "y": 69
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "島根県",
+        "expected": {
+            "name": "未登録港",
+            "region": "chugoku",
+            "x": 29,
+            "y": 69
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "岡山県",
+        "expected": {
+            "name": "未登録港",
+            "region": "chugoku",
+            "x": 29,
+            "y": 69
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "広島県",
+        "expected": {
+            "name": "未登録港",
+            "region": "chugoku",
+            "x": 29,
+            "y": 69
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "山口県",
+        "expected": {
+            "name": "未登録港",
+            "region": "chugoku",
+            "x": 29,
+            "y": 69
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "徳島県",
+        "expected": {
+            "name": "未登録港",
+            "region": "shikoku",
+            "x": 33,
+            "y": 76
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "香川県",
+        "expected": {
+            "name": "未登録港",
+            "region": "shikoku",
+            "x": 33,
+            "y": 76
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "愛媛県",
+        "expected": {
+            "name": "未登録港",
+            "region": "shikoku",
+            "x": 33,
+            "y": 76
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "高知県",
+        "expected": {
+            "name": "未登録港",
+            "region": "shikoku",
+            "x": 33,
+            "y": 76
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "福岡県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kyushu",
+            "x": 20,
+            "y": 82
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "佐賀県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kyushu",
+            "x": 20,
+            "y": 82
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "長崎県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kyushu",
+            "x": 20,
+            "y": 82
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "熊本県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kyushu",
+            "x": 20,
+            "y": 82
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "大分県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kyushu",
+            "x": 20,
+            "y": 82
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "宮崎県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kyushu",
+            "x": 20,
+            "y": 82
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "鹿児島県",
+        "expected": {
+            "name": "未登録港",
+            "region": "kyushu",
+            "x": 20,
+            "y": 82
+        }
+    },
+    {
+        "name": "未登録港",
+        "prefecture": "沖縄県",
+        "expected": {
+            "name": "未登録港",
+            "region": "okinawa",
+            "x": 78,
+            "y": 85
+        }
+    },
+    {
+        "name": "東京港",
+        "prefecture": "",
+        "expected": {
+            "name": "東京港",
+            "region": "overseas",
+            "x": 8,
+            "y": 23
+        }
+    },
+    {
+        "name": "東京港",
+        "prefecture": "東京都 ",
+        "expected": {
+            "name": "東京港",
+            "region": "overseas",
+            "x": 8,
+            "y": 23
+        }
+    },
+    {
+        "name": "釜山港",
+        "prefecture": "韓国",
+        "expected": {
+            "name": "釜山港",
+            "region": "overseas",
+            "x": 8,
+            "y": 23
+        }
+    },
+    {
+        "name": "未知港",
+        "prefecture": "未知県",
+        "expected": {
+            "name": "未知港",
+            "region": "overseas",
+            "x": 8,
+            "y": 23
+        }
+    },
+    {
+        "name": "苫小牧東港",
+        "prefecture": "北海道",
+        "expected": {
+            "name": "苫小牧東港",
+            "region": "hokkaido",
+            "x": 75,
+            "y": 25
+        }
+    },
+    {
+        "name": "大阪港国際ターミナル",
+        "prefecture": "大阪府",
+        "expected": {
+            "name": "大阪港国際ターミナル",
+            "region": "kinki",
+            "x": 42,
+            "y": 71
+        }
+    },
+    {
+        "name": "東京港",
+        "prefecture": "北海道",
+        "expected": {
+            "name": "東京港",
+            "region": "hokkaido",
+            "x": 60,
+            "y": 62
+        }
+    }
+]

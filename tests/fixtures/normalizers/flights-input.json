@@ -1,0 +1,104 @@
+[
+    {
+        "best_flights": [
+            {
+                "price": "¥20,000",
+                "total_duration": 205,
+                "flights": [
+                    {
+                        "airline": "Fixture Air",
+                        "flight_number": "FA101",
+                        "departure_airport": {
+                            "id": "HND",
+                            "time": "2026-10-01 09:05"
+                        },
+                        "arrival_airport": {
+                            "id": "ICN",
+                            "time": "2026-10-01 12:30"
+                        },
+                        "travel_class": "Economy"
+                    }
+                ]
+            },
+            {
+                "price": 0,
+                "flights": [
+                    {
+                        "airline": "Fixture Air",
+                        "flight_number": "FA101",
+                        "departure_airport": {
+                            "id": "HND",
+                            "time": "2026-10-01 09:05"
+                        },
+                        "arrival_airport": {
+                            "id": "ICN",
+                            "time": "2026-10-01 12:30"
+                        },
+                        "travel_class": "Economy"
+                    }
+                ]
+            },
+            null
+        ],
+        "other_flights": [
+            {
+                "price": 10000.4,
+                "duration": 60,
+                "airline_logo": "http://images.example/logo",
+                "flights": [
+                    {
+                        "airline": "Fixture Air",
+                        "flight_number": "FA101",
+                        "departure_airport": {
+                            "id": "HND",
+                            "time": "2026-10-01 09:05"
+                        },
+                        "arrival_airport": {
+                            "id": "ICN",
+                            "time": "2026-10-01 12:30"
+                        },
+                        "travel_class": "Economy"
+                    },
+                    {
+                        "airline": "Fixture Air",
+                        "flight_number": "FA101",
+                        "departure_airport": {
+                            "id": "HND",
+                            "time": "2026-10-01 09:05"
+                        },
+                        "arrival_airport": {
+                            "id": "ICN",
+                            "time": "2026-10-01 12:30"
+                        },
+                        "travel_class": "Economy"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "all_flights": [
+            {
+                "airline": "Fixture Air",
+                "flight_number": "FA101",
+                "departure_airport": {
+                    "id": "HND",
+                    "time": "2026-10-01 09:05"
+                },
+                "arrival_airport": {
+                    "id": "ICN",
+                    "time": "2026-10-01 12:30"
+                },
+                "travel_class": "Economy",
+                "price": 15000,
+                "stops": -1,
+                "currency": "USD"
+            },
+            {
+                "price": 1,
+                "flights": []
+            }
+        ]
+    },
+    null
+]

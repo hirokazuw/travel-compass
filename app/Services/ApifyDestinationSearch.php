@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 namespace App\Services;
+use App\Services\Normalizers\DestinationResponseNormalizer;
 final class ApifyDestinationSearch
 {
-    public function __construct(private ApifyClient $client, private ApiCache $cache, private ApifyResponseNormalizer $normalizer) {}
+    public function __construct(private ApifyClient $client, private ApiCache $cache, private DestinationResponseNormalizer $normalizer) {}
     public function isConfigured(): bool { return $this->client->isConfigured(); }
     public function search(string $query): array
     {

@@ -18,6 +18,17 @@ jobs:
         run: find app config public tests -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Run tests
         run: php tests/run.php
+      - name: HTTP characterization
+        run: php tests/http.php
+      - name: Search HTML contracts
+        run: php tests/view-contract.php
+      - name: Flight URL golden tests
+        run: php tests/flight-url-golden.php
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Browser DOM contracts
+        run: node tests/browser.mjs
 
   mysql-baseline:
     runs-on: ubuntu-latest

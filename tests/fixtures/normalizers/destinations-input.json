@@ -1,0 +1,29 @@
+[
+    {
+        "name": " Tokyo ",
+        "type": "city",
+        "address": " Fixture address ",
+        "item_id": "fixture-place",
+        "coordinate": [
+            "35.5",
+            "139.5"
+        ],
+        "country_code": " jp "
+    },
+    {
+        "keyword": "Fallback",
+        "category": "region",
+        "place_id": "fallback-id",
+        "coordinate": [
+            "bad",
+            0
+        ]
+    },
+    {
+        "name": " "
+    },
+    null,
+    {
+        "name": "Third"
+    }
+]

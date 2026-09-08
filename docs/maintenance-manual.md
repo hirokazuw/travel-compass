@@ -4,7 +4,7 @@
 
 ## 1. システム構成
 
-PHP 8／MySQL製の単一画面型自作MVCです。専用RouterやDIコンテナはなく、`public/index.php`が起動と依存構築、`SearchController`がHTTP処理を振り分けます。
+PHP 8／MySQL製の単一画面型自作MVCです。専用RouterやDIコンテナはなく、`public/index.php`が起動、`SearchControllerFactory`と領域別Factoryが依存構築、`SearchController`がHTTP処理を振り分けます。
 
 ```text
 Browser → index.php → public/index.php
@@ -15,7 +15,9 @@ Browser → index.php → public/index.php
 | 場所 | 役割 |
 |---|---|
 | `index.php` | Webルート入口。`public/index.php`を読む |
-| `public/index.php` | Session、autoload、Env、設定、PDO、全依存生成 |
+| `public/index.php` | Session、autoload、Env、設定、PDO、Factory呼出 |
+| `app/Core/SearchControllerFactory.php` | リクエスト内共通依存とAction登録 |
+| `app/Factories/` | 航空券・ホテル・フェリー・Apifyの依存構築 |
 | `app/Controllers/SearchController.php` | GET、航空券、ホテル、候補検索の統括 |
 | `app/Requests/` | POST値、CSRF、日付、人数の検証 |
 | `app/Models/SearchHistory.php` | 履歴保存・統合取得 |
@@ -23,7 +25,8 @@ Browser → index.php → public/index.php
 | `app/Services/` | 外部API、cache、変換、OTA URL |
 | `app/ViewModels/` | status文言、SEO |
 | `app/Views/search/` | Form、結果、履歴、loading |
-| `public/assets/app.js` | tab、候補、loading、もっと見る、履歴再入力 |
+| `public/assets/app.js` | ES moduleの読込と初期化 |
+| `public/assets/js/` | tab、候補、地図、loading、結果展開、画像fallback、履歴再入力 |
 | `config/config.php` / `.env` | DB、API、SEO設定 |
 | `database/schema.sql` | fresh install用baseline。履歴・IATA・航空会社・フェリーのDDL／seedを収録 |
 
@@ -32,9 +35,12 @@ Browser → index.php → public/index.php
 | 条件 | メソッド |
 |---|---|
 | GET | 初期画面 |
-| POST `search_type=flight` | `handleFlightSearch()` |
-| POST `search_type=hotel` | `handleHotelSearch()` |
-| POST `hotel_destination_suggestions` | `destinationSuggestions()` |
+| POST `search_type=flight` | `FlightSearchAction::handle()` |
+| POST `search_type=hotel` | `HotelSearchAction::handle()` |
+| POST `search_type=ferry` | `FerrySearchAction::handle()` |
+| POST `hotel_destination_suggestions` | `DestinationSuggestionsAction::handle()` |
+
+Factoryは呼出ごとに依存を構築します。同じController内では履歴Model、Apify client、フェリー検索Serviceを共有し、リクエストをまたいだsingletonは保持しません。Controllerの`handle()`は明示的な入力からResponseを返すため、callable Actionと`SearchPageBuilderInterface`のfakeでDB・外部APIなしに検査できます。`index()`はsuperglobalの読込、HTML応答時のCSRF反映、Response送信を担当します。
 
 ## 2. 航空券検索
 
@@ -90,7 +96,7 @@ search-panel.php → app.js → POST
 
 ### 目的地候補
 
-`app.js`が400ms debounce後に同じURLへfetchし、`destinationSuggestions()`→`DestinationSuggestionRequest`→`ApifyDestinationSearch`を実行します。候補障害時も手入力可能です。
+`js/hotel-suggestions.js`が400ms debounce後に同じURLへfetchし、`DestinationSuggestionsAction::handle()`→`DestinationSuggestionRequest`→`ApifyDestinationSearch`を実行します。候補障害時も手入力可能です。
 
 ## 4. データベース
 
@@ -147,7 +153,7 @@ GETは`index, follow`、POSTはmetaとX-Robots-Tagで`noindex, follow`です。
 | 履歴未保存 | `SearchController`の履歴write log、`SearchHistory` | PDO、table、列、権限。検索本体は継続 |
 | OTA異常 | URL Builder | View、affiliate JS |
 | IATA異常 | `FlightCity::find()` | aliases、airports、国列 |
-| loading残留 | `app.js`の`pageshow()` | outcome、JS例外 |
+| loading残留 | `js/loading.js`の`pageshow`処理 | outcome、JS例外 |
 | 結果非表示 | 対応results View | status、Controller返却値 |
 | 楽天だけ非表示 | `isAffiliateConfigured()` | `matchRakutenHotels()` |
 

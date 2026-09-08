@@ -1,0 +1,92 @@
+[
+    {
+        "properties": [
+            {
+                "name": "Fixture Hotel",
+                "description": "Anonymized hotel description",
+                "link": "https://hotel.example/",
+                "property_token": "fixture-token",
+                "gps_coordinates": {
+                    "latitude": 0,
+                    "longitude": 0
+                },
+                "check_in_time": "15:00",
+                "check_out_time": "10:00",
+                "rate_per_night": {
+                    "lowest": "￥5,710",
+                    "extracted_lowest": 5710,
+                    "before_taxes_fees": "￥5,710",
+                    "extracted_before_taxes_fees": 5710
+                },
+                "total_rate": {
+                    "lowest": "￥11,420",
+                    "extracted_lowest": 11420,
+                    "before_taxes_fees": "￥11,420",
+                    "extracted_before_taxes_fees": 11420
+                },
+                "hotel_class": "4 つ星ホテル",
+                "extracted_hotel_class": 4,
+                "images": [
+                    {
+                        "original_image": "https://images.example/original_image.jpg"
+                    },
+                    {
+                        "original_image": "https://images.example/original_image.jpg"
+                    },
+                    {
+                        "original_image": "https://images.example/original_image.jpg"
+                    },
+                    {
+                        "original_image": "https://images.example/original_image.jpg"
+                    },
+                    {
+                        "original_image": "https://images.example/original_image.jpg"
+                    },
+                    {
+                        "original_image": "https://images.example/original_image.jpg"
+                    },
+                    {
+                        "original_image": "https://images.example/original_image.jpg"
+                    },
+                    {
+                        "original_image": "https://images.example/original_image.jpg"
+                    },
+                    {
+                        "original_image": "https://images.example/original_image.jpg"
+                    }
+                ],
+                "overall_rating": 4.1,
+                "reviews": 1101,
+                "amenities": [
+                    "Wi-Fi",
+                    "Pool"
+                ]
+            },
+            null,
+            {
+                "name": " "
+            }
+        ]
+    },
+    {
+        "name": "Sparse Hotel",
+        "link": "javascript:alert(1)",
+        "images": [
+            "http://images.example/a",
+            "https://images.example/a",
+            "https://images.example/a"
+        ],
+        "gps_coordinates": {
+            "lat": "35.5",
+            "lon": "139.5"
+        },
+        "rate_per_night": {
+            "price": {
+                "amount": "¥12,345"
+            }
+        },
+        "total_rate": 0,
+        "reviews": -1
+    },
+    null
+]

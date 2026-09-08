@@ -1,0 +1,80 @@
+[
+    {
+        "carrier_code": "FA",
+        "carrier_name": "Fixture Air",
+        "airline": "Fixture Air",
+        "airline_logo": "",
+        "flight_number": "FA101 / FA101",
+        "departure_airport": {
+            "id": "HND",
+            "time": "2026-10-01 09:05"
+        },
+        "arrival_airport": {
+            "id": "ICN",
+            "time": "2026-10-01 12:30"
+        },
+        "departure_time": "09:05",
+        "arrival_time": "12:30",
+        "origin": "HND",
+        "destination": "ICN",
+        "duration": "1時間",
+        "duration_minutes": 60,
+        "stops": 1,
+        "price": "10,000",
+        "currency": "JPY",
+        "travel_class": "Economy",
+        "group": "other"
+    },
+    {
+        "carrier_code": "FA",
+        "carrier_name": "Fixture Air",
+        "airline": "Fixture Air",
+        "airline_logo": "",
+        "flight_number": "FA101",
+        "departure_airport": {
+            "id": "HND",
+            "time": "2026-10-01 09:05"
+        },
+        "arrival_airport": {
+            "id": "ICN",
+            "time": "2026-10-01 12:30"
+        },
+        "departure_time": "09:05",
+        "arrival_time": "12:30",
+        "origin": "HND",
+        "destination": "ICN",
+        "duration": "",
+        "duration_minutes": 0,
+        "stops": 0,
+        "price": "15,000",
+        "currency": "USD",
+        "travel_class": "Economy",
+        "group": "other"
+    },
+    {
+        "carrier_code": "FA",
+        "carrier_name": "Fixture Air",
+        "airline": "Fixture Air",
+        "airline_logo": "",
+        "flight_number": "FA101",
+        "departure_airport": {
+            "id": "HND",
+            "time": "2026-10-01 09:05"
+        },
+        "arrival_airport": {
+            "id": "ICN",
+            "time": "2026-10-01 12:30"
+        },
+        "departure_time": "09:05",
+        "arrival_time": "12:30",
+        "origin": "HND",
+        "destination": "ICN",
+        "duration": "3時間25分",
+        "duration_minutes": 205,
+        "stops": 0,
+        "price": "20,000",
+        "currency": "JPY",
+        "travel_class": "Economy",
+        "group": "best"
+    }
+]

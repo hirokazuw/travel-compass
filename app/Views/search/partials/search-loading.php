@@ -1,3 +1,7 @@
+<?php
+use App\Views\SearchView;
+/** @var \App\ViewModels\SearchPageViewModel $page */
+?>
 <div class="search-loading-overlay" data-search-loading hidden>
     <section class="search-loading-card" role="status" aria-live="polite" aria-atomic="true" aria-labelledby="search-loading-title" tabindex="-1">
         <div class="search-loading-spinner" aria-hidden="true"></div>

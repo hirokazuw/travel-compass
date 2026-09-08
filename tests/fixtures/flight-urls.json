@@ -1,0 +1,82 @@
+{
+    "domestic-roundtrip": {
+        "maps": "https://www.google.com/maps/search/?api=1&query=%E5%A4%A7%E9%98%AA",
+        "expedia": "https://www.expedia.co.jp/Flights-Search?flight-type=on&mode=search&trip=roundtrip&leg1=from%3A%E6%9D%B1%E4%BA%AC%2C%20%E6%97%A5%E6%9C%AC%20%28TYO-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cto%3A%E5%A4%A7%E9%98%AA%2C%20%E6%97%A5%E6%9C%AC%20%28OSA-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cdeparture%3A2026%2F1%2F2TANYT%2CfromType%3AMETROCODE%2CtoType%3AMETROCODE&options=cabinclass%3Aeconomy&fromDate=2026%2F1%2F2&d1=2026-01-02&passengers=adults%3A2%2Cinfantinlap%3AN&leg2=from%3A%E5%A4%A7%E9%98%AA%2C%20%E6%97%A5%E6%9C%AC%20%28OSA-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cto%3A%E6%9D%B1%E4%BA%AC%2C%20%E6%97%A5%E6%9C%AC%20%28TYO-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cdeparture%3A2026%2F1%2F9TANYT%2CfromType%3AMETROCODE%2CtoType%3AMETROCODE&toDate=2026%2F1%2F9&d2=2026-01-09",
+        "agoda": "https://www.agoda.com/ja-jp/flights/results?departureFrom=TYO&departureFromType=0&arrivalTo=OSA&arrivalToType=0&departDate=2026-01-02&adults=2&searchType=2&cabinType=Economy&sort=8&returnDate=2026-01-09",
+        "airtrip": "https://www.airtrip.jp/ticket/search?search_type=3&F1Departure=TKY&F1Destination=OSK&F1Year=2026&F1Month=1&F1Day=2&valueAdultNum=2&valueChildNum=0&adult=2&child=0&trip_way=round_trip&F2Departure=OSK&F2Destination=TKY&F2Year=2026&F2Month=1&F2Day=9",
+        "travelist": "https://travelist.jp/s/flights/20260102/20260109/TYO/OSA?mode=flight&adult_count=2&child_count=0&infant_count=0",
+        "realticket": "https://rt.travelwest.jp/search.php?s_month=01&s_day=02&s_adult=2&s_child=0&s_infant=0&s_from=TYO&s_to=OSA&way=2&s_month2=01&s_day2=09&hdn_mode_select=round-trip"
+    },
+    "domestic-oneway": {
+        "maps": "https://www.google.com/maps/search/?api=1&query=%E5%A4%A7%E9%98%AA",
+        "expedia": "https://www.expedia.co.jp/Flights-Search?flight-type=on&mode=search&trip=oneway&leg1=from%3A%E7%BE%BD%E7%94%B0%2C%20%E6%97%A5%E6%9C%AC%20%28HND%29%2Cto%3A%E5%A4%A7%E9%98%AA%2C%20%E6%97%A5%E6%9C%AC%20%28OSA-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cdeparture%3A2026%2F12%2F31TANYT%2CfromType%3AAIRPORT%2CtoType%3AMETROCODE&options=cabinclass%3Aeconomy&fromDate=2026%2F12%2F31&d1=2026-12-31&passengers=adults%3A1%2Cinfantinlap%3AN",
+        "agoda": "https://www.agoda.com/ja-jp/flights/results?departureFrom=HND&departureFromType=1&arrivalTo=OSA&arrivalToType=0&departDate=2026-12-31&adults=1&searchType=1&cabinType=Economy&sort=8",
+        "airtrip": "https://www.airtrip.jp/ticket/search?search_type=3&F1Departure=HND&F1Destination=OSK&F1Year=2026&F1Month=12&F1Day=31&valueAdultNum=1&valueChildNum=0&adult=1&child=0",
+        "travelist": "https://travelist.jp/s/flights/20261231/HND/OSA?mode=flight&adult_count=1&child_count=0&infant_count=0",
+        "realticket": "https://rt.travelwest.jp/search.php?s_month=12&s_day=31&s_adult=1&s_child=0&s_infant=0&s_from=HND&s_to=OSA&tenplate_no=2&s_infant2=0"
+    },
+    "overseas-roundtrip": {
+        "maps": "https://www.google.com/maps/search/?api=1&query=%E3%82%BD%E3%82%A6%E3%83%AB",
+        "expedia": "https://www.expedia.co.jp/Flights-Search?flight-type=on&mode=search&trip=roundtrip&leg1=from%3A%E6%9D%B1%E4%BA%AC%2C%20%E6%97%A5%E6%9C%AC%20%28TYO-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cto%3A%E3%82%BD%E3%82%A6%E3%83%AB%2C%20%E9%9F%93%E5%9B%BD%20%28ICN-%E4%BB%81%E5%B7%9D%E5%9B%BD%E9%9A%9B%E7%A9%BA%E6%B8%AF%29%2Cdeparture%3A2026%2F12%2F31TANYT%2CfromType%3AMETROCODE%2CtoType%3AAIRPORT&options=cabinclass%3Aeconomy&fromDate=2026%2F12%2F31&d1=2026-12-31&passengers=adults%3A9%2Cinfantinlap%3AN&leg2=from%3A%E3%82%BD%E3%82%A6%E3%83%AB%2C%20%E9%9F%93%E5%9B%BD%20%28ICN-%E4%BB%81%E5%B7%9D%E5%9B%BD%E9%9A%9B%E7%A9%BA%E6%B8%AF%29%2Cto%3A%E6%9D%B1%E4%BA%AC%2C%20%E6%97%A5%E6%9C%AC%20%28TYO-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cdeparture%3A2027%2F1%2F2TANYT%2CfromType%3AAIRPORT%2CtoType%3AMETROCODE&toDate=2027%2F1%2F2&d2=2027-01-02",
+        "agoda": "https://www.agoda.com/ja-jp/flights/results?departureFrom=TYO&departureFromType=0&arrivalTo=SEL&arrivalToType=0&departDate=2026-12-31&adults=9&searchType=2&cabinType=Economy&sort=8&returnDate=2027-01-02",
+        "jtb": "https://www.jtb.co.jp/ovs_air/search/search_result/?trvlType=1&deptDt1=20261231&deptCd1=TYO&arvlCd1=SEL&totalNumAdlt=9&totalNumChld=0&totalNumIns=0&totalNumInf=0&nonstopFltSpecifiedFlg=0&cabinCls=0&alnc=0&deptDt2=20270102&deptCd2=SEL&arvlCd2=TYO",
+        "skyticket": "https://skyticket.jp/international-flights/ia_fare_result_mix.php?trip_type=2&dep_port_name0=%E6%9D%B1%E4%BA%AC%28TYO%29&dep_port0=TYO&arr_port_name0=%E3%82%BD%E3%82%A6%E3%83%AB%28SEL%29&arr_port0=SEL&dep_date%5B%5D=2026-12-31&dep_date%5B%5D=2027-01-02&cabin_class=Y&adt_pax=9&chd_pax=0&inf_pax=0&dep_port_name1=%E3%82%BD%E3%82%A6%E3%83%AB%28SEL%29&dep_port1=SEL&arr_port_name1=%E6%9D%B1%E4%BA%AC%28TYO%29&arr_port1=TYO",
+        "skygate": "https://www.skygate.co.jp/air/list?searchKind=0&fromDate=2026%2F12%2F31&departure=TYO&destinations=SEL&adultNum=9&AgentCode=SGTOP&business=0&seatClass=Y&order=2&disableMix=0&searchWait=1&serviceWorkerKey=UUID-V4&isResearch=1&arrival=TYO&toDates=2027%2F01%2F02"
+    },
+    "overseas-oneway": {
+        "maps": "https://www.google.com/maps/search/?api=1&query=%E7%BE%BD%E7%94%B0",
+        "expedia": "https://www.expedia.co.jp/Flights-Search?flight-type=on&mode=search&trip=oneway&leg1=from%3A%E3%82%BD%E3%82%A6%E3%83%AB%2C%20%E9%9F%93%E5%9B%BD%20%28ICN-%E4%BB%81%E5%B7%9D%E5%9B%BD%E9%9A%9B%E7%A9%BA%E6%B8%AF%29%2Cto%3A%E7%BE%BD%E7%94%B0%2C%20%E6%97%A5%E6%9C%AC%20%28HND%29%2Cdeparture%3A2026%2F2%2F3TANYT%2CfromType%3AAIRPORT%2CtoType%3AAIRPORT&options=cabinclass%3Aeconomy&fromDate=2026%2F2%2F3&d1=2026-02-03&passengers=adults%3A3%2Cinfantinlap%3AN",
+        "agoda": "https://www.agoda.com/ja-jp/flights/results?departureFrom=SEL&departureFromType=0&arrivalTo=HND&arrivalToType=1&departDate=2026-02-03&adults=3&searchType=1&cabinType=Economy&sort=8",
+        "jtb": "https://www.jtb.co.jp/ovs_air/search/search_result/?trvlType=0&deptDt1=20260203&deptCd1=SEL&arvlCd1=HND&totalNumAdlt=3&totalNumChld=0&totalNumIns=0&totalNumInf=0&nonstopFltSpecifiedFlg=0&cabinCls=0&alnc=0",
+        "skyticket": "https://skyticket.jp/international-flights/ia_fare_result_mix.php?trip_type=1&dep_port_name0=%E3%82%BD%E3%82%A6%E3%83%AB%28SEL%29&dep_port0=SEL&arr_port_name0=%E7%BE%BD%E7%94%B0%28HND%29&arr_port0=HND&dep_date%5B%5D=2026-02-03&cabin_class=Y&adt_pax=3&chd_pax=0&inf_pax=0",
+        "skygate": "https://www.skygate.co.jp/air/list?searchKind=1&fromDate=2026%2F02%2F03&departure=SEL&destinations=HND&adultNum=3&AgentCode=SGTOP&business=0&seatClass=Y&order=2&disableMix=0&searchWait=1&serviceWorkerKey=UUID-V4&isResearch=1"
+    },
+    "encoding-airport": {
+        "maps": "https://www.google.com/maps/search/?api=1&query=NY%20%26%20Queens",
+        "expedia": "https://www.expedia.co.jp/Flights-Search?flight-type=on&mode=search&trip=roundtrip&leg1=from%3A%E7%BE%BD%E7%94%B0%2C%20%E6%97%A5%E6%9C%AC%20%28HND%29%2Cto%3ANY%20%26%20Queens%20%28JFK%29%2Cdeparture%3A2026%2F3%2F4TANYT%2CfromType%3AAIRPORT%2CtoType%3AAIRPORT&options=cabinclass%3Aeconomy&fromDate=2026%2F3%2F4&d1=2026-03-04&passengers=adults%3A2%2Cinfantinlap%3AN&leg2=from%3ANY%20%26%20Queens%20%28JFK%29%2Cto%3A%E7%BE%BD%E7%94%B0%2C%20%E6%97%A5%E6%9C%AC%20%28HND%29%2Cdeparture%3A2026%2F3%2F5TANYT%2CfromType%3AAIRPORT%2CtoType%3AAIRPORT&toDate=2026%2F3%2F5&d2=2026-03-05",
+        "agoda": "https://www.agoda.com/ja-jp/flights/results?departureFrom=HND&departureFromType=1&arrivalTo=JFK&arrivalToType=1&departDate=2026-03-04&adults=2&searchType=2&cabinType=Economy&sort=8&returnDate=2026-03-05",
+        "jtb": "https://www.jtb.co.jp/ovs_air/search/search_result/?trvlType=1&deptDt1=20260304&deptCd1=HND&arvlCd1=JFK&totalNumAdlt=2&totalNumChld=0&totalNumIns=0&totalNumInf=0&nonstopFltSpecifiedFlg=0&cabinCls=0&alnc=0&deptDt2=20260305&deptCd2=JFK&arvlCd2=HND",
+        "skyticket": "https://skyticket.jp/international-flights/ia_fare_result_mix.php?trip_type=2&dep_port_name0=%E7%BE%BD%E7%94%B0%28HND%29&dep_port0=HND&arr_port_name0=NY%20%26%20Queens%28JFK%29&arr_port0=JFK&dep_date%5B%5D=2026-03-04&dep_date%5B%5D=2026-03-05&cabin_class=Y&adt_pax=2&chd_pax=0&inf_pax=0&dep_port_name1=NY%20%26%20Queens%28JFK%29&dep_port1=JFK&arr_port_name1=%E7%BE%BD%E7%94%B0%28HND%29&arr_port1=HND",
+        "skygate": "https://www.skygate.co.jp/air/list?searchKind=0&fromDate=2026%2F03%2F04&departure=HND&destinations=JFK&adultNum=2&AgentCode=SGTOP&business=0&seatClass=Y&order=2&disableMix=0&searchWait=1&serviceWorkerKey=UUID-V4&isResearch=1&arrival=HND&toDates=2026%2F03%2F05"
+    },
+    "unknown-origin-domestic": {
+        "maps": "https://www.google.com/maps/search/?api=1&query=%E6%9D%B1%E4%BA%AC",
+        "expedia": "https://www.expedia.co.jp/Flights",
+        "agoda": "https://www.agoda.com/ja-jp/flights",
+        "airtrip": "https://www.airtrip.jp/",
+        "travelist": "https://travelist.jp/",
+        "realticket": "https://rt.travelwest.jp/"
+    },
+    "unknown-destination-overseas": {
+        "maps": "https://www.google.com/maps/search/?api=1&query=%3CUnknown%20%26%20city%3E",
+        "expedia": "https://www.expedia.co.jp/Flights",
+        "agoda": "https://www.agoda.com/ja-jp/flights",
+        "jtb": "https://www.jtb.co.jp/ovs_air/",
+        "skyticket": "https://skyticket.jp/international-flights/",
+        "skygate": "https://www.skygate.co.jp/"
+    },
+    "alias-domestic": {
+        "maps": "https://www.google.com/maps/search/?api=1&query=Osaka",
+        "expedia": "https://www.expedia.co.jp/Flights-Search?flight-type=on&mode=search&trip=roundtrip&leg1=from%3ATokyo%2C%20%E6%97%A5%E6%9C%AC%20%28TYO-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cto%3AOsaka%2C%20%E6%97%A5%E6%9C%AC%20%28OSA-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cdeparture%3A2026%2F1%2F2TANYT%2CfromType%3AMETROCODE%2CtoType%3AMETROCODE&options=cabinclass%3Aeconomy&fromDate=2026%2F1%2F2&d1=2026-01-02&passengers=adults%3A2%2Cinfantinlap%3AN&leg2=from%3AOsaka%2C%20%E6%97%A5%E6%9C%AC%20%28OSA-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cto%3ATokyo%2C%20%E6%97%A5%E6%9C%AC%20%28TYO-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cdeparture%3A2026%2F1%2F9TANYT%2CfromType%3AMETROCODE%2CtoType%3AMETROCODE&toDate=2026%2F1%2F9&d2=2026-01-09",
+        "agoda": "https://www.agoda.com/ja-jp/flights/results?departureFrom=TYO&departureFromType=0&arrivalTo=OSA&arrivalToType=0&departDate=2026-01-02&adults=2&searchType=2&cabinType=Economy&sort=8&returnDate=2026-01-09",
+        "airtrip": "https://www.airtrip.jp/ticket/search?search_type=3&F1Departure=TKY&F1Destination=OSK&F1Year=2026&F1Month=1&F1Day=2&valueAdultNum=2&valueChildNum=0&adult=2&child=0&trip_way=round_trip&F2Departure=OSK&F2Destination=TKY&F2Year=2026&F2Month=1&F2Day=9",
+        "travelist": "https://travelist.jp/s/flights/20260102/20260109/TYO/OSA?mode=flight&adult_count=2&child_count=0&infant_count=0",
+        "realticket": "https://rt.travelwest.jp/search.php?s_month=01&s_day=02&s_adult=2&s_child=0&s_infant=0&s_from=TYO&s_to=OSA&way=2&s_month2=01&s_day2=09&hdn_mode_select=round-trip"
+    },
+    "zero-travelers-domestic": {
+        "maps": "https://www.google.com/maps/search/?api=1&query=%E5%A4%A7%E9%98%AA",
+        "expedia": "https://www.expedia.co.jp/Flights-Search?flight-type=on&mode=search&trip=oneway&leg1=from%3A%E6%9D%B1%E4%BA%AC%2C%20%E6%97%A5%E6%9C%AC%20%28TYO-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cto%3A%E5%A4%A7%E9%98%AA%2C%20%E6%97%A5%E6%9C%AC%20%28OSA-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cdeparture%3A2026%2F1%2F2TANYT%2CfromType%3AMETROCODE%2CtoType%3AMETROCODE&options=cabinclass%3Aeconomy&fromDate=2026%2F1%2F2&d1=2026-01-02&passengers=adults%3A1%2Cinfantinlap%3AN",
+        "agoda": "https://www.agoda.com/ja-jp/flights/results?departureFrom=TYO&departureFromType=0&arrivalTo=OSA&arrivalToType=0&departDate=2026-01-02&adults=1&searchType=1&cabinType=Economy&sort=8",
+        "airtrip": "https://www.airtrip.jp/ticket/search?search_type=3&F1Departure=TKY&F1Destination=OSK&F1Year=2026&F1Month=1&F1Day=2&valueAdultNum=0&valueChildNum=0&adult=0&child=0",
+        "travelist": "https://travelist.jp/s/flights/20260102/TYO/OSA?mode=flight&adult_count=0&child_count=0&infant_count=0",
+        "realticket": "https://rt.travelwest.jp/search.php?s_month=01&s_day=02&s_adult=0&s_child=0&s_infant=0&s_from=TYO&s_to=OSA&tenplate_no=2&s_infant2=0"
+    },
+    "zero-travelers-overseas": {
+        "maps": "https://www.google.com/maps/search/?api=1&query=%E3%82%BD%E3%82%A6%E3%83%AB",
+        "expedia": "https://www.expedia.co.jp/Flights-Search?flight-type=on&mode=search&trip=oneway&leg1=from%3A%E6%9D%B1%E4%BA%AC%2C%20%E6%97%A5%E6%9C%AC%20%28TYO-%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E7%A9%BA%E6%B8%AF%29%2Cto%3A%E3%82%BD%E3%82%A6%E3%83%AB%2C%20%E9%9F%93%E5%9B%BD%20%28ICN-%E4%BB%81%E5%B7%9D%E5%9B%BD%E9%9A%9B%E7%A9%BA%E6%B8%AF%29%2Cdeparture%3A2026%2F1%2F2TANYT%2CfromType%3AMETROCODE%2CtoType%3AAIRPORT&options=cabinclass%3Aeconomy&fromDate=2026%2F1%2F2&d1=2026-01-02&passengers=adults%3A1%2Cinfantinlap%3AN",
+        "agoda": "https://www.agoda.com/ja-jp/flights/results?departureFrom=TYO&departureFromType=0&arrivalTo=SEL&arrivalToType=0&departDate=2026-01-02&adults=1&searchType=1&cabinType=Economy&sort=8",
+        "jtb": "https://www.jtb.co.jp/ovs_air/search/search_result/?trvlType=0&deptDt1=20260102&deptCd1=TYO&arvlCd1=SEL&totalNumAdlt=1&totalNumChld=0&totalNumIns=0&totalNumInf=0&nonstopFltSpecifiedFlg=0&cabinCls=0&alnc=0",
+        "skyticket": "https://skyticket.jp/international-flights/ia_fare_result_mix.php?trip_type=1&dep_port_name0=%E6%9D%B1%E4%BA%AC%28TYO%29&dep_port0=TYO&arr_port_name0=%E3%82%BD%E3%82%A6%E3%83%AB%28SEL%29&arr_port0=SEL&dep_date%5B%5D=2026-01-02&cabin_class=Y&adt_pax=1&chd_pax=0&inf_pax=0",
+        "skygate": "https://www.skygate.co.jp/air/list?searchKind=1&fromDate=2026%2F01%2F02&departure=TYO&destinations=SEL&adultNum=1&AgentCode=SGTOP&business=0&seatClass=Y&order=2&disableMix=0&searchWait=1&serviceWorkerKey=UUID-V4&isResearch=1"
+    }
+}

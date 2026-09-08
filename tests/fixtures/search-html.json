@@ -1,0 +1,14 @@
+{
+    "initial": "170bdf9bcfa2027ede8cea12e96b1575b7502fd97e5cb6cd8d1f426ec4e07499",
+    "unknown-post": "27a48f72c91c58effda8ab24d27b605330c2b54eabddcc2a4203cc1bce0b0279",
+    "flight-invalid": "d0eabe4bac956aad3d7cbf84037b7df419a9f705b770b63c0021f5250f68963e",
+    "flight-domestic": "2baf477cb7d0ce346de141ef0201fccdab396598bd816b7f7491c10cce745712",
+    "flight-overseas-error": "c93ba1f1301fcbf29613b0775e9a4139342dddf4c54e8874b8652cd4a39d94c5",
+    "hotel-invalid": "3da9257f7d726f3e8c6cc12325d1b364147eb9f3c66af28b13160cee7dd3fdbf",
+    "hotel-success": "a3cdefd1299551e391d44a2898c7ffbe8983d124b566f69ac46d3b2c1005af03",
+    "hotel-unavailable": "732625ef5a06ac66f6f959da1b54e89151b4e62a28ae601a39648d7970d70dce",
+    "ferry-invalid": "fe630d8b66973259ec2cb4b7c1c8849ede9983bde14291f83429f7dd58b59d40",
+    "ferry-success": "f25bc3d2c84652b56abb1058ac5dd24af45f36c3f87421b8fdfe561acddc1397",
+    "ferry-empty": "a8974a42fc791830ec9879a7d90676cefccec139ae53b60778b552047f60950a",
+    "ferry-error": "6e0a0f84383949fa72c5f75867b67d8250653f54ac5458540e42595e38dd2727"
+}

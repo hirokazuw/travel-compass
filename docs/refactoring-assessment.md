@@ -1,5 +1,7 @@
 # Travel Compass リファクタリング診断
 
+V1.9.1: P1-1〜P1-7の実装と契約テストを反映済みです。P1-5の航空券・目的地候補の実response fixture補完は残っています。以下の調査基準・総合評価は初回診断時点の記録です。
+
 調査基準: `master` / `35ea3706be05c2e459fe64e0b6790a133f1d02e2`（2026-08-23）
 
 調査方法: PHP全ファイルの構文検査、クラス・メソッドの参照検索、起動時の依存構築、Request／Controller／Service／Model／View／JavaScript／DDL・migration／設定・ドキュメントの静的確認。外部API、ブラウザ、実DBを使う動作確認は行っていません。
@@ -46,45 +48,69 @@
 
 ## 3. P1: 変更容易性と障害境界
 
-### P1-1. HTTP Actionと画面組立を分離する
+### P1-1. HTTP Actionと画面組立を分離する（対応済み）
 
-`SearchController`は、3検索種別のdispatch、JSON endpointのdispatch、初期state、履歴、asset version、SEO、header、View読込を担当しています。フェリー処理自体は`FerryController`へ分離済みですが、入口は`search_type`の条件追加方式のままです。
+航空券・ホテル・フェリーを検索種別ごとのActionへ移し、ホテル候補検索も専用Actionへ分離しました。旧`FerryController`の検索・JSON処理は`FerrySearchAction`へ移しています。`SearchController`は登録されたHTML／JSON ActionのdispatchとHTML表示前のCSRF更新を担当します。
 
-検索種別ごとのActionと、HTML／JSON Response、共通の画面state組立へ分ける候補です。先にPOST後のactive tab、status、validation error、`X-Robots-Tag`をcharacterization testで固定します。
+`SearchPageBuilder`が初期state・最近の履歴・asset version・メッセージ・SEOを組み立て、`SearchHtmlResponse`／`JsonResponse`がheaderと出力を担当します。依存構築とAction登録は、本番入口とHTTPテストで共有する`SearchControllerFactory`へ移しました。
 
-### P1-2. `extract()`と暗黙View変数を廃止する
+分離前に`tests/http.php`でGET／POSTのactive tab・validation error・HTTP status・`X-Robots-Tag`を固定し、分離後も同じテストが通過しています。`tests/search-actions.php`で入力エラー時の内部status（航空券／ホテルは`idle`、フェリーは`invalid`）、未設定時のstatus、正常フェリー検索、履歴DB障害時の継続も検査します。JSON応答でCSRFを更新しない契約も固定しています。外部APIの実通信はこのテストの対象外です。
 
-`SearchController::index()`は3つのhandler返却配列を`EXTR_OVERWRITE`で展開し、Viewは多数の暗黙変数へ依存します。返却keyの誤記・追加が既存stateを静かに上書きし、検索種別が増えるほど影響範囲が読みにくくなります。
+### P1-2. `extract()`と暗黙View変数を廃止する（対応済み）
 
-検索種別ごとのimmutableなView Dataと、ページ全体のView Modelへ段階的に置き換える候補です。HTML構造と`app.js`が参照するclass／data属性を契約として保護します。
+検索Actionの返却配列を`FlightSearchViewData`／`HotelSearchViewData`／`FerrySearchViewData`へ置き換え、全プロパティをreadonlyにしました。`SearchPageBuilder`はこの3型または初期状態の`null`だけを受け取り、検索種別からactive tabを決定して`SearchPageViewModel`を構築します。名前付きconstructor引数の誤記、未定義プロパティの参照・追加、構築後の変更は例外になります。
 
-### P1-3. 起動時の依存構築をFactoryへ移す
+`SearchHtmlResponse`の`extract()`を除去し、全View／partialに型付きの`$page`を明示的に渡します。partialは`SearchView::render()`で個別に描画し、親Viewのローカル変数に依存しません。CSRF・POST判定・画面全体の検索結果状態もページモデルから取得し、Viewからのsuperglobal参照を除去しました。
 
-`public/index.php`が設定解釈、cache path／TTL、全Model・Service・Controller生成を直接担当しています。同じ`FerryRoute`から`FerrySearchService`を2回生成しており、依存の共有方針も暗黙です。
+変更前に記録した12ケースのHTML契約を`php tests/view-contract.php`で検証します。asset version・年・改行コードのみ正規化し、正常結果・入力エラー・未設定・空結果・障害時のHTML全体を比較します。7件表示時の「もっと見る」、画像fallback、class／data属性、escapeも対象です。通常テストには誤記・変更の拒否、明示モデルだけでのpartial描画を追加しました。
 
-外部libraryのDIコンテナ導入を急ぐ必要はありません。検索領域ごとの小さなFactoryへ移し、Controller testでfakeを渡せる境界を作る候補です。
+今回の型付け対象はActionからViewへ渡す画面stateです。入力値の固定key配列、正規化済みの結果レコード、SEOなどの内側の配列は既存契約を維持し、個々のレコードのクラス化は別の段階とします。
 
-### P1-4. Provider別URL Builderへ分割する（継続）
+### P1-3. 起動時の依存構築をFactoryへ移す（対応済み）
 
-`FlightUrlBuilder`はprovider固有の都市code、日付形式、往復／片道、人数を1クラスに保持しています。未表示・未使用だったTrip.com、Booking.com、ena、さくらトラベルの処理は削除済みです。
+`SearchControllerFactory`を領域別Factoryの組合せとAction登録に絞り、`app/Factories/`の`FlightSearchFactory`／`HotelSearchFactory`／`FerrySearchFactory`へ依存構築を分割しました。`ApifySearchFactory`が共通clientと領域別Normalizer・cache設定を構築します。cache path・TTLの既定値、個別設定、負のTTLを0にする挙動は維持しています。
 
-provider別Builderと共通URL検証へ分け、現行出力をgolden testで固定します。削除候補はaffiliate契約・再表示予定を確認してから判断します。
+共有は1回のController構築内に限定します。履歴Modelは航空券・ホテル・画面組立で共有し、FlightCityは航空券の検索とURL生成で共有します。フェリーのAction・地図処理は同じFerryRouteとFerrySearchServiceを使います。Apifyのclientを共有し、Normalizerとcacheは領域別です。staticなインスタンス保持や外部DIコンテナは導入していません。
 
-### P1-5. Normalizerを検索領域ごとに分割する（継続）
+Controllerは`SearchPageBuilderInterface`と既存のcallable Action登録を受け取り、テストではfakeを直接渡せます。`handle(method, input, sessionToken)`はsuperglobalに依存せずResponseを返し、`index()`がSession反映と送信を担当します。`tests/controller-factory.php`でHTML／JSON振り分け、入力・CSRF引渡し、GET・未知POST・既定検索種別、依存共有、cache設定を検査します。既存HTTPテストとHTML契約12ケースも通過しています。
 
-`ApifyResponseNormalizer`はホテル、目的地候補、航空券を扱います。Actor変更の理由が異なるため、領域別Normalizerに分ける候補です。単なるファイル分割より先に、実response fixtureとViewへ渡すkeyの契約を作ります。
+### P1-4. Provider別URL Builderへ分割する（対応済み）
 
-### P1-6. フェリー地図のデータと表示責務を整理する（新規）
+`FlightUrlBuilder`をproviderの選択とリンク順序を管理する入口にし、`app/Services/FlightUrls/`のExpedia／Agoda／Airtrip／Travelist／RealTicket／Jtb／SkyTicket／SkyGateの各Builderへ都市code・日付形式・往復／片道・人数の処理を移しました。公開メソッドとリンクkey・順序、fallback、既存パラメータを維持しています。
 
-`FerryMapService`が都道府県→地方、港名の部分一致→画像座標をPHP定数で保持し、`app.js`が地図選択、向き反転、結果表示を担当します。港名追加・表記変更が座標fallbackや地域分類へ暗黙に影響します。
+共通の`FlightUrl`が既存のRFC3986 query生成とURL検証を担当します。各Builderの結果とMaps URLを検証し、HTTPSの絶対URL以外、認証情報・空白・制御文字・バックスラッシュを含むURLは拒否します。provider固有のパラメータや文字列は書き換えません。
 
-港の正規化名・地域・座標を検証可能なmaster dataへ寄せ、Serviceはroute projectionに限定する候補です。未知都道府県がすべて`overseas`扱いになる現在のfallbackも仕様化します。
+分離前の出力を`tests/fixtures/flight-urls.json`へ記録し、`php tests/flight-url-golden.php`で10ケースを完全比較します。国内／海外、往復／片道、都市圏／空港、SEL→ICN、alias、特殊文字、未知都市fallback、年跨ぎ、人数を含みます。SkyGateのUUIDのみ比較用に正規化し、v4形式と重複がないことを別途検査します。通常テストに共通URL検証とquery生成の契約も追加しました。
 
-### P1-7. `app.js`を機能単位に分割する（優先度更新）
+今回providerの追加・削除やaffiliateパラメータの変更は行っていません。未表示・未使用だったTrip.com、Booking.com、ena、さくらトラベルは削除済みのままです。今後の削除候補はaffiliate契約・再表示予定を確認してから判断します。予約サイトへの実アクセスや最新仕様への適合は、この互換性リファクタリングの検証対象外です。
 
-811行の単一scriptにtab、ホテル候補、フェリー候補・航路、フェリー地図、画像fallback、履歴再入力、loadingが集約されています。DOM selectorと状態遷移が暗黙のため、View変更時の回帰範囲が広い状態です。
+### P1-5. Normalizerを検索領域ごとに分割する（分離済み・実response補完待ち）
 
-build tool導入を前提にせず、初期化関数またはES moduleを機能単位に分ける候補です。先に主要DOM fixtureによるbrowser testを追加します。
+分離前に`tests/fixtures/normalizers/`へ入力と期待出力を記録し、出力key・値・型・順序を完全比較する契約testを追加しました。ホテルはローカルcacheの実responseを使用し、識別情報を置き換えて必要fieldだけを残しています。航空券・目的地候補は実responseが見つからなかったため合成fixtureです。由来と加工範囲は同ディレクトリのREADMEに記録しています。
+
+`app/Services/Normalizers/`の`HotelResponseNormalizer`／`DestinationResponseNormalizer`／`FlightResponseNormalizer`へ処理を分離しました。価格parseとHTTPS URLの既存判定だけを`NormalizedValue`で共有し、ホテル料金の再帰parse・座標alias、航空券のsegment・並び順・時刻処理、候補数制限は領域内に保持します。既存の変換挙動は変更していません。
+
+検索Serviceと`ApifySearchFactory`は領域別Normalizerを直接使います。旧`ApifyResponseNormalizer`は既存呼出との互換用に委譲だけを残し、同じfixtureで両経路を検証します。ホテルの予約リンク・航空会社metadataなど後段で追加するkeyは既存ServiceテストとHTML契約で保護します。
+
+残作業: 航空券・目的地候補の匿名化した実responseを追加し、現行Actorとの適合を確認すること。今回外部APIは呼び出しておらず、合成fixtureを実responseとして扱っていません。
+
+### P1-6. フェリー地図のデータと表示責務を整理する（対応済み）
+
+地域・都道府県・港の正規名・alias・所属地域・画像座標・照合優先順位を`database/ferry-map.json`へ移しました。`FerryMapMaster`が座標範囲、地域参照、名前・alias・都道府県・優先順位の重複を検証してprojectionを返します。`FerryMapService`は航路の表示データと出発／到着projectionの組立に限定し、Factoryからmasterを渡します。
+
+分離前の港projectionをfixture化し、全登録港・47都道府県の中央fallback・重複する部分一致・未知／空欄／末尾空白の都道府県・港と都道府県の矛盾をテストで固定しました。未知都道府県は既知港名でも`overseas`中央に配置します。表示名はDB原文を維持し、地域は航路の都道府県を優先します。alias照合は明示したpriority順の部分一致です。
+
+`database/ferry-map.md`にfallbackと更新手順を記載しました。`app.js`の選択・向き反転・描画責務とJSON endpointのkeyは維持し、Serviceテストで出発／到着・label・route ID・予約先の契約を確認しています。
+
+### P1-7. `app.js`を機能単位に分割する（対応済み）
+
+分離前に、実際のPHP Viewを描画したDOM fixtureとheadless Chromeによるbrowser testを追加しました。APIをfakeにして、tab／旅行タイプ・履歴再入力／ホテル候補／フェリー候補・航路／地図選択・向き反転／結果展開・画像fallback／loadingの7領域を検査し、分離後も通過しています。loadingには二重送信防止、submitter値の保持、pageshowでの復元・完了表示も含みます。
+
+`app.js`を初期化専用にし、`public/assets/js/`の8つのES moduleへ分割しました。各初期化関数はdocumentを明示的に受け取り、同じDOMへの二重初期化を防ぎます。フェリー地図のloader共有はDOM上の`_loadFerryMap`からmodule内のWeakMapへ移しました。selector・責務・初期化順序は同ディレクトリのREADMEに記載しています。
+
+ビルドツール・npm依存は追加していません。PHPで全JSの内容から共通versionを生成し、entryから各importへ引き継ぎます。モジュール取得中にpageshowが発生した場合もloadingを復元します。HTML契約は意図的な`type="module"`の追加だけを別途検査して正規化し、それ以外の描画結果は従来の12ケースと一致します。
+
+`node tests/browser.mjs`はNode.js 24、PHP、Chrome／Chromiumが必要です。GitHub Actionsにも追加しました。外部APIとの実通信や全ブラウザでの互換性検証は対象外です。
 
 ## 4. P2: 整理候補
 

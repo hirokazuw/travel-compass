@@ -1,42 +1,37 @@
 <?php
-$h = fn($value) => htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
-$searchOutcome = 'idle';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $searchOutcome = ($errors || $hotelErrors || $ferryErrors || $flightOffersStatus === 'error' || in_array($hotelStatus, ['error', 'not_configured'], true) || $ferryStatus === 'error')
-        ? 'error'
-        : 'success';
-}
+use App\Views\SearchView;
+/** @var \App\ViewModels\SearchPageViewModel $page */
 ?>
 <!doctype html>
 <html lang="ja" prefix="og: https://ogp.me/ns#">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?= $h($seo['title']) ?></title>
-<meta name="description" content="<?= $h($seo['description']) ?>">
-<meta name="robots" content="<?= $h($seo['robots']) ?>">
-<link rel="canonical" href="<?= $h($seo['canonicalUrl']) ?>">
-<meta property="og:title" content="<?= $h($seo['title']) ?>">
-<meta property="og:description" content="<?= $h($seo['description']) ?>">
-<meta property="og:url" content="<?= $h($seo['canonicalUrl']) ?>">
-<meta property="og:type" content="<?= $h($seo['ogType']) ?>">
-<meta property="og:image" content="<?= $h($seo['ogImageUrl']) ?>">
+<title><?= SearchView::escape($page->seo['title']) ?></title>
+<meta name="description" content="<?= SearchView::escape($page->seo['description']) ?>">
+<meta name="robots" content="<?= SearchView::escape($page->seo['robots']) ?>">
+<link rel="canonical" href="<?= SearchView::escape($page->seo['canonicalUrl']) ?>">
+<meta property="og:title" content="<?= SearchView::escape($page->seo['title']) ?>">
+<meta property="og:description" content="<?= SearchView::escape($page->seo['description']) ?>">
+<meta property="og:url" content="<?= SearchView::escape($page->seo['canonicalUrl']) ?>">
+<meta property="og:type" content="<?= SearchView::escape($page->seo['ogType']) ?>">
+<meta property="og:image" content="<?= SearchView::escape($page->seo['ogImageUrl']) ?>">
 <meta property="og:image:width" content="1730">
 <meta property="og:image:height" content="909">
 <meta property="og:image:alt" content="Travel Compassの航空券・ホテル比較サービス">
-<meta property="og:site_name" content="<?= $h($appName) ?>">
+<meta property="og:site_name" content="<?= SearchView::escape($page->appName) ?>">
 <meta property="og:locale" content="ja_JP">
-<meta name="twitter:card" content="<?= $h($seo['twitterCard']) ?>">
-<meta name="twitter:title" content="<?= $h($seo['title']) ?>">
-<meta name="twitter:description" content="<?= $h($seo['description']) ?>">
-<meta name="twitter:image" content="<?= $h($seo['ogImageUrl']) ?>">
+<meta name="twitter:card" content="<?= SearchView::escape($page->seo['twitterCard']) ?>">
+<meta name="twitter:title" content="<?= SearchView::escape($page->seo['title']) ?>">
+<meta name="twitter:description" content="<?= SearchView::escape($page->seo['description']) ?>">
+<meta name="twitter:image" content="<?= SearchView::escape($page->seo['ogImageUrl']) ?>">
 <meta name="twitter:image:alt" content="Travel Compassの航空券・ホテル比較サービス">
-<meta name="csrf-token" content="<?= $h($_SESSION['csrf']) ?>">
-<script type="application/ld+json"><?= $seo['structuredData'] ?></script>
-<link rel="stylesheet" href="public/assets/app.css?v=<?= $h($cssVersion) ?>">
-<link rel="stylesheet" href="public/assets/ferry-map.css?v=<?= $h($ferryMapCssVersion) ?>">
-</head><body data-search-outcome="<?= $h($searchOutcome) ?>">
-<header><a class="site-home-link" href="https://hirokazu-watabe.jp/travel-compass/">✈ <?= $h($appName) ?></a><span>旅をもっとシンプルに</span></header><main>
+<meta name="csrf-token" content="<?= SearchView::escape($page->csrfToken) ?>">
+<script type="application/ld+json"><?= $page->seo['structuredData'] ?></script>
+<link rel="stylesheet" href="public/assets/app.css?v=<?= SearchView::escape($page->cssVersion) ?>">
+<link rel="stylesheet" href="public/assets/ferry-map.css?v=<?= SearchView::escape($page->ferryMapCssVersion) ?>">
+</head><body data-search-outcome="<?= SearchView::escape($page->searchOutcome) ?>">
+<header><a class="site-home-link" href="https://hirokazu-watabe.jp/travel-compass/">✈ <?= SearchView::escape($page->appName) ?></a><span>旅をもっとシンプルに</span></header><main>
 <p class="affiliate-disclosure">広告・PRを含みます</p>
 <section class="hero hero-visual">
 <img src="public/assets/og-travel-compass.png" width="1730" height="909" alt="" aria-hidden="true" fetchpriority="high">
@@ -46,16 +41,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <p>条件を入力して、航空券やホテルの候補を比較できます。</p>
 </div>
 </section>
-<?php require __DIR__ . '/partials/search-panel.php'; ?>
-<?php require __DIR__ . '/partials/flight-results.php'; ?>
-<?php require __DIR__ . '/partials/hotel-results.php'; ?>
-<?php require __DIR__ . '/partials/ferry-results.php'; ?>
-<?php require __DIR__ . '/partials/recent-searches.php'; ?>
-<?php require __DIR__ . '/partials/search-loading.php'; ?>
-</main><footer class="site-footer"><div class="site-footer-inner"><div><strong>✈ <?= $h($appName) ?></strong><p>Travel Compass（トラベルコンパス）は、航空券とホテルを比較できる旅行検索サービスです。</p></div><div class="site-footer-credit"><span>Created by Hirokazu WATABE · v<?= $h($appVersion) ?></span><small>© <?= date('Y') ?> Hirokazu WATABE</small></div></div></footer><script src="//statics.a8.net/a8link/a8linkmgr.js"></script><script>
+<?php echo SearchView::render($page, 'partials/search-panel'); ?>
+<?php echo SearchView::render($page, 'partials/flight-results'); ?>
+<?php echo SearchView::render($page, 'partials/hotel-results'); ?>
+<?php echo SearchView::render($page, 'partials/ferry-results'); ?>
+<?php echo SearchView::render($page, 'partials/recent-searches'); ?>
+<?php echo SearchView::render($page, 'partials/search-loading'); ?>
+</main><footer class="site-footer"><div class="site-footer-inner"><div><strong>✈ <?= SearchView::escape($page->appName) ?></strong><p>Travel Compass（トラベルコンパス）は、航空券とホテルを比較できる旅行検索サービスです。</p></div><div class="site-footer-credit"><span>Created by Hirokazu WATABE · v<?= SearchView::escape($page->appVersion) ?></span><small>© <?= date('Y') ?> Hirokazu WATABE</small></div></div></footer><script src="//statics.a8.net/a8link/a8linkmgr.js"></script><script>
 a8linkmgr({
   "config_id": "mENmBoJBInmbobSt2c0A"
 });
 </script><script type="text/javascript" language="javascript">
     var vc_pid = "892680790";
-</script><script type="text/javascript" src="//aml.valuecommerce.com/vcdal.js" async></script><script src="public/assets/app.js?v=<?= $h($jsVersion) ?>"></script></body></html>
+</script><script type="text/javascript" src="//aml.valuecommerce.com/vcdal.js" async></script><script type="module" src="public/assets/app.js?v=<?= SearchView::escape($page->jsVersion) ?>"></script></body></html>

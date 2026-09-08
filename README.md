@@ -1,10 +1,18 @@
 # Travel Compass
 
-Version 1.9.0
+Version 1.9.1
 
 **Travel Compass** は、PHP 8 / MySQLで開発した旅行検索Webアプリケーションです。
 
 航空券・ホテルを一つの画面から検索し、複数の旅行予約サービスを比較・利用できるようにしています。
+
+## V1.9.1
+
+検索Action、HTML／JSON Response、readonly View Model、領域別Factoryへ処理を整理しました。航空券のURL BuilderとApify Normalizerも領域別に分離し、既存の検索結果・予約リンク・入力エラー表示をテストで保護しています。
+
+フェリー地図の港・地域・座標を検証可能なmasterへ移し、JavaScriptを8つのES moduleへ分割しました。ブラウザのDOM操作テスト、URL・HTML・Normalizerの契約テストを追加し、モジュール単体の更新でもキャッシュが切り替わるようにしています。
+
+配備時は`app/`、`public/assets/app.js`、`public/assets/js/`、`database/ferry-map.json`を含め、環境側の`config/config.php`の`app.version`を`1.9.1`へ更新してください。DB schemaの変更・migrationはありません。航空券・目的地候補の実response fixture補完は継続課題です。
 
 ## V1.9.0
 
@@ -118,7 +126,12 @@ Expediaなどの商品情報APIは使用せず、各提携サービスのアフ�
 * Model: `app/Models`
 * View: `app/Views`
 * Controller: `app/Controllers`
+* 領域別の依存構築: `app/Factories`（入口は`app/Core/SearchControllerFactory.php`）
+* 検索Action: `app/Actions`
+* HTML／JSON Response: `app/Http`
 * Service: `app/Services`
+* 領域別response変換: `app/Services/Normalizers`
+* フェリー地図master: `database/ferry-map.json`（仕様・更新手順は`database/ferry-map.md`）
 * ViewModel: `app/ViewModels`
 
 ## テスト
@@ -127,9 +140,27 @@ Expediaなどの商品情報APIは使用せず、各提携サービスのアフ�
 
 ```bash
 php tests/run.php
+php tests/http.php
+php tests/view-contract.php
+php tests/flight-url-golden.php
+node tests/browser.mjs
 ```
 
 Request、response正規化、URL生成、IATA、航空会社集約、ホテル名寄せ、フェリーModel／Service、baseline構成を検査します。GitHub ActionsではPHP構文検査に加え、MySQL 8の空DBへ`database/schema.sql`を適用するintegration testも実行します。
+
+検索Actionのstatus・履歴障害時の継続も検査します。`tests/http.php`はローカルのPHP組込サーバーを起動し、GET／POSTのactive tab、validation error、HTTP status、`X-Robots-Tag`、JSONとCSRF更新の契約を確認します。PHPのPDO SQLite・mbstringと`proc_open`が必要です。
+
+Controllerの単体テストではcallable Actionと`SearchPageBuilderInterface`のfakeを注入し、`handle()`が返すResponseを検証します。Factoryのリクエスト内依存共有と領域別cache設定も通常テストに含みます。
+
+Normalizerの入力fixtureと期待出力は`tests/fixtures/normalizers/`にあります。通常テストで領域別クラスと旧互換窓口のkey・値・型・順序を照合します。ホテルは匿名化したローカル実response由来、航空券・目的地候補は合成fixtureです。後者の実response補完は残作業です。
+
+`tests/view-contract.php`は12ケースの描画結果をP1-2変更前のHTML契約と照合します。asset version・年・改行コード以外は一致が必要です。意図的にHTMLを変更した場合だけ、出力の差分を確認してから`php tests/view-contract.php --record`で契約を更新してください。Viewはreadonlyの`SearchPageViewModel`を受け取り、partialにも明示的に渡します。
+
+`tests/flight-url-golden.php`はprovider別Builder分離前のURLを10ケースで完全比較します。SkyGateのUUIDだけ正規化し、形式と重複も検査します。意図的なURL仕様変更時だけ、`tests/fixtures/flight-urls.json`の差分を確認して`--record`で更新してください。provider固有の変更先は`app/Services/FlightUrls/`、選択・順序は`FlightUrlBuilder`です。
+
+ブラウザテストはNode.js 24とChrome／Chromiumを使い、npm installは不要です。自動検出されない場合は`BROWSER_BINARY`に実行ファイルを指定します（PHPは必要に応じて`PHP_BINARY`）。実際のViewをローカルHTTPで配信し、APIをfakeにして7領域のDOM操作を検証します。ブラウザは一時profileで起動し終了後に削除します。
+
+フロントエンドは`public/assets/app.js`から`public/assets/js/`のES moduleを初期化します。配備時は両方を含めてください。ビルドは不要で、全JSの内容hashがキャッシュversionになります。機能とselectorの対応は`public/assets/js/README.md`を参照してください。
 
 ## セキュリティ
 
