@@ -36,7 +36,7 @@ use App\Views\SearchView;
             <div class="overseas-hotel-price">
                 <?php if($nightlyRate > 0): ?><strong>￥<?= number_format($nightlyRate) ?>〜 <span>/ 1泊</span></strong><?php else: ?><small>1泊料金は予約サイトでご確認ください</small><?php endif ?>
                 <?php if($stayTotal > 0): ?><small>宿泊合計 ￥<?= number_format($stayTotal) ?></small><?php endif ?>
-                <?php if($officialUrl !== ''): ?><a class="hotel-official-button" href="<?= SearchView::escape($officialUrl) ?>" target="_blank" rel="noopener noreferrer">公式サイト</a><?php endif ?>
+                <?php if($officialUrl !== ''): ?><a class="hotel-official-button" href="<?= SearchView::escape($officialUrl) ?>" target="_blank" rel="noopener noreferrer">詳細を見る</a><?php endif ?>
                 <?php if(isset($page->hotel->rakutenHotelLinks[$hotelIndex])): ?><a class="hotel-rakuten-button" href="<?= SearchView::escape($page->hotel->rakutenHotelLinks[$hotelIndex]) ?>" target="_blank" rel="sponsored noopener">楽天トラベルで予約</a><?php endif ?>
                 <?php if(($bookingLinks['jalan'] ?? '') !== ''): ?><a class="hotel-booking-button is-jalan" href="<?= SearchView::escape($bookingLinks['jalan']) ?>" target="_blank" rel="sponsored noopener">じゃらん</a><?php endif ?>
                 <?php if(($bookingLinks['yahoo'] ?? '') !== ''): ?><a class="hotel-booking-button is-yahoo" href="<?= SearchView::escape($bookingLinks['yahoo']) ?>" target="_blank" rel="sponsored noopener">Yahoo!トラベル</a><?php endif ?>

@@ -49,7 +49,7 @@ final class FerrySearchService
         if ($date === '') return '';
         $parsed = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
         return $parsed && $parsed->format('Y-m-d') === $date
-            ? $parsed->format('Y年n月') . '確認' : '';
+            ? '料金確認日：' . $parsed->format('Y/m/d') : '';
     }
 
     private function firstUrl(array $candidates): string

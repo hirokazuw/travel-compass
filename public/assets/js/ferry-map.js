@@ -163,14 +163,14 @@ export function initFerryMap(document = globalThis.document) {
                 details.append(vehicle, overnight);
                 main.append(details);
                 content.append(main);
-                if (route.fare_from) {
+                if (route.fare_from || route.fare_updated) {
                     const fare = document.createElement('div');
                     fare.className = 'ferry-fare';
                     const fareLabel = document.createElement('small');
                     fareLabel.textContent = '参考運賃';
                     const fareAmount = document.createElement('strong');
                     fareAmount.textContent = `${route.fare_currency === 'JPY' ? '' : `${route.fare_currency} `}${route.fare_from}${route.fare_currency === 'JPY' ? '円' : ''}〜`;
-                    fare.append(fareLabel, fareAmount);
+                    if (route.fare_from) fare.append(fareLabel, fareAmount);
                     if (route.fare_updated) {
                         const updated = document.createElement('span');
                         updated.textContent = route.fare_updated;

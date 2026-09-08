@@ -6,6 +6,7 @@ use App\Views\SearchView;
 <section class="result ferry-result" data-ferry-tab-content<?= $page->activeTab !== 'ferry' ? ' hidden' : '' ?>>
     <small>FERRY ROUTES</small>
     <h2><?= SearchView::escape($page->ferry->ferryValues['ferry_company_name']) ?></h2>
+    <p class="price-note">運賃・ダイヤ・運航状況は参考情報です。最新情報・空席状況は各フェリー会社公式サイトでご確認ください。</p>
     <?php if($page->ferry->ferryRoutes): ?>
     <div class="ferry-routes" aria-label="フェリー航路検索結果">
         <?php foreach($page->ferry->ferryRoutes as $route): ?>
@@ -21,10 +22,12 @@ use App\Views\SearchView;
                         <span><?= $route['overnight'] ? '夜行便' : '昼行便' ?></span>
                     </div>
                 </div>
-                <?php if($route['fare_from'] !== ''): ?>
+                <?php if($route['fare_from'] !== '' || $route['fare_updated'] !== ''): ?>
                 <div class="ferry-fare">
+                    <?php if($route['fare_from'] !== ''): ?>
                     <small>参考運賃</small>
                     <strong><?= $route['fare_currency'] === 'JPY' ? '' : SearchView::escape($route['fare_currency']) . ' ' ?><?= SearchView::escape($route['fare_from']) ?><?= $route['fare_currency'] === 'JPY' ? '円' : '' ?>〜</strong>
+                    <?php endif ?>
                     <?php if($route['fare_updated'] !== ''): ?><span><?= SearchView::escape($route['fare_updated']) ?></span><?php endif ?>
                 </div>
                 <?php endif ?>

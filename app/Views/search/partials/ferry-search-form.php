@@ -25,7 +25,7 @@ use App\Views\SearchView;
                 <?php foreach(['hokkaido'=>['北海道',70,21],'tohoku'=>['東北',65,42],'kanto'=>['関東',60,65],'hokuriku'=>['北陸・新潟',51,56],'tokai'=>['東海',51,68],'kinki'=>['近畿',41,71],'chugoku'=>['中国',29,69],'shikoku'=>['四国',33,76],'kyushu'=>['九州',20,82],'okinawa'=>['沖縄',78,85],'overseas'=>['海外',8,23]] as $regionId=>$region): ?><button type="button" class="ferry-region" data-region="<?= SearchView::escape($regionId) ?>" style="--map-x:<?= $region[1] ?>%;--map-y:<?= $region[2] ?>%"><?= SearchView::escape($region[0]) ?></button><?php endforeach ?>
             </div>
             <div class="ferry-map-pins" data-ferry-map-pins></div>
-            <aside class="ferry-map-routes" data-ferry-map-routes hidden><h4>選択した航路</h4><div data-ferry-map-route-list></div></aside>
+            <aside class="ferry-map-routes" data-ferry-map-routes hidden><h4>選択した航路</h4><p class="price-note">運賃・ダイヤ・運航状況は参考情報です。最新情報・空席状況は各フェリー会社公式サイトでご確認ください。</p><div data-ferry-map-route-list></div></aside>
         </div>
         <aside class="ferry-map-selection" data-ferry-map-selection hidden><h4 data-ferry-map-selection-title>A地点を選択</h4><div data-ferry-map-selection-list></div></aside>
     </div>

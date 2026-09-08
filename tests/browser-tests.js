@@ -9,7 +9,7 @@ const requests = [];
 const route = {
     id: 2, company_id: 1, company_name: 'Fixture Ferry', duration: '10時間',
     vehicle_available: true, overnight: true, fare_from: '12,000', fare_currency: 'JPY',
-    fare_updated: '', destination_url: 'https://route.example/',
+    fare_updated: '料金確認日：2026/08/22', destination_url: 'https://route.example/',
     departure: { name: '東京港', region: 'kanto', x: 60, y: 62 },
     arrival: { name: '徳島港', region: 'shikoku', x: 39, y: 76 }, label: '東京港 → 徳島港',
 };
@@ -89,6 +89,8 @@ ready.then(async () => {
         check($('.ferry-port-pin.is-departure').dataset.portName === '徳島港', 'reverse departure');
         check($('.ferry-port-pin.is-arrival').dataset.portName === '東京港', 'reverse arrival');
         check($('.ferry-map-route-lines path'), 'route line');
+        check($('[data-ferry-map-routes]').textContent.includes('運賃・ダイヤ・運航状況は参考情報です。最新情報・空席状況は各フェリー会社公式サイトでご確認ください。'), 'map freshness disclaimer');
+        check($('[data-ferry-map-route-list]').textContent.includes('料金確認日：2026/08/22'), 'map fare confirmation');
         $('.ferry-map-canvas').click();
         check(!$('[data-ferry-map] .ferry-map-layout').classList.contains('has-selection'), 'map reset');
         $('[data-ferry-mode="conditions"]').click();

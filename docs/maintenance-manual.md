@@ -4,6 +4,16 @@
 
 ## 1. システム構成
 
+### フェリー情報の更新運用
+
+サイト管理者が手動で、半年に1回（3月・9月）を基本に確認します。公式発表などで変更を把握した場合は随時更新します。料金体系・季節運賃・ダイヤ・運航状況・予約先を各社公式サイトで確認し、自動取得は行いません。
+
+更新時は対象の会社・航路IDを確認してから運賃・所要時間・予約先などを修正します。料金を実際に確認した日を`fare_updated_at`へ`YYYY-MM-DD`形式で記録します。未確認の場合は空のままとし、確認していない日を埋めません。画面では有効な確認日だけ「料金確認日：YYYY/MM/DD」と表示します。
+
+休止・廃止は対象の`ferry_routes.active`を`0`へ変更し、行を物理削除しません。再開時は公式情報を確認して必要項目を更新し、`active = 1`へ戻します。変更後は条件検索、航路候補、地図で非表示／再表示を確認してください。行の保持は航路記録を残すためで、フェリーの利用者検索履歴は保存しません。
+
+検索結果付近には常時「運賃・ダイヤ・運航状況は参考情報です。最新情報・空席状況は各フェリー会社公式サイトでご確認ください。」を表示します。
+
 PHP 8／MySQL製の単一画面型自作MVCです。専用RouterやDIコンテナはなく、`public/index.php`が起動、`SearchControllerFactory`と領域別Factoryが依存構築、`SearchController`がHTTP処理を振り分けます。
 
 ```text
@@ -20,7 +30,7 @@ Browser → index.php → public/index.php
 | `app/Factories/` | 航空券・ホテル・フェリー・Apifyの依存構築 |
 | `app/Controllers/SearchController.php` | GET、航空券、ホテル、候補検索の統括 |
 | `app/Requests/` | POST値、CSRF、日付、人数の検証 |
-| `app/Models/SearchHistory.php` | 履歴保存・統合取得 |
+| `app/Models/SearchHistory.php` | 航空券・ホテルの履歴保存・統合取得。フェリーは条件検索・地図検索ともに対象外 |
 | `app/Models/FlightCity.php` | 都市、IATA、都市圏空港、国内判定 |
 | `app/Services/` | 外部API、cache、変換、OTA URL |
 | `app/ViewModels/` | status文言、SEO |
@@ -86,9 +96,9 @@ search-panel.php → app.js → POST
 - 検証: CSRF、目的地、厳密な日付、checkout順序、大人1～9、子供0～9
 - 国内外: 目的地から自動判定せず、選択tabの`hotel_scope`
 - 履歴: Apifyより前に`hotel_searches`へ保存。`guests`は大人＋子供
-- Apify入力: 目的地、check-in/out、大人、子供、ja/jp、JPY。子供年齢は全員8歳
+- Apify入力: 目的地、check-in/out、大人、子供、ja/jp、JPY。子供年齢は全員8歳。人数だけを受け取り、年齢入力や子供条件に関する「参考検索」の制約表示は追加しない（確定仕様）。
 - 変換: 名前、説明、link、住所、座標、class、評価、口コミ、料金、時刻、画像、設備
-- `official_url`: Actorの`link`。公式ドメインかは検証していない
+- `official_url`: Actorの`link`。公式ドメインかは検証していないため、ボタンは「詳細を見る」と表示する
 - 楽天: 国内だけ。完全一致または8文字以上の一意な部分一致で楽天ボタンを付与
 - 国内OTA: 楽天、じゃらん、Yahoo!トラベル、一休、Expedia
 - 海外OTA: Expedia、Hotels.com
