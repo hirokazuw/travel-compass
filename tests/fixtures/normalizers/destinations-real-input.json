@@ -1,0 +1,7 @@
+[
+    {"keyword": "Fixture Restaurant"},
+    {"keyword": "Fixture"},
+    {"keyword": "Fixture Noodles"},
+    {"name": "Fixture City", "coordinate": [35.25, 139.75], "address": "Fixture Country, Fixture Prefecture", "item_id": "fixture-city-id", "country_code": "JP"},
+    {"name": "Fixture Castle", "coordinate": [35.26, 139.76], "address": "Fixture Country, Fixture City", "item_id": "fixture-castle-id", "country_code": "JP"}
+]

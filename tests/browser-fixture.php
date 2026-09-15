@@ -5,13 +5,16 @@ spl_autoload_register(static function ($class) {
 });
 require __DIR__ . '/view-fixtures.php';
 $fixtures = viewFixtures();
+$fixtures['flight-domestic'][1]['values']['origin'] = 'TYO';
+$fixtures['flight-domestic'][1]['values']['destination'] = 'CTS';
+$fixtures['flight-domestic'][1]['cityLabels'] = ['origin' => '東京（TYO）', 'destination' => '札幌（CTS）'];
 $hotel = $fixtures['hotel-success'][1];
 unset($hotel['activeTab']);
 $page = new App\ViewModels\SearchPageViewModel(
     new App\ViewModels\FlightSearchViewData(...$fixtures['flight-domestic'][1]),
     new App\ViewModels\HotelSearchViewData(...$hotel), new App\ViewModels\FerrySearchViewData(),
     'hotel', false, 'browser-token', [
-        ['search_type' => 'flight', 'origin' => '東京', 'destination' => '大阪', 'departure_date' => '2026-10-01', 'return_date' => '', 'travelers' => '3'],
+        ['search_type' => 'flight', 'origin' => '東京（TYO）', 'destination' => 'ソウル（SEL）', 'departure_date' => '2026-10-01', 'return_date' => '', 'travelers' => '3'],
         ['search_type' => 'hotel', 'destination' => '札幌', 'check_in' => '2026-10-01', 'check_out' => '2026-10-03', 'adults' => 2, 'children' => 1],
     ], 'Fixture', '1', '1', '1', '1', App\ViewModels\SeoViewData::create([], false)
 );

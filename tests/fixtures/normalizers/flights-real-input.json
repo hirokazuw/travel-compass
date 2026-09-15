@@ -1,0 +1,127 @@
+[
+    {
+        "all_flights": [
+            {
+                "category": "best",
+                "price": 11880,
+                "currency": "JPY",
+                "airlines": "スプリング・ジャパン",
+                "airline_logo": "https://example.com/airline.png",
+                "route": "NRT-CTS",
+                "departure_airport": "NRT",
+                "departure_time": "2026-10-06 07:20",
+                "arrival_airport": "CTS",
+                "arrival_time": "2026-10-06 09:05",
+                "stops": 0,
+                "stops_label": "Nonstop",
+                "layover_airports": "",
+                "duration_minutes": 105,
+                "duration": "1h 45m",
+                "travel_class": "Economy",
+                "flight_numbers": "IJ 831",
+                "outbound_date": "2026-10-06",
+                "return_date": "2026-10-08",
+                "overnight": false,
+                "often_delayed": false,
+                "carbon_emissions_g": 88000
+            },
+            {
+                "category": "best",
+                "price": 12180,
+                "currency": "JPY",
+                "airlines": "ジェットスター",
+                "airline_logo": "https://example.com/airline.png",
+                "route": "NRT-CTS",
+                "departure_airport": "NRT",
+                "departure_time": "2026-10-06 08:00",
+                "arrival_airport": "CTS",
+                "arrival_time": "2026-10-06 09:45",
+                "stops": 0,
+                "stops_label": "Nonstop",
+                "layover_airports": "",
+                "duration_minutes": 105,
+                "duration": "1h 45m",
+                "travel_class": "Economy",
+                "flight_numbers": "GK 105",
+                "outbound_date": "2026-10-06",
+                "return_date": "2026-10-08",
+                "overnight": false,
+                "often_delayed": false,
+                "carbon_emissions_g": 84000
+            }
+        ],
+        "best_flights": [
+            {
+                "flights": [
+                    {
+                        "departure_airport": {
+                            "name": "成田国際空港",
+                            "id": "NRT",
+                            "time": "2026-10-06 07:20"
+                        },
+                        "arrival_airport": {
+                            "name": "新千歳空港",
+                            "id": "CTS",
+                            "time": "2026-10-06 09:05"
+                        },
+                        "airline": "スプリング・ジャパン",
+                        "airline_logo": "https://example.com/airline.png",
+                        "travel_class": "Economy",
+                        "flight_number": "IJ 831"
+                    }
+                ],
+                "total_duration": 105,
+                "price": 11880,
+                "airline_logo": "https://example.com/airline.png"
+            },
+            {
+                "flights": [
+                    {
+                        "departure_airport": {
+                            "name": "成田国際空港",
+                            "id": "NRT",
+                            "time": "2026-10-06 08:00"
+                        },
+                        "arrival_airport": {
+                            "name": "新千歳空港",
+                            "id": "CTS",
+                            "time": "2026-10-06 09:45"
+                        },
+                        "airline": "ジェットスター",
+                        "airline_logo": "https://example.com/airline.png",
+                        "travel_class": "Economy",
+                        "flight_number": "GK 105"
+                    }
+                ],
+                "total_duration": 105,
+                "price": 12180,
+                "airline_logo": "https://example.com/airline.png"
+            }
+        ],
+        "other_flights": [
+            {
+                "flights": [
+                    {
+                        "departure_airport": {
+                            "name": "成田国際空港",
+                            "id": "NRT",
+                            "time": "2026-10-06 07:10"
+                        },
+                        "arrival_airport": {
+                            "name": "新千歳空港",
+                            "id": "CTS",
+                            "time": "2026-10-06 08:55"
+                        },
+                        "airline": "ジェットスター",
+                        "airline_logo": "https://example.com/airline.png",
+                        "travel_class": "Economy",
+                        "flight_number": "GK 103"
+                    }
+                ],
+                "total_duration": 105,
+                "price": 12180,
+                "airline_logo": "https://example.com/airline.png"
+            }
+        ]
+    }
+]

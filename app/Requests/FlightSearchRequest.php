@@ -21,6 +21,17 @@ final class FlightSearchRequest
         }
 
         $errors = [];
+        foreach (['origin', 'destination'] as $field) {
+            $code = strtoupper(trim((string)($input[$field . '_iata'] ?? '')));
+            // History stores the same label as the autocomplete; recover its search code.
+            if ($code === '' && preg_match('/^.+（([A-Z]{3})）$/uD', $values[$field], $match)) {
+                $code = $match[1];
+            }
+            if ($code !== '') {
+                if (preg_match('/^[A-Z]{3}$/D', $code)) $values[$field] = $code;
+                else $errors[] = '正しいIATAコードを選択してください。';
+            }
+        }
         if (!hash_equals($sessionToken, (string)($input['csrf'] ?? ''))) $errors[] = '送信内容を確認できませんでした。';
         if ($values['origin'] === '' || mb_strlen($values['origin']) > 100) $errors[] = '出発地を入力してください。';
         if ($values['destination'] === '' || mb_strlen($values['destination']) > 100) $errors[] = '目的地を入力してください。';

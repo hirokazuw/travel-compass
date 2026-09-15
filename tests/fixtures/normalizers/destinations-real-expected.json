@@ -1,0 +1,7 @@
+[
+    {"name": "Fixture Restaurant", "category": "", "address": "", "place_id": "", "country_code": "", "latitude": null, "longitude": null},
+    {"name": "Fixture", "category": "", "address": "", "place_id": "", "country_code": "", "latitude": null, "longitude": null},
+    {"name": "Fixture Noodles", "category": "", "address": "", "place_id": "", "country_code": "", "latitude": null, "longitude": null},
+    {"name": "Fixture City", "category": "", "address": "Fixture Country, Fixture Prefecture", "place_id": "fixture-city-id", "country_code": "JP", "latitude": 35.25, "longitude": 139.75},
+    {"name": "Fixture Castle", "category": "", "address": "Fixture Country, Fixture City", "place_id": "fixture-castle-id", "country_code": "JP", "latitude": 35.26, "longitude": 139.76}
+]

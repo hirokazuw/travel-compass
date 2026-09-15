@@ -22,10 +22,31 @@ final class FlightSearchAction
     public function handle(array $input, string $sessionToken): FlightSearchViewData
     {
         $request = FlightSearchRequest::fromPost($input, $sessionToken);
-        if ($request->errors !== []) return new FlightSearchViewData(values: $request->values, errors: $request->errors);
+        $labels = [];
+        foreach (['origin', 'destination'] as $field) {
+            if (preg_match('/^[A-Z]{3}$/D', $request->values[$field]) && ($input[$field . '_iata'] ?? '') !== '') {
+                $labels[$field] = mb_substr(trim((string)($input[$field] ?? '')), 0, 150);
+            }
+        }
+        if ($request->errors !== []) return new FlightSearchViewData(values: $request->values, errors: $request->errors, cityLabels: $labels);
 
         $values = $request->values;
-        $this->saveFlightHistory($values);
+        $historyValues = $values;
+        foreach (['origin', 'destination'] as $field) {
+            if (preg_match('/^[A-Z]{3}$/D', $values[$field])) {
+                $label = $values[$field];
+                try {
+                    foreach ($this->flightCity->suggest($values[$field]) as $city) {
+                        if ($city['iata'] === $values[$field]) { $label = $city['label']; break; }
+                    }
+                } catch (\Throwable $e) {
+                    error_log('Flight history city label: ' . $e->getMessage());
+                }
+                $labels[$field] = $label;
+                $historyValues[$field] = $label;
+            }
+        }
+        $this->saveFlightHistory($historyValues);
         $isDomestic = $this->flightCity->isDomestic($values['origin'])
             && $this->flightCity->isDomestic($values['destination']);
         $flightResult = $this->flightSearch->search(
@@ -33,6 +54,7 @@ final class FlightSearchAction
             $values['return_date'], (int)$values['travelers']
         );
         return new FlightSearchViewData(values: $values,
+            cityLabels: $labels,
             isDomesticFlight: $isDomestic,
             activeFlightScope: $isDomestic ? 'domestic' : 'overseas',
             result: $this->travelLinks->buildFlightLinks(

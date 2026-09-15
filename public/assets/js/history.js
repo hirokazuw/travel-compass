@@ -24,6 +24,7 @@ export function initHistory(document = globalThis.document) {
             if (!flightForm) return;
             flightForm.elements.origin.value = card.dataset.origin || '';
             flightForm.elements.destination.value = card.dataset.destination || '';
+            ['origin', 'destination'].forEach((name) => flightForm.elements[name].dispatchEvent(new Event('flight-city-reset')));
             flightForm.elements.departure_date.value = card.dataset.departureDate || '';
             flightForm.elements.return_date.value = card.dataset.returnDate || '';
             flightForm.elements.travelers.value = card.dataset.travelers || '1';

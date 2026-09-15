@@ -5,7 +5,7 @@ use App\Views\SearchView;
 <?php if ($page->flight->result): ?>
 <section class="result" data-flight-tab-content data-flight-scope="<?= $page->flight->isDomesticFlight ? 'domestic' : 'overseas' ?>">
     <small>YOUR PLAN</small>
-    <h2><?= SearchView::escape($page->flight->values['origin']) ?> → <?= SearchView::escape($page->flight->values['destination']) ?></h2>
+    <h2><?= SearchView::escape($page->flight->cityLabels['origin'] ?? $page->flight->values['origin']) ?> → <?= SearchView::escape($page->flight->cityLabels['destination'] ?? $page->flight->values['destination']) ?></h2>
     <p><?= SearchView::escape($page->flight->values['departure_date']) ?><?= $page->flight->values['return_date']?' 〜 '.SearchView::escape($page->flight->values['return_date']):'' ?>・<?= $page->flight->values['return_date']!==''?'往復':'片道' ?>・<?= SearchView::escape($page->flight->values['travelers']) ?>名</p>
     <?php if ($page->flight->flightOffers): ?>
     <h3 class="flight-result-subheading">航空会社別の参考価格</h3>

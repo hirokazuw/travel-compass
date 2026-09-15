@@ -1,0 +1,86 @@
+[
+    {
+        "carrier_code": "IJ",
+        "carrier_name": "スプリング・ジャパン",
+        "airline": "スプリング・ジャパン",
+        "airline_logo": "https://example.com/airline.png",
+        "flight_number": "IJ 831",
+        "departure_airport": {
+            "name": "成田国際空港",
+            "id": "NRT",
+            "time": "2026-10-06 07:20"
+        },
+        "arrival_airport": {
+            "name": "新千歳空港",
+            "id": "CTS",
+            "time": "2026-10-06 09:05"
+        },
+        "departure_time": "07:20",
+        "arrival_time": "09:05",
+        "origin": "NRT",
+        "destination": "CTS",
+        "duration": "1時間45分",
+        "duration_minutes": 105,
+        "stops": 0,
+        "price": "11,880",
+        "currency": "JPY",
+        "travel_class": "Economy",
+        "group": "best"
+    },
+    {
+        "carrier_code": "GK",
+        "carrier_name": "ジェットスター",
+        "airline": "ジェットスター",
+        "airline_logo": "https://example.com/airline.png",
+        "flight_number": "GK 105",
+        "departure_airport": {
+            "name": "成田国際空港",
+            "id": "NRT",
+            "time": "2026-10-06 08:00"
+        },
+        "arrival_airport": {
+            "name": "新千歳空港",
+            "id": "CTS",
+            "time": "2026-10-06 09:45"
+        },
+        "departure_time": "08:00",
+        "arrival_time": "09:45",
+        "origin": "NRT",
+        "destination": "CTS",
+        "duration": "1時間45分",
+        "duration_minutes": 105,
+        "stops": 0,
+        "price": "12,180",
+        "currency": "JPY",
+        "travel_class": "Economy",
+        "group": "best"
+    },
+    {
+        "carrier_code": "GK",
+        "carrier_name": "ジェットスター",
+        "airline": "ジェットスター",
+        "airline_logo": "https://example.com/airline.png",
+        "flight_number": "GK 103",
+        "departure_airport": {
+            "name": "成田国際空港",
+            "id": "NRT",
+            "time": "2026-10-06 07:10"
+        },
+        "arrival_airport": {
+            "name": "新千歳空港",
+            "id": "CTS",
+            "time": "2026-10-06 08:55"
+        },
+        "departure_time": "07:10",
+        "arrival_time": "08:55",
+        "origin": "NRT",
+        "destination": "CTS",
+        "duration": "1時間45分",
+        "duration_minutes": 105,
+        "stops": 0,
+        "price": "12,180",
+        "currency": "JPY",
+        "travel_class": "Economy",
+        "group": "other"
+    }
+]

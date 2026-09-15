@@ -39,7 +39,7 @@ try {
             check(!str_contains($body, 'content="test-token"'), "$method $type token rotation");
         }
     }
-    foreach (['hotel_destination_suggestions' => 403, 'ferry_company_suggestions' => 422, 'ferry_company_routes' => 422, 'ferry_map_data' => 422] as $type => $status) {
+    foreach (['flight_city_suggestions' => 403, 'hotel_destination_suggestions' => 403, 'ferry_company_suggestions' => 422, 'ferry_company_routes' => 422, 'ferry_map_data' => 422] as $type => $status) {
         [$headers, $body] = request('POST', ['search_type' => $type]);
         check(str_contains($headers, (string)$status), "$type status");
         check(str_contains($headers, 'application/json'), "$type content type");

@@ -28,6 +28,29 @@ final class FlightCity
     {
     }
 
+    /** @return list<array{label: string, iata: string}> */
+    public function suggest(string $query): array
+    {
+        $query = mb_convert_kana(trim($query), 'asKV');
+        if (mb_strlen($query) < 2 || mb_strlen($query) > 100) return [];
+        // Escape LIKE wildcards; only fetch a bounded, ranked subset from the existing table.
+        $escaped = strtr($query, ['!' => '!!', '%' => '!%', '_' => '!_']);
+        $stmt = $this->db->prepare("SELECT city, iata, aliases FROM iata_cities
+            WHERE city LIKE :city ESCAPE '!' OR iata LIKE :iata ESCAPE '!'
+                OR aliases LIKE :alias ESCAPE '!'
+            ORDER BY CASE WHEN UPPER(iata) = :exact THEN 0 ELSE 1 END, city, id LIMIT 8");
+        $stmt->execute([':city' => $escaped . '%', ':iata' => strtoupper($escaped) . '%',
+            ':alias' => '%' . $escaped . '%', ':exact' => strtoupper($query)]);
+        return array_values(array_map(static function (array $row): array {
+            $name = (string)$row['city'];
+            foreach (json_decode((string)($row['aliases'] ?? '[]'), true) ?? [] as $alias) {
+                if (is_string($alias) && preg_match('/[ぁ-んァ-ヶ一-龯]/u', $alias)) { $name = $alias; break; }
+            }
+            $iata = strtoupper((string)$row['iata']);
+            return ['label' => $name . '（' . $iata . '）', 'iata' => $iata];
+        }, $stmt->fetchAll(PDO::FETCH_ASSOC)));
+    }
+
     /**
      * 都市・空港情報を取得
      *

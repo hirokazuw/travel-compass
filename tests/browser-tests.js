@@ -18,6 +18,7 @@ window.fetch = async (_url, options) => {
     requests.push(data);
     if (data.csrf !== 'browser-token') throw new Error('Missing CSRF');
     const payload = {
+        flight_city_suggestions: { suggestions: [{ label: data.query === 'SEL' ? 'ソウル（SEL）' : '東京（TYO）', iata: data.query === 'SEL' ? 'SEL' : 'TYO' }] },
         hotel_destination_suggestions: { suggestions: [{ name: 'Tokyo Hotel', place_id: 'place-1', address: 'Tokyo', latitude: 35, longitude: 139, country_code: 'JP' }] },
         ferry_company_suggestions: { suggestions: [{ id: 1, name: 'Fixture Ferry' }] },
         ferry_company_routes: { routes: [{ id: 2, label: '東京港 → 徳島港' }] },
@@ -43,12 +44,26 @@ ready.then(async () => {
         passed.push('tabs');
 
         const flight = $('.flight-search-form');
+        input(flight.elements.origin, '東京');
+        await sleep(400);
+        key(flight.elements.origin, 'ArrowDown');
+        key(flight.elements.origin, 'Enter');
+        check(flight.elements.origin.value === '東京（TYO）' && flight.elements.origin_iata.value === 'TYO', 'origin selected code');
+        input(flight.elements.destination, 'SEL');
+        await sleep(400);
+        $('#flight-destination-suggestions button').click();
+        check(flight.elements.destination_iata.value === 'SEL', 'destination selected code');
+        input(flight.elements.origin, '別');
+        check(flight.elements.origin_iata.value === '', 'edited label clears code');
+        passed.push('flight suggestions');
         flight.querySelector('[value="oneway"]').click();
         check(flight.elements.return_date.disabled && !flight.elements.return_date.required, 'oneway return date');
         flight.querySelector('[value="roundtrip"]').click();
         check(!flight.elements.return_date.disabled && flight.elements.return_date.required, 'roundtrip return date');
         $('.recent-search-card[data-search-type="flight"]').click();
-        check(flight.elements.origin.value === '東京' && flight.elements.travelers.value === '3' && flight.elements.return_date.disabled, 'flight history');
+        check(flight.elements.origin.value === '東京（TYO）' && flight.elements.destination.value === 'ソウル（SEL）' && flight.elements.travelers.value === '3' && flight.elements.return_date.disabled, 'flight history');
+        check($('.recent-search-card[data-search-type="flight"]').textContent.includes('東京（TYO） → ソウル（SEL）'), 'flight history labels rendered');
+        check(flight.elements.destination_iata.value === '', 'history clears stale selected code');
         $('.recent-search-card[data-search-type="hotel"]').click();
         check($('.hotel-search-form').elements.hotel_destination.value === '札幌', 'hotel history');
         passed.push('trip and history');
@@ -111,6 +126,7 @@ ready.then(async () => {
         const logo = $('[data-airline-logo]');
         logo.dispatchEvent(new Event('error'));
         check(logo.hidden && !logo.parentElement.querySelector('[data-airline-logo-fallback]').hidden, 'airline fallback');
+        check($('.result[data-flight-tab-content] h2').textContent === '東京（TYO） → 札幌（CTS）', 'flight result city labels');
         passed.push('results and images');
 
         const submitter = flight.querySelector('button[type="submit"], button:not([type])');

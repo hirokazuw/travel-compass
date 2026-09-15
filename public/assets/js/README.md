@@ -6,6 +6,7 @@ No package install, bundler or generated bundle is needed for production.
 | Module | Entry | DOM contract / responsibility |
 | --- | --- | --- |
 | tabs | `initTabs` | `.search-tab`, `.tab-panel`, `.hotel-provider-tab`; flight trip type and return-date state |
+| flight-suggestions | `initFlightSuggestions` | `[data-flight-city]`; city suggestions, keyboard selection, hidden IATA codes |
 | hotel-suggestions | `initHotelSuggestions` | `.hotel-search-form`; debounce, cache, keyboard selection, hidden place metadata |
 | results | `initResults` | `.flight-offers-toggle`, `.overseas-hotels-toggle`; extra result visibility |
 | ferry-search | `initFerrySearch` | `.ferry-search-form`; company suggestions and route selection |

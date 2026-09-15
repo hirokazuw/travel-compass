@@ -241,4 +241,5 @@ require __DIR__ . '/normalizer-contract.php';
 require __DIR__ . '/ferry-map-master.php';
 require __DIR__ . '/script-assets.php';
 require __DIR__ . '/ferry-freshness.php';
+require __DIR__ . '/flight-suggestions.php';
 $t->finish();

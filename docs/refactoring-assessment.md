@@ -1,21 +1,41 @@
-# Travel Compass リファクタリング診断
+# Travel Compass リファクタリング診断・残作業一覧
 
-V1.9.2: 子供条件・ホテルの詳細リンク表記・フェリー履歴の対象外・フェリー情報の更新運用を確定し、詳細リンク、免責文、料金確認日の表示へ反映しました。
+対象: **V1.9.2のローカル実装**。P1-1〜P1-7の構造整理と、子供条件・ホテル詳細リンク・フェリー運用の仕様確定を反映しています。
 
-V1.9.1: P1-1〜P1-7の実装と契約テストを反映済みです。P1-5の航空券・目的地候補の実response fixture補完は残っています。以下の調査基準・総合評価は初回診断時点の記録です。
+今回は既存の診断項目を実装・テスト・確定仕様と照合して整理しました。新たな本番接続、外部API検証、Git履歴の監査は行っていません。本番配備の完了を示す文書ではありません。
 
-調査基準: `master` / `35ea3706be05c2e459fe64e0b6790a133f1d02e2`（2026-08-23）
+## 1. 未対応・部分対応の一覧
 
-調査方法: PHP全ファイルの構文検査、クラス・メソッドの参照検索、起動時の依存構築、Request／Controller／Service／Model／View／JavaScript／DDL・migration／設定・ドキュメントの静的確認。外部API、ブラウザ、実DBを使う動作確認は行っていません。
+**次に着手する候補は、実responseの補完、cacheの長期運用対策、JSON失敗時の契約整理です。** 下表の順序は提案であり、未承認の仕様変更を実施するものではありません。P2番号は旧診断の項目番号を維持しています。
 
-## 1. 総合評価
+| 区分・ID | 状態 | 残っていること | 次の作業・完了の目安 |
+|---|---|---|---|
+| P2-4 | **未対応** | cacheの定期清掃・容量上限・期限切れデータを障害時に利用する方針がない | 保持期間・容量・障害時利用の可否を決め、安全な清掃手順とテストを整える。既存のlock・一時file書込は維持 |
+| P2-2 | **部分対応** | JSONエンコード失敗時の例外・statusの扱いが不統一 | 共通`JsonResponse`で失敗時の応答契約を決め、不正UTF-8等のテストを追加する。Responseの共通化自体は完了 |
+| P2-9 | **未対応** | 同じ検索内の障害を追う共通ログ情報がない | request ID、機能名、外部service、HTTP status、例外classの付与方針を整理する |
+| P2-3 | **未対応** | ホテルカードリンク生成の例外処理がActionとServiceに分散 | カード単位の失敗と処理全体の失敗を区別し、必要な境界を残して重複を整理する |
+| P2-1 | **未対応** | Request間のValidationが重複 | CSRF・文字数・整数・厳密日付の共通部品候補を整理する。既存エラー内容とstatusの契約を維持 |
+| P2-5 | **用途確認待ち** | `ApiCache`の`monthlyLimit`／`usageFile`が生成箇所から渡されていない | 月次制限が必要なら設定と運用へ接続し、不要なら参照確認後に削除する |
+| P2-6 | **用途確認待ち** | `hotel_place_*`と`property_token`は保持されるが、検索条件などに未利用 | 将来用途を確認し、維持するfieldと削除するfieldを決める。DOM・Normalizer契約も同時に更新 |
+| P2-7 | **棚卸し待ち** | `FlightCity::airportCandidates()`など未使用method候補が残る | 呼出箇所・テスト・将来用途を確認して整理する。未表示providerの削除済み処理は再度課題にしない |
+| P2-8 | **未対応** | `strict_types`や一行に圧縮されたコードの書式が不統一 | 小さな規約を決め、対象を絞って統一する。動作変更と混在させない |
+| P2-10 | **将来検討** | migration runnerがない | migrationが増える時点で適用順・適用済み管理を検討する。既存migration未適用の意味ではない |
 
-- PHP構文検査は全ファイル成功。CSRF、入力値検証、prepared statement、HTML escape、外部URLのscheme検証など、基本的な安全策は維持されています。
-- 前回基準以後にフェリー検索と航空会社マスタ連携が追加され、`FerryController`への分離も行われています。一方、DB初期構築、起動時の依存構築、画面状態、JavaScript、保守文書が新機能に追随していません。
-- 最優先はコード分割そのものではなく、自動testです。DB baseline整備、検索本体からの履歴DB障害の分離、環境固有設定のGit管理からの分離は対応済みです。
-- 依存追加なしの自動test runnerとGitHub Actionsを追加しました。Requests、Normalizer、URL Builders、IATA、航空会社集約、ホテル名寄せ、フェリー契約、baselineを自動検査します。
-- 主な変更集中箇所は `SearchController`（254行）、`FlightUrlBuilder`（388行）、`FlightCity`（281行）、`ApifyResponseNormalizer`（201行）、`public/assets/app.js`（811行）、`public/index.php`（104行）です。行数だけを理由に分割せず、変更理由と障害境界で分けるべきです。
+### 実装不足と分けて扱うもの
 
+| 種類 | 現状・扱い |
+|---|---|
+| 継続運用 | フェリー情報を管理者が3月・9月と変更把握時に手動確認する。運用方針と表示は実装済み。各回の実施状況は別途記録する |
+| 検証範囲の拡張 | 外部APIの実通信、予約サイトの最新仕様との適合、複数ブラウザ、障害パターンの追加は未検証範囲。主要DOMのbrowser testは既にある |
+| 型付けの追加候補 | 入力値・正規化結果・SEOの内側には配列が残る。ページ全体と検索種別のreadonly化は完了。個々のレコードのクラス化は必要性を見て判断する |
+
+### 現時点の検証基盤
+
+V1.9.2準備時に、通常テスト39件、HTTP characterization、HTML契約12ケース、URL golden test10ケース、ChromeのDOMテスト7領域、PHP全92ファイルの構文検査が成功しています。今回の文書整理ではテストを再実行していません。
+
+MySQL baselineの検査はCIに定義済みです。このローカル確認で本番DBやCI実行結果を再確認したものではありません。
+
+以降は、対応済みの内容と確定仕様の記録です。**未対応作業は上の一覧を参照してください。**
 ## 2. P0: リリース・再現性・可用性
 
 ### P0-1. DB初期構築を現行機能と一致させる（対応済み）
@@ -23,30 +43,30 @@ V1.9.1: P1-1〜P1-7の実装と契約テストを反映済みです。P1-5の航
 - 対象: `database/schema.sql`, `database/migrations/archive/`, README
 - 対応: 現DBの構造dumpを照合し、`schema.sql`へ`airlines`, `ferry_companies`, `ferry_routes`のDDLと現行seedを統合しました。検索履歴・`iata_cities`を含むfresh install用baselineです。履歴の実データは含めていません。
 - 運用: 新規環境にはbaselineを一括適用します。既存DBへの現行migration適用は完了しており、統合済みSQLは`database/migrations/archive/`へ保管しています。baselineやarchive内のSQLを既存DBへ再適用しません。
-- 先に固定するtest: 空DBへの一括適用、再適用可否、外部キー、主要seed件数、各Modelの代表SELECT。
+- 検証: 空DBへのbaseline適用と外部キー・主要seed件数などをCIで検査します。baselineは新規環境用で、既存DBへ再適用しません。
 
 ### P0-2. 履歴DB障害を検索・初期画面から分離する（対応済み）
 
-- 対象: `SearchController::handleFlightSearch()`, `handleHotelSearch()`, `index()`, `SearchHistory`
+- 対象: `FlightSearchAction`, `HotelSearchAction`, `SearchPageBuilder`, `SearchHistory`
 - 対応: `createFlight()`／`createHotel()`と`recent()`を個別のbest-effort処理にし、例外時は機能別のerror logを残して検索・描画を継続するようにしました。
 - 保存時点: 従来どおりValidation成功直後に保存を試みるため、履歴は「検索成功履歴」ではなく「有効な入力履歴」です。
 - 障害時: INSERT失敗時も航空券・ホテル検索を継続し、SELECT失敗時は最近の検索を空として画面を描画します。
-- test候補: INSERT失敗、SELECT失敗、外部検索成功／失敗との組み合わせ。
+- 検証: INSERT／SELECT失敗時の継続をテスト済みです。外部検索成功／失敗と組み合わせた障害網羅は追加検証候補です。
 
-### P0-3. 環境固有設定をGit管理から分離する（対応済み）
+### P0-3. 環境固有設定をGit管理から分離する（完了）
 
 - 対象: `config/config.php`, `.vscode/sftp.json`, `.gitignore`
 - 対応: `config/config.php`と`.vscode/sftp.json`をローカルに残したままGitの追跡対象から外し、`.gitignore`へ追加しました。`config/config.example.php`は引き続き追跡します。
 - setup: 新規環境では`config/config.example.php`を`config/config.php`へコピーし、環境固有値を設定します。
-- 残作業: 過去のGit履歴は書き換えていません。公開・共有済みの接続情報、秘密鍵、credentialは失効・再発行要否を別途監査します。
+- 確認: ユーザーによる目視確認済みとの報告を受け、credentialの失効・再発行要否の確認を含めP0-3を完了としました。今回、追加の監査や過去のGit履歴の書き換えは行っていません。
 
 ### P0-4. 最低限の自動test基盤を作る（対応済み）
 
 - 対象: Requests、`ApifyResponseNormalizer`、`FlightOfferAggregator`、URL Builders、`FlightCity`、フェリーService／Model契約
-- 対応: `php tests/run.php`で動く軽量runnerを追加し、外部通信や本番設定なしで17件の契約testを実行できるようにしました。
+- 対応: `php tests/run.php`で動く軽量runnerを追加し、外部通信や本番設定なしで39件のtestを実行できます。
 - 対象: 日付・人数・CSRF、ホテル／目的地／航空券response正規化、価格parse、ホテル／航空券URL、IATA都市圏、航空会社集約、ホテル名寄せ、フェリー会社と航路ID、地図用route変換、baseline構成。
 - DB: 通常testはインメモリSQLiteを使用します。GitHub ActionsではMySQL 8の空DBへ`database/schema.sql`を投入し、6テーブル、master件数、外部キー、履歴data非混入を検査します。
-- 残候補: Actorの実responseを匿名化したfixtureの追加、Controller／View／JavaScriptのbrowser test、障害系の網羅。
+- 検証拡張: Controllerのfakeテスト、HTML契約、主要DOMのbrowser testは追加済み。Actor実responseの不足と障害系の追加は先頭の一覧で管理します。
 
 ## 3. P1: 変更容易性と障害境界
 
@@ -86,15 +106,17 @@ Controllerは`SearchPageBuilderInterface`と既存のcallable Action登録を受
 
 今回providerの追加・削除やaffiliateパラメータの変更は行っていません。未表示・未使用だったTrip.com、Booking.com、ena、さくらトラベルは削除済みのままです。今後の削除候補はaffiliate契約・再表示予定を確認してから判断します。予約サイトへの実アクセスや最新仕様への適合は、この互換性リファクタリングの検証対象外です。
 
-### P1-5. Normalizerを検索領域ごとに分割する（分離済み・実response補完待ち）
+### P1-5. Normalizerを検索領域ごとに分割する（対応済み）
 
-分離前に`tests/fixtures/normalizers/`へ入力と期待出力を記録し、出力key・値・型・順序を完全比較する契約testを追加しました。ホテルはローカルcacheの実responseを使用し、識別情報を置き換えて必要fieldだけを残しています。航空券・目的地候補は実responseが見つからなかったため合成fixtureです。由来と加工範囲は同ディレクトリのREADMEに記録しています。
+2026-09-15：提供された `docs/airticket.json` から航空券の実response由来fixtureを追加しました。元JSONと本番実装は変更せず、代表3件のkey・値・型・順序を領域別Normalizerと互換窓口で検証します。詳細は `tests/fixtures/normalizers/README.md` に記載しています。
+
+分離前の合成fixtureは境界条件の検証用として維持します。ホテルと航空券は実response由来fixtureもあります。航空券の出発地・目的地候補はApifyではなく `iata_cities` を利用し、日本語・英語・IATAコード検索、10件一致時の8件上限、選択コードの受け渡しをテストします。
 
 `app/Services/Normalizers/`の`HotelResponseNormalizer`／`DestinationResponseNormalizer`／`FlightResponseNormalizer`へ処理を分離しました。価格parseとHTTPS URLの既存判定だけを`NormalizedValue`で共有し、ホテル料金の再帰parse・座標alias、航空券のsegment・並び順・時刻処理、候補数制限は領域内に保持します。既存の変換挙動は変更していません。
 
 検索Serviceと`ApifySearchFactory`は領域別Normalizerを直接使います。旧`ApifyResponseNormalizer`は既存呼出との互換用に委譲だけを残し、同じfixtureで両経路を検証します。ホテルの予約リンク・航空会社metadataなど後段で追加するkeyは既存ServiceテストとHTML契約で保護します。
 
-残作業: 航空券・目的地候補の匿名化した実responseを追加し、現行Actorとの適合を確認すること。今回外部APIは呼び出しておらず、合成fixtureを実responseとして扱っていません。
+分離したホテル候補の実response検証も2026-09-15に対応済みです。`docs/destination.json` の全5件を匿名化したfixtureで、keywordのみの候補と座標付き候補の7出力key・値・型・順序を検証しました。欠損値・null・空配列・未知field・件数制限のテストも追加し、Normalizerの修正は不要でした。航空券候補用のApify JSONは不要です。実response契約は提供された例を対象とし、全Actor形式や外部APIの稼働を保証するものではありません。
 
 ### P1-6. フェリー地図のデータと表示責務を整理する（対応済み）
 
@@ -114,20 +136,11 @@ Controllerは`SearchPageBuilderInterface`と既存のcallable Action登録を受
 
 `node tests/browser.mjs`はNode.js 24、PHP、Chrome／Chromiumが必要です。GitHub Actionsにも追加しました。外部APIとの実通信や全ブラウザでの互換性検証は対象外です。
 
-## 4. P2: 整理候補
+## 4. P2の扱い
 
-1. Request間のCSRF、文字数、整数、厳密日付Validationを小さな共通部品へ寄せる。
-2. `FerryController`のJSON出力と`destinationSuggestions()`のJSON出力を共通Responseへ寄せ、`JSON_THROW_ON_ERROR`と失敗時statusを統一する。
-3. `HotelSearchService::addHotelCardLinks()`内外で重複する例外処理を一つの責任境界へ寄せる。
-4. `ApiCache`の期限切れfile・lock file・一時fileの清掃、容量上限、stale-if-errorを設計する。
-5. `ApiCache`の`monthlyLimit`／`usageFile`は現行の生成箇所から渡されず、実質未使用です。設定と運用要件を確認して接続または削除する。
-6. ホテル候補の`hotel_place_*`とNormalizerの`property_token`は取得・保持されますが、検索条件やViewで利用されません。将来用途を確認して契約を縮小する。
-7. `FlightCity::airportCandidates()`などの未使用methodを参照test付きで棚卸しする。Trip.com、Booking.com、ena、さくらトラベルの未表示処理と専用設定は削除済み。
-8. 一部ファイルだけにある`strict_types`と、圧縮された一行形式のService／Viewをproject規約として統一する。
-9. error logへrequest ID、機能名、外部service、HTTP status、例外classを付与し、同じ検索内の障害を追跡可能にする。
-10. migrationが今後増える段階で、適用順と適用済みversionを管理するrunnerの導入を検討する。現行migrationの既存DBへの適用は完了済み。
+P2の全10項目は先頭の残作業一覧へ統合しました。共通JSON Responseへの移行済み部分と、エンコード失敗時の未対応部分を分けて管理します。
 
-## 5. 仕様確認が必要な項目
+## 5. 確定仕様（再検討・追加実装は不要）
 
 ### 子供条件（仕様確定）
 
@@ -157,23 +170,24 @@ Controllerは`SearchPageBuilderInterface`と既存のcallable Action登録を受
 - 楽天障害をApifyホテル結果から隔離する方針、cacheのkey lockと一時file経由の書込、画像／航空会社logo fallbackは維持対象です。
 - フェリー会社IDと航路IDの所属をserver側で再検証しており、hidden fieldを信用していない点は維持対象です。
 
-## 7. 技術的負債 TOP 5
+## 7. 次に進める順序の提案
 
-1. `SearchController`／暗黙View state／単一`app.js`へ画面変更が集中している。
-2. 子供条件・ホテルの詳細リンク表記・フェリー履歴の対象外・フェリー情報の更新方針は仕様確定済み。
-3. Provider固有URL生成とActor response変換が大きなクラスへ集中している。
-4. cache清掃・容量上限・stale-if-errorがなく、長期運用時の制御が弱い。
-5. Controller／View／JavaScriptを通したbrowser testとActor実response fixtureがない。
+1. 実response検証は提供例について完了。以下の運用・障害時契約の整理へ進む。
+2. P2-4・P2-5: cache保持・容量・利用制限の運用要件を決める。
+3. P2-2・P2-9・P2-3: JSON失敗時の契約、ログ、例外処理の境界を整える。
+4. P2-1・P2-6〜P2-8: Validation、取得field、未使用method、書式を小さく整理する。
 
-## 8. 推奨順
+migration runnerは必要になった段階で検討します。
 
-```text
-Action／View Data／起動Factoryの境界整理
-→ Provider Builder／Normalizer分割
-→ app.jsとフェリー地図dataの分割
-→ 未使用code・設定・取得fieldの整理
-```
+## 8. 対応済み項目の要約
 
+| 対応範囲 | 現状 |
+|---|---|
+| P0-1〜P0-4 | DB baseline、履歴障害の分離、設定の管理分離、テスト基盤を整備済み。P0-3はユーザーの目視確認をもって完了。追加検証候補は各項目に記載 |
+| P1-1〜P1-4 | Action／Response、readonly View Model、領域別Factory、provider別URL Builderへ移行済み |
+| P1-5 | 分割・ホテル／航空券／ホテル目的地候補の実response契約・航空券DB候補の上限テストは完了 |
+| P1-6〜P1-7 | フェリー地図masterとJavaScriptの機能別moduleへ移行済み |
+| V1.9.2の仕様確認 | 子供条件、ホテル詳細リンク、フェリー履歴対象外、更新運用・免責・確認日表示を確定済み |
 ## 9. 機能追加・更新時の確認事項
 
 1. DB変更時はfresh installと既存DB migrationの両方を確認する。
@@ -181,8 +195,8 @@ Action／View Data／起動Factoryの境界整理
 3. Actor変更時は匿名化した実response fixtureでNormalizerとView keyを確認する。
 4. IATA／航空会社master変更時はApify入力、国内判定、集約、全航空券OTAを確認する。
 5. フェリーmaster変更時は会社候補、所属検証、地図座標、方向反転、予約先URLを確認する。
-6. Viewのclass、name、data属性変更時は`app.js`のselectorと履歴再入力を確認する。
+6. Viewのclass、name、data属性変更時は`public/assets/js/`の該当moduleと履歴再入力を確認し、browser testを実行する。
 7. 履歴列追加時はINSERT、SELECT、統合sort、View、data属性、再入力を確認する。
-8. 子供条件はprovider間で同一ではない。
-9. 「公式サイト」と表示するURLの出所とdomainを確認する。
+8. 子供は人数のみ・全員8歳の確定仕様を維持する。年齢入力・子供条件の制約表示は追加しない。
+9. Actor由来のホテルリンクは「詳細を見る」の表示を維持する。
 10. README、保守マニュアル、config example、schema／migration、実装を同じreleaseで同期する。

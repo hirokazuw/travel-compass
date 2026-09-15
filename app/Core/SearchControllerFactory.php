@@ -17,6 +17,7 @@ final class SearchControllerFactory
         $hotelAction = \App\Factories\HotelSearchFactory::create($history, $apify, $config['rakuten'] ?? [], $visitorId);
         $destinationAction = \App\Factories\HotelSearchFactory::suggestions($apify);
         $ferryAction = \App\Factories\FerrySearchFactory::create($db);
+        $flightSuggestions = new \App\Actions\FlightCitySuggestionsAction(new \App\Models\FlightCity($db));
         return new \App\Controllers\SearchController(
             [
                 'flight' => $flightAction->handle(...),
@@ -24,6 +25,7 @@ final class SearchControllerFactory
                 'ferry' => $ferryAction->handle(...),
             ],
             [
+                'flight_city_suggestions' => $flightSuggestions->handle(...),
                 'hotel_destination_suggestions' => $destinationAction->handle(...),
                 'ferry_company_suggestions' => $ferryAction->companySuggestions(...),
                 'ferry_company_routes' => $ferryAction->companyRoutes(...),

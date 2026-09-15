@@ -21,7 +21,8 @@ final class FlightSearchViewData
         public readonly array $flightOffers = [],
         public readonly string $flightOffersStatus = 'idle',
         public readonly bool $isDomesticFlight = false,
-        public readonly string $activeFlightScope = 'domestic'
+        public readonly string $activeFlightScope = 'domestic',
+        public readonly array $cityLabels = []
     ) {}
 
     public function message(): string

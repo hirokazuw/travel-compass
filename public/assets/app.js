@@ -4,6 +4,7 @@ window.addEventListener('pageshow', () => { pageAlreadyShown = true; }, { once: 
 const version = new URL(import.meta.url).search;
 const features = [
     ['tabs', 'initTabs'],
+    ['flight-suggestions', 'initFlightSuggestions'],
     ['hotel-suggestions', 'initHotelSuggestions'],
     ['results', 'initResults'],
     ['ferry-search', 'initFerrySearch'],
