@@ -1,10 +1,20 @@
 # Travel Compass
 
-Version 1.9.2
+Version 1.9.3
 
 **Travel Compass** は、PHP 8 / MySQLで開発した旅行検索Webアプリケーションです。
 
 航空券・ホテルを一つの画面から検索し、複数の旅行予約サービスを比較・利用できるようにしています。
+
+## V1.9.3
+
+航空券の出発地・目的地に、既存の`iata_cities`を使うオートコンプリートを追加しました。日本語都市名・英語都市名・IATAコードで検索し、最大8件を表示します。クリックとキーボードで選択できます。
+
+フォーム・検索結果・検索履歴は「東京（TYO）」のように表示し、検索サービスへ渡すIATAコードと履歴へ保存する表示文字列を分離しました。履歴からの再検索にも対応しています。Apifyへの既存の都市圏コード展開・航空券検索処理は維持しています。
+
+航空券とホテル目的地候補の実レスポンス由来fixtureを追加し、Normalizerの出力契約を検証しました。候補件数上限のテストも追加しています。P1-5と別課題のホテル候補検証、ユーザー目視確認によるP0-3の完了を評価表へ反映しました。
+
+配備時は変更した`app/`、`public/assets/app.js`、`public/assets/app.css`、`public/assets/js/`を反映し、環境側の`config/config.php`の`app.version`を`1.9.3`へ更新してください。DB schemaの変更・migrationはありません。提供された元レスポンスJSONは本番配備に不要です。
 
 ## V1.9.2
 
@@ -160,7 +170,7 @@ Request、response正規化、URL生成、IATA、航空会社集約、ホテル�
 
 Controllerの単体テストではcallable Actionと`SearchPageBuilderInterface`のfakeを注入し、`handle()`が返すResponseを検証します。Factoryのリクエスト内依存共有と領域別cache設定も通常テストに含みます。
 
-Normalizerの入力fixtureと期待出力は`tests/fixtures/normalizers/`にあります。通常テストで領域別クラスと旧互換窓口のkey・値・型・順序を照合します。ホテルは匿名化したローカル実response由来、航空券・目的地候補は合成fixtureです。後者の実response補完は残作業です。
+Normalizerの入力fixtureと期待出力は`tests/fixtures/normalizers/`にあります。通常テストで領域別クラスと旧互換窓口のkey・値・型・順序を照合します。ホテル・航空券・ホテル目的地候補は匿名化した実response由来fixtureで検証し、合成fixtureも境界条件の検証用に維持しています。
 
 `tests/view-contract.php`は12ケースの描画結果をP1-2変更前のHTML契約と照合します。asset version・年・改行コード以外は一致が必要です。意図的にHTMLを変更した場合だけ、出力の差分を確認してから`php tests/view-contract.php --record`で契約を更新してください。Viewはreadonlyの`SearchPageViewModel`を受け取り、partialにも明示的に渡します。
 

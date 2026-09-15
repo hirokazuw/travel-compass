@@ -13,7 +13,7 @@ final class SearchPageBuilder implements SearchPageBuilderInterface
         bool $isPost,
         string $csrfToken
     ): SearchPageViewModel {
-        $appVersion = $this->config['app']['version'] ?? '1.9.2';
+        $appVersion = $this->config['app']['version'] ?? '1.9.3';
         $publicPath = dirname(__DIR__, 2) . '/public/assets/';
         return new SearchPageViewModel(
             flight: $state instanceof FlightSearchViewData ? $state : new FlightSearchViewData(),
