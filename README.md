@@ -1,10 +1,22 @@
 # Travel Compass
 
-Version 1.9.3
+Version 1.9.4
 
 **Travel Compass** は、PHP 8 / MySQLで開発した旅行検索Webアプリケーションです。
 
 航空券・ホテルを一つの画面から検索し、複数の旅行予約サービスを比較・利用できるようにしています。
+
+## V1.9.4
+
+2026-09-24。RequestのValidation共通化、JSONエンコード失敗時のHTTP 500応答統一、ホテルカードリンクの例外境界整理、検索単位の共通JSONログを導入しました。未使用の月次利用制限、ホテル目的地メタデータ、`property_token`、`airportCandidates()`を削除し、Apify関連4クラスの書式を整理しました。
+
+Apifyキャッシュはディレクトリごとに既定100 MiB・1,000件まで保存します。期限切れ結果は外部API障害時にも利用しません。ロックを保護する清掃CLIを追加しました。画面の見出し・利用案内とSEO設定の整備も含みます。
+
+配備時は`app/`、`public/assets/`、`bin/prune-cache.php`を反映し、環境側の`config/config.php`の`app.version`を`1.9.4`へ更新してください。環境固有の認証情報を含む設定全体をexampleで上書きしないでください。キャッシュ容量設定は未指定でも既定値が適用されます。`php bin/prune-cache.php --dry-run`で確認後、`--apply`の毎時実行を登録してください。DB schemaの変更・migrationはありません。
+
+この記録はローカルのリリース更新です。本番配備・cron登録・外部API実通信・MySQL baseline検証は実施していません。Git操作も行っていません。
+
+検証結果: 通常テスト61件、HTTP characterization、HTML契約12ケース、航空券URL golden 10ケース、Chromeのブラウザ契約9領域、PHP104ファイルの構文検査が成功しました。
 
 ## V1.9.3
 
