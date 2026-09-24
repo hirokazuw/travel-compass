@@ -170,6 +170,8 @@ Request、response正規化、URL生成、IATA、航空会社集約、ホテル�
 
 Controllerの単体テストではcallable Actionと`SearchPageBuilderInterface`のfakeを注入し、`handle()`が返すResponseを検証します。Factoryのリクエスト内依存共有と領域別cache設定も通常テストに含みます。
 
+Apifyキャッシュはディレクトリごとに既定100 MiB・1,000件まで保存し、期限切れ結果は障害時にも使用しません。`php bin/prune-cache.php --dry-run`で清掃予定を確認し、`--apply`を1時間ごとに定期実行してください。設定・ロック保護・容量の対象範囲は[保守マニュアル](docs/maintenance-manual.md#9-apifyキャッシュの保持清掃)を参照してください。
+
 Normalizerの入力fixtureと期待出力は`tests/fixtures/normalizers/`にあります。通常テストで領域別クラスと旧互換窓口のkey・値・型・順序を照合します。ホテル・航空券・ホテル目的地候補は匿名化した実response由来fixtureで検証し、合成fixtureも境界条件の検証用に維持しています。
 
 `tests/view-contract.php`は12ケースの描画結果をP1-2変更前のHTML契約と照合します。asset version・年・改行コード以外は一致が必要です。意図的にHTMLを変更した場合だけ、出力の差分を確認してから`php tests/view-contract.php --record`で契約を更新してください。Viewはreadonlyの`SearchPageViewModel`を受け取り、partialにも明示的に渡します。

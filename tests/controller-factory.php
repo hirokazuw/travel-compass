@@ -117,14 +117,19 @@ $t->test('Apify factory shares client and selects domain normalizers with separa
         $cache = dependency($service, 'cache');
         $t->same('/fixture/storage/cache/apify/' . $path, dependency($cache, 'directory'));
         $t->same($ttl, dependency($cache, 'ttl'));
+        $t->same(104857600, dependency($cache, 'maxBytes'));
+        $t->same(1000, dependency($cache, 'maxEntries'));
     }
     $factory = new App\Factories\ApifySearchFactory([
         'flight_cache_dir' => '/custom/f', 'hotel_cache_dir' => '/custom/h', 'places_cache_dir' => '/custom/p',
         'cache_ttl' => -5, 'places_cache_ttl' => 42,
+        'cache_max_bytes' => 2048, 'cache_max_entries' => 3,
     ], '/fixture');
     foreach ([[$factory->flight(), '/custom/f', 0], [$factory->hotel(), '/custom/h', 0], [$factory->destination(), '/custom/p', 42]] as [$service, $path, $ttl]) {
         $cache = dependency($service, 'cache');
         $t->same($path, dependency($cache, 'directory'));
         $t->same($ttl, dependency($cache, 'ttl'));
+        $t->same(2048, dependency($cache, 'maxBytes'));
+        $t->same(3, dependency($cache, 'maxEntries'));
     }
 });

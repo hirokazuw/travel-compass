@@ -9,14 +9,13 @@ final class ApiCache
     public function __construct(
         private string $directory,
         private int $ttl,
-        private int $monthlyLimit = 0,
-        private string $usageFile = ''
+        private int $maxBytes = 104857600,
+        private int $maxEntries = 1000
     ) {}
 
     public function remember(array $query, callable $fetch): array
     {
         if ($this->ttl <= 0 || !$this->ensureDirectory()) {
-            $this->reserveUsage();
             return $fetch();
         }
 
@@ -44,43 +43,12 @@ final class ApiCache
                 return $cached;
             }
 
-            $this->reserveUsage();
             $value = $fetch();
             $this->write($cacheFile, $value);
             return $value;
         } finally {
             flock($lock, LOCK_UN);
             fclose($lock);
-        }
-    }
-
-    private function reserveUsage(): void
-    {
-        if ($this->monthlyLimit <= 0 || $this->usageFile === '') return;
-        $directory = dirname($this->usageFile);
-        if (!is_dir($directory) && !@mkdir($directory, 0775, true) && !is_dir($directory)) {
-            throw new \RuntimeException('API usage counter directory is not writable.');
-        }
-        $handle = @fopen($this->usageFile, 'c+');
-        if ($handle === false || !flock($handle, LOCK_EX)) {
-            if (is_resource($handle)) fclose($handle);
-            throw new \RuntimeException('API usage counter is not writable.');
-        }
-        try {
-            rewind($handle);
-            $stored = json_decode((string)stream_get_contents($handle), true);
-            $month = date('Y-m');
-            $count = is_array($stored) && ($stored['month'] ?? '') === $month ? (int)($stored['count'] ?? 0) : 0;
-            if ($count >= $this->monthlyLimit) {
-                throw new \RuntimeException('API monthly safety limit reached.');
-            }
-            ftruncate($handle, 0);
-            rewind($handle);
-            fwrite($handle, json_encode(['month' => $month, 'count' => $count + 1]));
-            fflush($handle);
-        } finally {
-            flock($handle, LOCK_UN);
-            fclose($handle);
         }
     }
 
@@ -114,16 +82,122 @@ final class ApiCache
             'data' => $value,
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-        if ($encoded === false) return;
-
-        $temporary = $file . '.' . bin2hex(random_bytes(6)) . '.tmp';
-        if (@file_put_contents($temporary, $encoded, LOCK_EX) === false) return;
-
-        // Windows cannot atomically replace an existing file with rename().
-        if (is_file($file)) @unlink($file);
-        if (!@rename($temporary, $file)) {
-            @unlink($temporary);
+        if ($encoded === false || strlen($encoded) > $this->maxBytes || $this->maxEntries <= 0) return;
+        $lock = $this->maintenanceLock();
+        if ($lock === false) return; // Cache contention must not fail a successful API response.
+        try {
+            if (is_link($file)) return;
+            $key = basename($file, '.json');
+            // Reserve space before writing. The caller already holds this key's lock.
+            $report = $this->pruneLocked(false, $key, strlen($encoded), 1);
+            if ($report['bytes'] + strlen($encoded) > $this->maxBytes
+                || $report['entries'] + 1 > $this->maxEntries) return;
+            $temporary = $file . '.' . bin2hex(random_bytes(6)) . '.tmp';
+            $written = @file_put_contents($temporary, $encoded, LOCK_EX);
+            if ($written !== strlen($encoded)) {
+                @unlink($temporary);
+                return;
+            }
+            // Windows cannot atomically replace an existing file with rename().
+            if (is_file($file)) @unlink($file);
+            if (!@rename($temporary, $file)) @unlink($temporary);
+        } catch (\Throwable $e) {
+            \App\Core\RequestLog::failure('cache.maintenance', $e);
+        } finally {
+            flock($lock, LOCK_UN);
+            fclose($lock);
         }
+    }
+
+    /** Dry-run is the default. Only recognized cache files directly inside the directory are eligible. */
+    public function prune(bool $dryRun = true): array
+    {
+        if (!is_dir($this->directory)) return $this->emptyReport();
+        $lock = $this->maintenanceLock();
+        if ($lock === false) return array_replace($this->emptyReport(), ['busy' => true]);
+        try {
+            return $this->pruneLocked($dryRun);
+        } finally {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+        }
+    }
+
+    private function emptyReport(): array
+    {
+        return ['removed' => 0, 'bytes' => 0, 'entries' => 0, 'skipped' => 0, 'busy' => false];
+    }
+
+    private function maintenanceLock()
+    {
+        $path = $this->directory . DIRECTORY_SEPARATOR . '.maintenance.lock';
+        if (is_link($path)) return false;
+        $lock = @fopen($path, 'c');
+        if ($lock === false) return false;
+        if (!flock($lock, LOCK_EX | LOCK_NB)) {
+            fclose($lock);
+            return false;
+        }
+        return $lock;
+    }
+
+    private function pruneLocked(bool $dryRun, ?string $heldKey = null, int $reservedBytes = 0, int $reservedEntries = 0): array
+    {
+        $report = $this->emptyReport();
+        $files = [];
+        $now = time();
+        foreach (new \DirectoryIterator($this->directory) as $entry) {
+            if ($entry->isLink() || !$entry->isFile()
+                || !preg_match('/^([a-f0-9]{64})\.json(?:\.[a-f0-9]{12}\.tmp)?$/D', $entry->getFilename(), $match)) continue;
+            $path = $entry->getPathname();
+            $temporary = str_ends_with($path, '.tmp');
+            $expired = $temporary ? $entry->getMTime() <= $now - 3600 : false;
+            if (!$temporary) {
+                $raw = @file_get_contents($path);
+                $stored = $raw === false ? null : json_decode($raw, true);
+                $expired = !is_array($stored) || !isset($stored['expires_at'], $stored['data'])
+                    || !is_array($stored['data']) || (int)$stored['expires_at'] <= $now;
+                // The replacement is accounted for by reservedBytes/reservedEntries.
+                if ($match[1] === $heldKey) continue;
+                $report['bytes'] += $entry->getSize();
+                $report['entries']++;
+            }
+            $files[] = ['path' => $path, 'key' => $match[1], 'size' => $entry->getSize(),
+                'mtime' => $entry->getMTime(), 'temporary' => $temporary, 'expired' => $expired];
+        }
+        // Expired/corrupt entries first, then oldest writes (not access-based LRU).
+        usort($files, static fn(array $a, array $b): int =>
+            [$a['expired'] ? 0 : 1, $a['mtime'], $a['path']] <=> [$b['expired'] ? 0 : 1, $b['mtime'], $b['path']]);
+        foreach ($files as $file) {
+            $overLimit = $report['bytes'] + $reservedBytes > max(0, $this->maxBytes)
+                || $report['entries'] + $reservedEntries > max(0, $this->maxEntries);
+            if (!$file['expired'] && ($file['temporary'] || !$overLimit)) continue;
+            $keyLock = null;
+            if ($file['key'] !== $heldKey) {
+                $lockPath = $this->directory . DIRECTORY_SEPARATOR . $file['key'] . '.lock';
+                if (is_link($lockPath)) { $report['skipped']++; continue; }
+                $keyLock = @fopen($lockPath, 'c');
+                if ($keyLock === false || !flock($keyLock, LOCK_EX | LOCK_NB)) {
+                    if (is_resource($keyLock)) fclose($keyLock);
+                    $report['skipped']++;
+                    continue;
+                }
+            }
+            try {
+                if (is_link($file['path']) || (!$dryRun && !@unlink($file['path']))) {
+                    $report['skipped']++;
+                    continue;
+                }
+                $report['removed']++;
+                if (!$file['temporary']) {
+                    $report['bytes'] -= $file['size'];
+                    $report['entries']--;
+                }
+            } finally {
+                if (is_resource($keyLock)) { flock($keyLock, LOCK_UN); fclose($keyLock); }
+            }
+        }
+        return $report;
     }
 
     private function sortRecursively(array &$value): void

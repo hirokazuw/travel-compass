@@ -55,7 +55,7 @@ final class FerrySearchAction
                 ferryStatus: 'success',
             );
         } catch (\Throwable $e) {
-            error_log('Ferry route search: ' . $e->getMessage());
+            \App\Core\RequestLog::failure('ferry.search', $e);
             return new FerrySearchViewData(ferryValues: $values, ferryRouteOptions: $options, ferryStatus: 'error');
         }
     }
@@ -69,7 +69,7 @@ final class FerrySearchAction
         try {
             return new JsonResponse(['suggestions' => $this->companies->suggestActive($query)]);
         } catch (\Throwable $e) {
-            error_log('Ferry company suggestions: ' . $e->getMessage());
+            \App\Core\RequestLog::failure('ferry.suggestions', $e);
             return new JsonResponse(['suggestions' => []], 500);
         }
     }
@@ -86,7 +86,7 @@ final class FerrySearchAction
             }
             return new JsonResponse(['routes' => $this->routes->findActiveOptionsByCompany((int)$companyId)]);
         } catch (\Throwable $e) {
-            error_log('Ferry company routes: ' . $e->getMessage());
+            \App\Core\RequestLog::failure('ferry.routes', $e);
             return new JsonResponse(['routes' => []], 500);
         }
     }
@@ -99,7 +99,7 @@ final class FerrySearchAction
         try {
             return new JsonResponse($this->map->data());
         } catch (\Throwable $e) {
-            error_log('Ferry map data: ' . $e->getMessage());
+            \App\Core\RequestLog::failure('ferry.map', $e);
             return new JsonResponse(['routes' => []], 500);
         }
     }

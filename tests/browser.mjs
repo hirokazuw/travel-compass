@@ -31,7 +31,7 @@ let child;
 try {
     const url = `http://127.0.0.1:${server.address().port}/`;
     child = spawn(browser, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-background-networking',
-        `--user-data-dir=${profile}`, '--dump-dom', '--virtual-time-budget=10000', url], { windowsHide: true });
+        `--user-data-dir=${profile}`, `--window-size=${process.env.BROWSER_WINDOW_SIZE || '1280,900'}`, '--dump-dom', '--virtual-time-budget=10000', url], { windowsHide: true });
     let output = '';
     let errors = '';
     child.stdout.on('data', (data) => { output += data; });

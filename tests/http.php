@@ -58,6 +58,10 @@ try {
     check(str_contains($headers, '200 OK'), 'Unconfigured hotel HTTP status');
     check(str_contains($body, 'ホテル検索を一時的に利用できません。'), 'Unconfigured hotel message');
     check(str_contains($body, 'id="hotel-tab" role="tab" aria-selected="true"'), 'Unconfigured hotel active tab');
+    [$headers, $body] = request('POST', ['search_type' => 'fixture_json_encoding_failure']);
+    check(str_contains($headers, '500 Internal Server Error'), 'JSON encoding failure status');
+    check(str_contains($headers, 'Content-Type: application/json; charset=UTF-8'), 'JSON encoding failure content type');
+    check($body === '{"message":"応答データを生成できませんでした。"}', 'JSON encoding failure body');
     echo "HTTP characterization passed\n";
 } finally {
     proc_terminate($process);

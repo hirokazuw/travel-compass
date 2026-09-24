@@ -19,7 +19,7 @@ window.fetch = async (_url, options) => {
     if (data.csrf !== 'browser-token') throw new Error('Missing CSRF');
     const payload = {
         flight_city_suggestions: { suggestions: [{ label: data.query === 'SEL' ? 'ソウル（SEL）' : '東京（TYO）', iata: data.query === 'SEL' ? 'SEL' : 'TYO' }] },
-        hotel_destination_suggestions: { suggestions: [{ name: 'Tokyo Hotel', place_id: 'place-1', address: 'Tokyo', latitude: 35, longitude: 139, country_code: 'JP' }] },
+        hotel_destination_suggestions: { suggestions: [{ name: 'Tokyo Hotel', category: 'hotel', address: 'Tokyo' }] },
         ferry_company_suggestions: { suggestions: [{ id: 1, name: 'Fixture Ferry' }] },
         ferry_company_routes: { routes: [{ id: 2, label: '東京港 → 徳島港' }] },
         ferry_map_data: { routes: [route] },
@@ -36,6 +36,17 @@ const key = (element, name) => element.dispatchEvent(new KeyboardEvent('keydown'
 ready.then(async () => {
     const passed = [];
     try {
+        const heading = $('.search-introduction h1');
+        check(document.querySelectorAll('h1').length === 1, 'single H1');
+        for (const element of [heading, $('.search-introduction p')]) {
+            const rect = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            check(rect.width > 100 && rect.height > 16 && style.visibility === 'visible' && style.display !== 'none', 'visible introduction');
+            check(rect.left >= 0 && rect.right <= window.innerWidth, 'introduction fits viewport');
+        }
+        check($('.hero-visual').getBoundingClientRect().bottom <= heading.getBoundingClientRect().top, 'heading follows image');
+        check($('.search-introduction').getBoundingClientRect().bottom <= $('.panel').getBoundingClientRect().top, 'form follows introduction');
+        passed.push('visible heading');
         $('#hotel-tab').click();
         check(!$('#hotel-panel').hidden && $('#flight-panel').hidden, 'main tab panels');
         check($('#hotel-tab').getAttribute('aria-selected') === 'true', 'tab ARIA');
@@ -74,7 +85,8 @@ ready.then(async () => {
         check(!hotel.querySelector('.hotel-place-suggestions').hidden, 'hotel suggestions');
         key(hotel.elements.hotel_destination, 'ArrowDown');
         key(hotel.elements.hotel_destination, 'Enter');
-        check(hotel.elements.hotel_place_id.value === 'place-1', 'hotel selection metadata');
+        check(hotel.elements.hotel_destination.value === 'Tokyo Hotel', 'hotel selection name');
+        check(![...new FormData(hotel).keys()].some((name) => name.startsWith('hotel_place_')), 'unused hotel metadata is not submitted');
         const calls = requests.length;
         input(hotel.elements.hotel_destination, 'Tokyo');
         await sleep(500);
@@ -82,7 +94,7 @@ ready.then(async () => {
         key(hotel.elements.hotel_destination, 'Escape');
         check(hotel.querySelector('.hotel-place-suggestions').hidden, 'escape suggestions');
         input(hotel.elements.hotel_destination, 'T');
-        check(hotel.elements.hotel_place_id.value === '', 'clear metadata');
+        check(hotel.elements.hotel_destination.value === 'T' && hotel.querySelector('.hotel-place-suggestions').hidden, 'manual edit closes suggestions');
         passed.push('hotel suggestions');
 
         $('#ferry-tab').click();

@@ -25,6 +25,15 @@ foreach (viewFixtures() as $name => [$isPost, $state]) {
     ob_start();
     (new App\Http\SearchHtmlResponse($data))->send();
     $html = ob_get_clean();
+    if (str_contains($html, 'name="hotel_place_')) throw new RuntimeException('Unused hotel metadata fields must not be rendered');
+    if (preg_match_all('/<h1\b/i', $html) !== 1 || !str_contains($html, '<h1>航空券・ホテル・フェリーを探す</h1>')) {
+        throw new RuntimeException('Initial HTML must contain exactly one search heading');
+    }
+    // These paragraphs must exist in the server response, without running JavaScript.
+    foreach (['Travel Compassでできること', '使い方', '情報の取得・更新方針',
+        '最終的な料金、空席・空室、予約条件は遷移先の予約サイトでご確認ください。'] as $text) {
+        if (!str_contains($html, $text)) throw new RuntimeException('Missing initial HTML guide: ' . $text);
+    }
     // P1-7 intentionally changes only the application script loading mode.
     if (!str_contains($html, '<script type="module" src="public/assets/app.js?v=')) {
         throw new RuntimeException('Application entry must load as an ES module');

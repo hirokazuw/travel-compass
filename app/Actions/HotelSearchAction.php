@@ -47,19 +47,16 @@ final class HotelSearchAction
                         $rakutenHotelMatches
                     );
                 } catch (\Throwable $e) {
-                    error_log('Rakuten hotel link search: ' . $e->getMessage());
+                    \App\Core\RequestLog::failure('hotel.rakuten_links', $e, 'rakuten');
                 }
             }
-            try {
-                $hotels = $this->hotelSearch->addHotelCardLinks(
-                    $hotels, $destination,
-                    $request->values['check_in_date'], $request->values['check_out_date'],
-                    $request->adults, $request->children, $request->scope === 'domestic',
-                    $request->scope === 'domestic' ? $rakutenHotelMatches : null
-                );
-            } catch (\Throwable $e) {
-                error_log('Hotel card link generation: ' . $e->getMessage());
-            }
+            // The service isolates card failures; unexpected whole-operation failures reach the outer catch.
+            $hotels = $this->hotelSearch->addHotelCardLinks(
+                $hotels, $destination,
+                $request->values['check_in_date'], $request->values['check_out_date'],
+                $request->adults, $request->children, $request->scope === 'domestic',
+                $request->scope === 'domestic' ? $rakutenHotelMatches : null
+            );
             return new HotelSearchViewData(hotelValues: $request->values, activeHotelScope: $request->scope,
                 hotels: $hotels,
                 rakutenHotelLinks: $rakutenHotelLinks,
@@ -70,7 +67,7 @@ final class HotelSearchAction
                 ),
             );
         } catch (\Throwable $e) {
-            error_log('Apify hotel search: ' . $e->getMessage());
+            \App\Core\RequestLog::failure('hotel.search', $e, 'apify');
             return new HotelSearchViewData(hotelValues: $request->values, activeHotelScope: $request->scope, hotelStatus: 'error');
         }
     }
@@ -80,7 +77,7 @@ final class HotelSearchAction
         try {
             $this->searchHistory->createHotel($values, $this->visitorId);
         } catch (\Throwable $e) {
-            error_log('Hotel search history write: ' . $e->getMessage());
+            \App\Core\RequestLog::failure('hotel.history_write', $e);
         }
     }
 

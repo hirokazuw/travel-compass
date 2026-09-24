@@ -19,7 +19,7 @@ final class FlightCitySuggestionsAction
         try {
             return new JsonResponse(['suggestions' => $this->cities->suggest($query)]);
         } catch (\Throwable $e) {
-            error_log('Flight city suggestions: ' . $e->getMessage());
+            \App\Core\RequestLog::failure('flight.suggestions', $e);
             return new JsonResponse(['suggestions' => [], 'message' => '候補を取得できませんでした。都市名またはIATAコードを直接入力できます。'], 503);
         }
     }

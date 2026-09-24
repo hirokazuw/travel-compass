@@ -18,14 +18,14 @@ use App\Views\SearchView;
 <meta property="og:image" content="<?= SearchView::escape($page->seo['ogImageUrl']) ?>">
 <meta property="og:image:width" content="1730">
 <meta property="og:image:height" content="909">
-<meta property="og:image:alt" content="Travel Compassの航空券・ホテル比較サービス">
+<meta property="og:image:alt" content="Travel Compassの旅行検索サービス">
 <meta property="og:site_name" content="<?= SearchView::escape($page->appName) ?>">
 <meta property="og:locale" content="ja_JP">
 <meta name="twitter:card" content="<?= SearchView::escape($page->seo['twitterCard']) ?>">
 <meta name="twitter:title" content="<?= SearchView::escape($page->seo['title']) ?>">
 <meta name="twitter:description" content="<?= SearchView::escape($page->seo['description']) ?>">
 <meta name="twitter:image" content="<?= SearchView::escape($page->seo['ogImageUrl']) ?>">
-<meta name="twitter:image:alt" content="Travel Compassの航空券・ホテル比較サービス">
+<meta name="twitter:image:alt" content="Travel Compassの旅行検索サービス">
 <meta name="csrf-token" content="<?= SearchView::escape($page->csrfToken) ?>">
 <script type="application/ld+json"><?= $page->seo['structuredData'] ?></script>
 <link rel="stylesheet" href="public/assets/app.css?v=<?= SearchView::escape($page->cssVersion) ?>">
@@ -35,19 +35,19 @@ use App\Views\SearchView;
 <p class="affiliate-disclosure">広告・PRを含みます</p>
 <section class="hero hero-visual">
 <img src="public/assets/og-travel-compass.png" width="1730" height="909" alt="" aria-hidden="true" fetchpriority="high">
-<div class="visually-hidden">
-<small>PLAN YOUR NEXT JOURNEY</small>
-<h1>旅の比較を、ひとつの画面から。</h1>
-<p>条件を入力して、航空券やホテルの候補を比較できます。</p>
-</div>
 </section>
+<div class="search-introduction">
+<h1>航空券・ホテル・フェリーを探す</h1>
+<p>探したいものを選んで、行き先や日程などの条件を指定してください。</p>
+</div>
 <?php echo SearchView::render($page, 'partials/search-panel'); ?>
 <?php echo SearchView::render($page, 'partials/flight-results'); ?>
 <?php echo SearchView::render($page, 'partials/hotel-results'); ?>
 <?php echo SearchView::render($page, 'partials/ferry-results'); ?>
 <?php echo SearchView::render($page, 'partials/recent-searches'); ?>
+<?php echo SearchView::render($page, 'partials/service-guide'); ?>
 <?php echo SearchView::render($page, 'partials/search-loading'); ?>
-</main><footer class="site-footer"><div class="site-footer-inner"><div><strong>✈ <?= SearchView::escape($page->appName) ?></strong><p>Travel Compass（トラベルコンパス）は、航空券とホテルを比較できる旅行検索サービスです。</p></div><div class="site-footer-credit"><span>Created by Hirokazu WATABE · v<?= SearchView::escape($page->appVersion) ?></span><small>© <?= date('Y') ?> Hirokazu WATABE</small></div></div></footer><script src="//statics.a8.net/a8link/a8linkmgr.js"></script><script>
+</main><footer class="site-footer"><div class="site-footer-inner"><div><strong>✈ <?= SearchView::escape($page->appName) ?></strong><p>Travel Compass（トラベルコンパス）は、航空券・ホテルの比較とフェリー航路検索ができる旅行検索サービスです。</p></div><div class="site-footer-credit"><span>Created by Hirokazu WATABE · v<?= SearchView::escape($page->appVersion) ?></span><small>© <?= date('Y') ?> Hirokazu WATABE</small></div></div></footer><script src="//statics.a8.net/a8link/a8linkmgr.js"></script><script>
 a8linkmgr({
   "config_id": "mENmBoJBInmbobSt2c0A"
 });

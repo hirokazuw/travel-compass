@@ -134,7 +134,7 @@ search-panel.php → app.js → POST
 
 環境変数は`DB_DSN`, `DB_USER`, `DB_PASSWORD`, `APIFY_TOKEN`, `RAKUTEN_APPLICATION_ID`, `RAKUTEN_ACCESS_KEY`, `RAKUTEN_AFFILIATE_ID`, `RAKUTEN_REFERER`です。
 
-Scrape.do、SerpAPI、Travelpayouts、Trip.com、Booking.com、ena、さくらトラベルの実装はありません。残骸候補は`travel_searches`、`hotel_place_*`です。
+Scrape.do、SerpAPI、Travelpayouts、Trip.com、Booking.com、ena、さくらトラベルの実装はありません。残骸候補は`travel_searches`です。未使用の`hotel_place_*`と`property_token`の保持処理は削除済みです。
 
 ## 6. Frontend
 
@@ -169,8 +169,33 @@ GETは`index, follow`、POSTはmetaとX-Robots-Tagで`noindex, follow`です。
 
 初動順は、PHP log → 設定 → status → Service → 外部API → DB/cache → View → Browser Consoleです。履歴のINSERT／SELECT失敗は機能別にlogへ残し、検索・画面描画は継続します。楽天障害は画面に出ずlogだけに残ります。
 
-## 9. 自動テスト
+検索処理のログは共通JSON形式です。`request_id`で同じ検索の行を絞り、`event`・`external_service`・`http_status`・`response_status`・`exception_class`を確認してください。例外メッセージや入力値は記録しません。詳細と対象範囲は[検索ログの方針](request-logging.md)を参照してください。
 
-`php tests/run.php`で、外部APIと本番設定を使わない契約testを実行します。Request、Normalizer、URL Builder、IATA、航空会社集約、ホテル名寄せ、フェリーModel／Service、baseline構成が対象です。
+## 9. Apifyキャッシュの保持・清掃
+
+有効期間は航空券・ホテルが既定1時間（`apify.cache_ttl`）、目的地候補が15分（`apify.places_cache_ttl`）です。**期限切れデータは外部API障害時にも利用しません。** 期限切れ後は再取得し、失敗時は既存の検索エラー応答になります。TTLを0以下にするとキャッシュを読み書きしません。
+
+各キャッシュディレクトリのJSONデータに対し、既定で100 MiB（`apify.cache_max_bytes`）・1,000件（`apify.cache_max_entries`）の両方を上限とします。設定は3種類に共通で、集計・適用はディレクトリ単位です。上限0は新規保存を停止します。上限より大きい応答、清掃ロック競合時、使用中ファイルのため空きを確保できない場合もAPI取得結果は返し、保存だけを省略します。既存データが上限を超える場合は使用中キーを除いて削減し、残りは次の清掃へ持ち越します。
+
+保存時に期限切れ・破損JSONを除去し、必要なら書込日時の古いJSONから削除します（アクセス順のLRUではありません）。無アクセス時にも期限切れが残り続けないよう、次のコマンドを1時間ごとに実行してください。既定はdry-runです。本番の定期実行登録はこの変更には含めていません。
+
+```sh
+php bin/prune-cache.php --dry-run
+php bin/prune-cache.php --apply
+# cron例: PHPと配備先の絶対パスを実環境に合わせる
+0 * * * * /usr/bin/php /path/to/travel-compass/bin/prune-cache.php --apply
+```
+
+設定は通常の`.env`と`config/config.php`から読みます。DB・外部APIには接続しません。`removed`は削除数（dry-run時は予定数）、`bytes`／`entries`は清掃後のJSONデータ量（dry-run時は見込み）、`skipped`は使用中・削除失敗、`busy`は清掃ロック競合です。終了コードは0が完了、1が競合・スキップ・失敗（次回再試行）、2が引数・設定不足です。dry-runでも排他確認用の空ロックファイルを作る場合があります。
+
+清掃は設定ディレクトリ直下の`64桁の小文字16進数.json`と、その一時ファイル`64桁.json.12桁.tmp`だけを対象とし、再帰走査しません。シンボリックリンク、別名ファイル（`usage.json`など）、`.lock`は削除しません。一時ファイルは作成後1時間以上経過し、キーのロックが取れるものだけを削除します。JSON容量上限には一時ファイル・ロック・無関係なファイルを含めません。
+
+アプリ内の月次呼び出し回数制限は設けません。未使用だった利用回数カウンター処理は削除済みで、カウンターファイルの準備・月次リセット作業は不要です。
+
+キー単位のロックを削除すると、待機中プロセスと新しいプロセスが異なるファイルをロックする競合が起きるため、運転中は保持します。ロックファイルのinode／ディレクトリエントリは検索条件数に応じて増えます。ホストのファイル数も監視し、整理が必要な場合はWeb処理・清掃ジョブを停止し、待機中を含む全PHPワーカーの終了を確認した保守時間に行ってください。配備時も旧版ワーカーが残らないよう切り替えてください。キャッシュディレクトリはアプリ専用にし、他の利用者が書き換えられない権限で運用します。
+
+## 10. 自動テスト
+
+`php tests/run.php`で、外部APIと本番設定を使わない契約testを実行します。Request、Normalizer、URL Builder、IATA、航空会社集約、ホテル名寄せ、フェリーModel／Service、baseline構成、キャッシュ清掃・容量・並行取得・CLIが対象です。
 
 GitHub Actionsは全PHPファイルの構文検査と上記testに加え、MySQL 8の空DBへ`database/schema.sql`を適用し、table、master件数、フェリー外部キー、検索履歴dataが含まれないことを検査します。ローカルの`tests/mysql-baseline.php`は`TEST_DB_DSN`が未設定ならskipし、本番DBへ自動接続しません。

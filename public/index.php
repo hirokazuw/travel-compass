@@ -40,7 +40,7 @@ try {
 
 } catch (Throwable $e) {
 
-    error_log((string)$e);
+    \App\Core\RequestLog::failure('application.failed', $e);
 
     http_response_code(500);
 

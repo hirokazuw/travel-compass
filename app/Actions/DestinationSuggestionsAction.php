@@ -25,9 +25,9 @@ final class DestinationSuggestionsAction
             return new JsonResponse([
                 'suggestions' => $suggestions,
                 'message' => $suggestions === [] ? '候補が見つかりませんでした。手入力で検索できます。' : '',
-            ], 200, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+            ], 200, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         } catch (\Throwable $e) {
-            error_log('Apify destination suggestion search: ' . $e->getMessage());
+            \App\Core\RequestLog::failure('hotel.destination_suggestions', $e, 'apify');
             return new JsonResponse(['suggestions' => [], 'message' => '候補を取得できませんでした。手入力で検索できます。'], 502, JSON_UNESCAPED_UNICODE);
         }
     }

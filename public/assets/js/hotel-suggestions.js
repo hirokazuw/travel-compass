@@ -16,12 +16,6 @@ export function initHotelSuggestions(document = globalThis.document) {
         let requestNumber = 0;
         let activeIndex = -1;
 
-        const clearPlaceMetadata = () => {
-            ['hotel_place_id', 'hotel_place_address', 'hotel_place_latitude', 'hotel_place_longitude', 'hotel_place_country'].forEach((name) => {
-                if (form.elements[name]) form.elements[name].value = '';
-            });
-        };
-
         const closeSuggestions = () => {
             suggestions.hidden = true;
             input.setAttribute('aria-expanded', 'false');
@@ -30,11 +24,6 @@ export function initHotelSuggestions(document = globalThis.document) {
 
         const selectSuggestion = (item) => {
             input.value = item.name || input.value;
-            form.elements.hotel_place_id.value = item.place_id || '';
-            form.elements.hotel_place_address.value = item.address || '';
-            form.elements.hotel_place_latitude.value = item.latitude ?? '';
-            form.elements.hotel_place_longitude.value = item.longitude ?? '';
-            form.elements.hotel_place_country.value = item.country_code || '';
             closeSuggestions();
             status.textContent = `${input.value}を選択しました。`;
             input.focus();
@@ -98,7 +87,6 @@ export function initHotelSuggestions(document = globalThis.document) {
         };
 
         input.addEventListener('input', () => {
-            clearPlaceMetadata();
             clearTimeout(debounceTimer);
             requestController?.abort();
             requestNumber++;

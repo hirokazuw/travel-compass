@@ -5,6 +5,10 @@ spl_autoload_register(static function (string $class) use ($root): void {
     if (str_starts_with($class, 'App\\')) require $root . '/app/' . str_replace('\\', '/', substr($class, 4)) . '.php';
 });
 $_SESSION = ['csrf' => 'test-token'];
+if (($_POST['search_type'] ?? '') === 'fixture_json_encoding_failure') {
+    (new App\Http\JsonResponse(['suggestions' => [['name' => "\xB1\x31"]]]))->send();
+    return;
+}
 $config = [];
 $visitorId = 'test-visitor';
 $db = new PDO('sqlite::memory:');

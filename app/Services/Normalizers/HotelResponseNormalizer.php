@@ -32,7 +32,6 @@ final class HotelResponseNormalizer
                 'name' => $name,
                 'description' => trim((string)($hotel['description'] ?? '')),
                 'official_url' => NormalizedValue::httpsUrl((string)($hotel['link'] ?? '')),
-                'property_token' => trim((string)($hotel['property_token'] ?? '')),
                 'google_place_id' => trim((string)($hotel['place_id'] ?? $hotel['placeId'] ?? '')),
                 'address' => trim((string)($hotel['address'] ?? '')),
                 'latitude' => $this->coordinate($hotel['gps_coordinates'] ?? [], 'latitude'),

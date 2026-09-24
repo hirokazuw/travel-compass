@@ -93,18 +93,13 @@ final class RakutenTravelService
         ]);
         $raw = curl_exec($curl);
         $status = (int)curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
-        $error = curl_error($curl);
         curl_close($curl);
         if ($raw === false || $status < 200 || $status >= 300) {
-            $errorResponse = is_string($raw) ? json_decode($raw, true) : null;
-            $apiMessage = is_array($errorResponse)
-                ? trim((string)($errorResponse['errors']['errorMessage'] ?? $errorResponse['error_description'] ?? $errorResponse['error'] ?? ''))
-                : '';
-            throw new RuntimeException('Rakuten Travel API failed: HTTP ' . $status . ($apiMessage !== '' ? ' ' . $apiMessage : ' ' . $error));
+            throw new \App\Http\ExternalServiceException('Rakuten Travel API failed.', 'rakuten', $status > 0 ? $status : null);
         }
         $decoded = json_decode($raw, true);
-        if (!is_array($decoded)) throw new RuntimeException('Rakuten Travel API returned invalid JSON.');
-        if (isset($decoded['error'])) throw new RuntimeException('Rakuten Travel API: ' . (string)($decoded['error_description'] ?? $decoded['error']));
+        if (!is_array($decoded)) throw new \App\Http\ExternalServiceException('Rakuten Travel API returned invalid JSON.', 'rakuten', $status);
+        if (isset($decoded['error'])) throw new \App\Http\ExternalServiceException('Rakuten Travel API returned an error response.', 'rakuten', $status);
         return $decoded;
     }
 

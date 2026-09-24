@@ -234,7 +234,12 @@ $t->test('Baseline contains all current tables and no search history rows', func
     $t->true(!str_contains($schema, 'INSERT INTO `hotel_searches`'), 'Hotel history data must not be seeded');
 });
 
+require __DIR__ . '/request-validation.php';
+require __DIR__ . '/json-response.php';
 require __DIR__ . '/search-actions.php';
+require __DIR__ . '/request-log.php';
+require __DIR__ . '/hotel-card-links.php';
+require __DIR__ . '/api-cache.php';
 require __DIR__ . '/controller-factory.php';
 require __DIR__ . '/flight-url-validation.php';
 require __DIR__ . '/normalizer-contract.php';

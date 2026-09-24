@@ -33,6 +33,16 @@ final class SearchController
 
     public function handle(string $method, array $input, string $sessionToken): SearchHtmlResponse|JsonResponse
     {
+        $type = (string)($input['search_type'] ?? 'flight');
+        $feature = $method !== 'POST' ? 'search_page' : (in_array($type, [
+            'flight', 'hotel', 'ferry', 'flight_city_suggestions', 'hotel_destination_suggestions',
+            'ferry_company_suggestions', 'ferry_company_routes', 'ferry_map_data',
+        ], true) ? $type : 'unknown');
+        return \App\Core\RequestLog::scope($feature, fn() => $this->dispatch($method, $input, $sessionToken));
+    }
+
+    private function dispatch(string $method, array $input, string $sessionToken): SearchHtmlResponse|JsonResponse
+    {
         $isPost = $method === 'POST';
         $searchType = (string)($input['search_type'] ?? 'flight');
         if ($isPost && isset($this->jsonActions[$searchType])) {

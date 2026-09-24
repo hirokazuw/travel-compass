@@ -40,7 +40,7 @@ final class FlightSearchService
                 'status' => $offers ? 'success' : 'empty',
             ];
         } catch (\Throwable $e) {
-            error_log('Apify flight search: ' . $e->getMessage());
+            \App\Core\RequestLog::failure('flight.search', $e, 'apify');
             return ['offers' => [], 'status' => 'error'];
         }
     }

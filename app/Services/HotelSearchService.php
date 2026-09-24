@@ -23,6 +23,10 @@ final class HotelSearchService
         return $this->apify->search($destination, $checkIn, $checkOut, $adults, $children);
     }
 
+    /**
+     * Link generation is best-effort per card: keep its data, clear failed links,
+     * and continue processing the remaining cards. Whole-search failures belong to the Action.
+     */
     public function addHotelCardLinks(
         array $hotels,
         string $destination,
@@ -49,7 +53,7 @@ final class HotelSearchService
                     $hotelForLinks, $destination, $checkIn, $checkOut, $adults, $children, $domestic
                 );
             } catch (\Throwable $e) {
-                error_log('Hotel card link generation: ' . $e->getMessage());
+                \App\Core\RequestLog::failure('hotel.card_links', $e);
                 $hotels[$index]['booking_links'] = [];
             }
         }

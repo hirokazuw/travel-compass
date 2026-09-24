@@ -19,7 +19,7 @@ final class SearchView
             'index', 'partials/search-panel', 'partials/flight-search-form',
             'partials/ferry-search-form', 'partials/flight-results',
             'partials/hotel-results', 'partials/ferry-results',
-            'partials/recent-searches', 'partials/search-loading',
+            'partials/recent-searches', 'partials/search-loading', 'partials/service-guide',
         ], true)) {
             throw new \InvalidArgumentException('Unknown search template: ' . $template);
         }

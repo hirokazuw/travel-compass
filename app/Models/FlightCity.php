@@ -166,25 +166,6 @@ final class FlightCity
         return $airports === [] ? $iata : implode(',', $airports);
     }
 
-    /** @return list<array{iata: string, name: string}> */
-    public function airportCandidates(string $city): array
-    {
-        $result = $this->find($city);
-        if ($result === null) return [];
-
-        $iata = strtoupper((string)$result['iata']);
-        $codes = ($result['code_type'] ?? '') === 'metropolitan'
-            ? $this->airportCodes($result['airports'] ?? null)
-            : [$iata];
-        if ($codes === []) $codes = [$iata];
-
-        $name = trim((string)($result['city'] ?? $city));
-        return array_map(
-            static fn(string $code): array => ['iata' => $code, 'name' => $name !== '' ? $name : $code],
-            $codes
-        );
-    }
-
     /** @return list<string> */
     private function airportCodes(mixed $value): array
     {

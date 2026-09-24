@@ -40,7 +40,7 @@ final class FlightSearchAction
                         if ($city['iata'] === $values[$field]) { $label = $city['label']; break; }
                     }
                 } catch (\Throwable $e) {
-                    error_log('Flight history city label: ' . $e->getMessage());
+                    \App\Core\RequestLog::failure('flight.history_label', $e);
                 }
                 $labels[$field] = $label;
                 $historyValues[$field] = $label;
@@ -71,7 +71,7 @@ final class FlightSearchAction
         try {
             $this->searchHistory->createFlight($values, $this->visitorId);
         } catch (\Throwable $e) {
-            error_log('Flight search history write: ' . $e->getMessage());
+            \App\Core\RequestLog::failure('flight.history_write', $e);
         }
     }
 

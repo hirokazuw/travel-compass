@@ -41,7 +41,7 @@ final class SearchPageBuilder implements SearchPageBuilderInterface
         try {
             return $this->searchHistory->recent($this->visitorId);
         } catch (\Throwable $e) {
-            error_log('Recent search history read: ' . $e->getMessage());
+            \App\Core\RequestLog::failure('history.read', $e);
             return [];
         }
     }

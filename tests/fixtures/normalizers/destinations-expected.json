@@ -2,19 +2,11 @@
     {
         "name": "Tokyo",
         "category": "city",
-        "address": "Fixture address",
-        "place_id": "fixture-place",
-        "country_code": "JP",
-        "latitude": 35.5,
-        "longitude": 139.5
+        "address": "Fixture address"
     },
     {
         "name": "Fallback",
         "category": "region",
-        "address": "",
-        "place_id": "fallback-id",
-        "country_code": "",
-        "latitude": null,
-        "longitude": 0.0
+        "address": ""
     }
 ]
